@@ -9,8 +9,7 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const linkClass = (path: string) =>
-    `transition py-1 relative group ${
-      isActive(path) ? 'text-[#EB664E] border-b-2 border-[#EB664E]' : 'text-gray-600 hover:text-[#EB664E] hover:border-b-2 hover:border-[#EB664E]'
+    `transition py-1 relative group ${isActive(path) ? 'text-[#EB664E] border-b-2 border-[#EB664E]' : 'text-gray-600 hover:text-[#EB664E] hover:border-b-2 hover:border-[#EB664E]'
     }`;
 
   return (
@@ -64,7 +63,7 @@ export default function Navbar() {
       </div>
       <div className="flex items-center space-x-6 text-sm">
         <Link href="/login">
-          <button className="bg-[#0A1128] text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 transition">
+          <button className="bg-blue-500 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition">
             Sign In
           </button>
         </Link>
