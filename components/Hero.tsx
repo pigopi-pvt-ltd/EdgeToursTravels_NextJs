@@ -3,21 +3,21 @@ import React from 'react';
 export default function Hero() {
   return (
     <header className="relative h-[600px] flex flex-col items-center justify-center text-center px-4">
-      <div 
+      <div
         className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop')" }}
+        style={{ backgroundImage: "url('/images/hero_bg.jpg')" }}
       >
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#F8F9FA] to-transparent"></div>
       </div>
 
       <div className="relative z-10 mt-16 max-w-4xl">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
+        {/* <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
           Travel with <span className="text-[#FFB800]">Edge Travels</span> Authority.
         </h1>
         <p className="text-lg text-gray-200 mb-10 max-w-2xl mx-auto">
           The world's most refined booking engine for global elites. Seamless transitions from tarmac to penthouse.
-        </p>
+        </p> */}
 
         <div className="bg-white rounded-3xl shadow-2xl p-4 w-full max-w-4xl mx-auto text-left">
           <div className="flex justify-between border-b border-gray-100 pb-2 mb-4 px-4">
