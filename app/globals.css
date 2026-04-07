@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: #00004B;
+  --color-brand-secondary: #ffad1f;
+  --color-brand-accent: #ff4d00;
+  --color-bg-light: #f8fafc;
+  --font-outfit: "Outfit", sans-serif;
+}
+
+@layer base {
+  :root {
+    --brand-primary: 0 0% 29%;
+    --brand-secondary: 35 100% 56%;
+  }
+
+  body {
+    @apply bg-bg-light text-brand-primary font-outfit antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-md border border-white/10;
+  }
+
+  .animate-slow-zoom {
+    animation: slow-zoom 20s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes slow-zoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
