@@ -6,6 +6,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   mobileNumber: string;
   name?: string;
+  role: 'admin' | 'employee';
   createdAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -33,13 +34,18 @@ const UserSchema = new Schema<IUser>({
     type: String,
     trim: true,
   },
+  role: {
+    type: String,
+    enum: ['admin', 'employee'],
+    default: 'employee',
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-// Hash password before saving
 UserSchema.pre('save', async function (this: IUser) {
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);

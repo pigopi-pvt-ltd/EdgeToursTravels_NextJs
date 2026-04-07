@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password, mobileNumber, name } = await request.json();
 
-    // Basic validation
     if (!email || !password || !mobileNumber) {
       return NextResponse.json(
         { error: 'Email, password, and mobile number are required' },
@@ -22,7 +21,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Optional: validate mobile number format
     const mobileRegex = /^[0-9]{10}$/;
     if (!mobileRegex.test(mobileNumber)) {
       return NextResponse.json(
@@ -33,14 +31,10 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    // Check if user already exists by email OR mobile number
     const existingUser = await User.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { mobileNumber: mobileNumber }
-      ]
+      $or: [{ email: email.toLowerCase() }, { mobileNumber }]
     });
-    
+
     if (existingUser) {
       const conflictField = existingUser.email === email.toLowerCase() ? 'Email' : 'Mobile number';
       return NextResponse.json(
@@ -49,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new user
+    // Always create employee (role defaults to 'employee')
     const user = await User.create({
       email: email.toLowerCase(),
       mobileNumber,
@@ -57,7 +51,11 @@ export async function POST(request: NextRequest) {
       name,
     });
 
-    const token = signToken({ userId: user._id.toString(), email: user.email });
+    const token = signToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    });
 
     return NextResponse.json(
       {
@@ -66,6 +64,7 @@ export async function POST(request: NextRequest) {
           email: user.email,
           mobileNumber: user.mobileNumber,
           name: user.name,
+          role: user.role,
           createdAt: user.createdAt,
         },
         token,

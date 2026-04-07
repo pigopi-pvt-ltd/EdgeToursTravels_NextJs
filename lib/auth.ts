@@ -6,7 +6,7 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  mobileNumber: string; 
+  mobileNumber: string;
   name?: string;
 }
 
@@ -14,8 +14,9 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
-    mobileNumber: string; 
+    mobileNumber: string;
     name?: string;
+    role: 'admin' | 'employee';
     createdAt: string;
   };
   token: string;
@@ -32,9 +33,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export async function registerUser(userData: RegisterData): Promise<AuthResponse> {
   const response = await fetch('/api/register', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData),
   });
   return handleResponse<AuthResponse>(response);
@@ -43,9 +42,7 @@ export async function registerUser(userData: RegisterData): Promise<AuthResponse
 export async function loginUser(credentials: LoginCredentials): Promise<AuthResponse> {
   const response = await fetch('/api/login', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(credentials),
   });
   return handleResponse<AuthResponse>(response);
