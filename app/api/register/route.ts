@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { signToken } from '@/lib/jwt';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,12 +44,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Always create employee (role defaults to 'employee')
     const user = await User.create({
       email: email.toLowerCase(),
       mobileNumber,
       password,
       name,
+      role: 'employee',
+    });
+
+    // Send welcome email with credentials
+    await sendEmail({
+      to: email,
+      subject: 'Welcome to Edge Tours – Your Account Details',
+      html: `
+        <h2>Welcome ${name || 'Employee'}!</h2>
+        <p>Your account has been created successfully.</p>
+        <p><strong>Login Credentials:</strong></p>
+        <ul>
+          <li>Email: ${email}</li>
+          <li>Password: ${password}</li>
+        </ul>
+        <p>Please change your password after logging in for security.</p>
+        <p><a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/login">Click here to login</a></p>
+      `,
     });
 
     const token = signToken({

@@ -6,17 +6,12 @@ import { usePathname } from 'next/navigation';
 export default function Navbar() {
   const pathname = usePathname();
 
-  const isActive = (path: string) => {
-    return pathname === path;
-  };
+  const isActive = (path: string) => pathname === path;
 
-  const linkClass = (path: string) => {
-    const active = isActive(path);
-    return ` transition py-1 ${active
-      ? 'text-[#0A1128]'
-      : 'text-gray-600 hover:text-black'
-      }`;
-  };
+  const linkClass = (path: string) =>
+    `transition py-1 ${
+      isActive(path) ? 'text-[#0A1128]' : 'text-gray-600 hover:text-black'
+    }`;
 
   return (
     <nav className="absolute top-0 w-full z-50 flex items-center justify-between px-10 py-6 text-[#0A1128] bg-white">
@@ -29,6 +24,7 @@ export default function Navbar() {
         <Link href="/" className={linkClass('/')}>Home</Link>
         <Link href="/about" className={linkClass('/about')}>About</Link>
 
+        {/* Services dropdown unchanged */}
         <div className="relative group cursor-pointer h-full flex items-center">
           <span className={`transition flex items-center gap-1 py-1 ${pathname.includes('/services') ? 'text-[#0A1128]' : 'text-gray-600 hover:text-black'}`}>
             Services
@@ -69,10 +65,11 @@ export default function Navbar() {
         <Link href="/contact" className={linkClass('/contact')}>ContactUs</Link>
       </div>
       <div className="flex items-center space-x-6 text-sm">
-        {/* <a href="#" className="hover:text-gray-200">Support</a> */}
-        <button className="bg-[#0A1128] text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 transition">
-          Sign In
-        </button>
+        <Link href="/login">
+          <button className="bg-[#0A1128] text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 transition">
+            Sign In
+          </button>
+        </Link>
       </div>
     </nav>
   );
