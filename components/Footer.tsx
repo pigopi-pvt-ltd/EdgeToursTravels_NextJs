@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-100 py-12 px-10 mt-10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1">
-          <h2 className="text-xl font-bold text-[#0A1128] mb-4">Edge Tours and Travels</h2>
+          <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-10 w-auto object-contain mb-4" />
           <p className="text-xs text-gray-400 leading-relaxed">
             Elevating global travel through impeccable service and technological precision since 2014.
           </p>
