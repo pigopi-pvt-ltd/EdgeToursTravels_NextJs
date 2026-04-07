@@ -10,7 +10,7 @@ export default function Hero() {
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
-      <div className="relative z-10 mt-16 max-w-4xl">
+      <div className="relative z-10 mt-120 max-w-4xl">
         {/* <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
           Travel with <span className="text-[#FFB800]">Edge Travels</span> Authority.
         </h1>
@@ -20,7 +20,7 @@ export default function Hero() {
 
         <div className="bg-white rounded-3xl shadow-2xl p-4 w-full max-w-4xl mx-auto text-left">
           <div className="flex justify-between border-b border-gray-100 pb-2 mb-4 px-4">
-            {['Cabs', 'Luxury Cabs', 'Buses', 'Packages'].map((tab, idx) => (
+            {['Cabs', 'Luxury Cabs', 'Suvs', 'Packages'].map((tab, idx) => (
               <button key={tab} className={`flex-1 text-center py-2 text-sm font-semibold ${idx === 0 ? 'text-[#0A1128] border-b-2 border-[#0A1128]' : 'text-gray-400'}`}>
                 {tab}
               </button>
