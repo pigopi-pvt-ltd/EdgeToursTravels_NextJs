@@ -30,8 +30,9 @@ export default function TravelGuide() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="relative rounded-[3rem] overflow-hidden shadow-2xl aspect-[4/3] group">
           <img 
-            src="https://images.unsplash.com/photo-1540206351-d6465b3ac5c1?auto=format&fit=crop&q=80&w=2070" 
-            alt="Tropical Resort" 
+            src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2070" 
+            alt="Edge Luxury Bus" 
+            loading="eager"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
           />
         </div>

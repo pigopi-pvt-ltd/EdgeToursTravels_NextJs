@@ -9,7 +9,7 @@ const OFFERS = [
   {
     title: 'Luxury & Corporate Bus Rentals',
     desc: 'Comfortable buses for group travel, tours and charter events.',
-    img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop'
+    img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2070'
   },
   {
     title: 'Wedding Transportation Solutions',

@@ -30,7 +30,7 @@ export default function FAQ() {
           </div>
 
           <div className="relative rounded-[2rem] overflow-hidden shadow-2xl h-[400px] lg:h-full min-h-[400px]">
-            <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop" alt="Company Bus and Staff" className="w-full h-full object-cover" />
+            <img src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&q=80&w=2071" alt="Company Bus and Staff" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
           </div>
         </div>
