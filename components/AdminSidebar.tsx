@@ -57,10 +57,10 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-64 h-screen bg-slate-900 text-white flex flex-col fixed left-0 top-0 shadow-xl z-50">
-      <div className="p-6 border-b border-slate-800">
-        <h2 className="text-xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent italic">
-          TOURS & TRAVELS
-        </h2>
+       <div className="p-6 border-b border-slate-800">
+        <Link href="/">
+          <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-10 w-auto object-contain cursor-pointer mx-auto" />
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">

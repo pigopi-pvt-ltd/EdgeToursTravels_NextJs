@@ -33,14 +33,35 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-        <p>© 2026 Edge Tours and Travels. All rights reserved.</p>
-        <div className="flex space-x-4">
-           <a href="#" className="hover:text-black">IG</a>
-           <a href="#" className="hover:text-black">TW</a>
-           <a href="#" className="hover:text-black">IN</a>
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500">
+
+  {/* Left */}
+  <p>© 2026 Edge Tours and Travels. All rights reserved.</p>
+
+  {/* Right */}
+  <div className="flex items-center space-x-6">
+
+    <a href="#" className="hover:text-black">Privacy Policy</a>
+    <a href="#" className="hover:text-black">Terms and Conditions</a>
+
+    {/* Separator */}
+    <span className="text-gray-300">|</span>
+
+    {/* Powered By */}
+    <p className="uppercase tracking-wide text-gray-400">
+      Powered by{" "}
+      <a
+        href="https://pigo-pi.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-bold text-violet-500 normal-case"
+      >
+       <span className="font-bold text-#2B0057-500 text-sm">PigoPi</span>
+      </a>
+    </p>
+
+  </div>
+</div>
     </footer>
   );
 }

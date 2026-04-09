@@ -82,3 +82,39 @@ export function getStoredUser(): AuthResponse['user'] | null {
   }
   return null;
 }
+
+export async function updateProfile(name: string) {
+  const token = getAuthToken();
+  const res = await fetch('/api/user/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name }),
+  });
+  return res.json();
+}
+
+export async function getDriverDetails() {
+  const token = getAuthToken();
+  const res = await fetch('/api/user/driver-details', { headers: { Authorization: `Bearer ${token}` } });
+  return res.json();
+}
+
+export async function updateDriverDetails(details: any) {
+  const token = getAuthToken();
+  const res = await fetch('/api/user/driver-details', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(details),
+  });
+  return res.json();
+}
+
+export async function submitKYC(formData: FormData) {
+  const token = getAuthToken();
+  const res = await fetch('/api/user/kyc', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+  return res.json();
+}

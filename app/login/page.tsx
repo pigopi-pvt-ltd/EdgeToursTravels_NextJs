@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginUser, registerUser, storeAuthData } from '@/lib/auth';
+import Link from 'next/link';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -27,13 +28,13 @@ export default function AuthPage() {
         if (response.user.role === 'admin') {
           router.push('/admin-dashboard');
         } else {
-          router.push('/employee-dashboard');   // ✅ fixed
+          router.push('/employee-dashboard');
         }
       } else {
         response = await registerUser({ email, password, mobileNumber, name });
         storeAuthData(response.token, response.user);
         alert('Registration successful! You are now logged in.');
-        router.push('/employee-dashboard');     // ✅ fixed
+        router.push('/employee-dashboard');
       }
     } catch (err: any) {
       setError(err.message);
@@ -45,6 +46,13 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white rounded-2xl shadow-2xl p-8 transform transition-all hover:scale-[1.01]">
+        {/* Logo */}
+        <div className="flex justify-center">
+          <Link href="/">
+            <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-12 w-auto object-contain cursor-pointer" />
+          </Link>
+        </div>
+
         <div className="text-center">
           <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
             {isLogin ? 'Welcome Back' : 'Create Account'}
