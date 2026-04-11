@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, use } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { HiMapPin, HiCalendarDays, HiUser, HiPhone, HiChevronRight, HiCheckCircle, HiShieldCheck, HiCurrencyDollar, HiClock, HiSparkles } from 'react-icons/hi2';
+import { HiMapPin, HiCalendarDays, HiUser, HiPhone, HiChevronRight, HiCheckCircle, HiShieldCheck, HiCurrencyDollar, HiClock, HiSparkles, HiXMark } from 'react-icons/hi2';
+import { submitBooking, BookingFormData } from '@/lib/bookForm';
 
 const VEHICLE_DATA: Record<string, any> = {
     'swift-dzire': {
@@ -69,12 +71,54 @@ const VEHICLE_DATA: Record<string, any> = {
 };
 
 export default function VehicleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+    const router = useRouter();
     const resolvedParams = use(params);
     const slug = resolvedParams.slug;
     const vehicle = VEHICLE_DATA[slug] || VEHICLE_DATA['swift-dzire']; // Default to swift-dzire if not found
 
     const [activeImage, setActiveImage] = useState(0);
     const [activeTab, setActiveTab] = useState('rental');
+
+    // Booking Form State
+    const [formData, setFormData] = useState<BookingFormData>({
+        from: '',
+        destination: '',
+        dateTime: '',
+        name: '',
+        contact: '',
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+        type: null,
+        message: '',
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setStatus({ type: null, message: '' });
+
+        try {
+            const result = await submitBooking(formData);
+            if (result.success) {
+                setStatus({ type: 'success', message: result.message });
+                setFormData({ from: '', destination: '', dateTime: '', name: '', contact: '' });
+                // Redirect to admin bookings page
+                router.push('/admin-dashboard/bookings');
+            } else {
+                setStatus({ type: 'error', message: result.message });
+            }
+        } catch (error) {
+            setStatus({ type: 'error', message: 'Something went wrong. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-gray-50">
@@ -124,26 +168,49 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ slug: 
                             
                             <h3 className="text-2xl font-black uppercase tracking-widest mb-8 border-b border-white/10 pb-4">Book Your Ride</h3>
                             
-                            <form className="space-y-5">
+                            <form className="space-y-5" onSubmit={handleSubmit}>
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 flex items-center gap-2">
                                         <HiMapPin className="text-[#EB664E]" /> From (City / Airport)
                                     </label>
-                                    <input type="text" placeholder="Enter pick-up location" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" />
+                                    <input 
+                                        type="text" 
+                                        name="from"
+                                        value={formData.from}
+                                        onChange={handleChange}
+                                        placeholder="Enter pick-up location" 
+                                        required
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" 
+                                    />
                                 </div>
                                 
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 flex items-center gap-2">
                                         <HiMapPin className="text-blue-400" /> Destination
                                     </label>
-                                    <input type="text" placeholder="Enter drop-off location" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" />
+                                    <input 
+                                        type="text" 
+                                        name="destination"
+                                        value={formData.destination}
+                                        onChange={handleChange}
+                                        placeholder="Enter drop-off location" 
+                                        required
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" 
+                                    />
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 flex items-center gap-2">
                                         <HiCalendarDays className="text-[#EB664E]" /> Date & Time
                                     </label>
-                                    <input type="datetime-local" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" />
+                                    <input 
+                                        type="datetime-local" 
+                                        name="dateTime"
+                                        value={formData.dateTime}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all appearance-none" 
+                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -151,19 +218,45 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ slug: 
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 flex items-center gap-2">
                                             <HiUser className="text-[#EB664E]" /> Name
                                         </label>
-                                        <input type="text" placeholder="Your name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" />
+                                        <input 
+                                            type="text" 
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            placeholder="Your name" 
+                                            required
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" 
+                                        />
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 flex items-center gap-2">
                                             <HiPhone className="text-[#EB664E]" /> Contact
                                         </label>
-                                        <input type="tel" placeholder="Phone number" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" />
+                                        <input 
+                                            type="tel" 
+                                            name="contact"
+                                            value={formData.contact}
+                                            onChange={handleChange}
+                                            placeholder="Phone number" 
+                                            required
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10 outline-none transition-all" 
+                                        />
                                     </div>
                                 </div>
 
-                                <button type="submit" className="w-full py-5 bg-[#EB664E] hover:bg-[#d55a45] text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-orange-500/30 transition-all transform hover:scale-[1.02] active:scale-95 group flex items-center justify-center gap-3 mt-4">
-                                    <span>Submit Request</span>
-                                    <HiChevronRight className="group-hover:translate-x-1 transition-transform" />
+                                {status.message && (
+                                    <div className={`text-xs font-bold text-center p-3 rounded-xl ${status.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                        {status.message}
+                                    </div>
+                                )}
+
+                                <button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full py-5 bg-[#EB664E] hover:bg-[#d55a45] text-white rounded-2xl font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-orange-500/30 transition-all transform hover:scale-[1.02] active:scale-95 group flex items-center justify-center gap-3 mt-4 disabled:opacity-70"
+                                >
+                                    <span>{isSubmitting ? 'Sending...' : 'Submit Request'}</span>
+                                    {!isSubmitting && <HiChevronRight className="group-hover:translate-x-1 transition-transform" />}
                                 </button>
                             </form>
                         </div>

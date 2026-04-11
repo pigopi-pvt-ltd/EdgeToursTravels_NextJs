@@ -9,7 +9,12 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes
-  if (pathname === '/login' || pathname === '/api/login' || pathname === '/api/register') {
+  if (
+    pathname === '/login' || 
+    pathname === '/api/login' || 
+    pathname === '/api/register' ||
+    (pathname === '/api/admin/book-form' && request.method === 'POST')
+  ) {
     return NextResponse.next();
   }
 

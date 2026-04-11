@@ -27,6 +27,7 @@ const adminItems = [
   { name: 'Review', icon: HiOutlineStar, href: '/admin-dashboard/reviews' },
   { name: 'Price', icon: HiOutlineCurrencyDollar, href: '/admin-dashboard/price' },
   { name: 'Government/Private', icon: HiOutlineBriefcase, href: '/admin-dashboard/type' },
+  { name: 'Bookings', icon: HiOutlineCalendar, href: '/admin-dashboard/bookings' },
 ];
 
 const employeeItems = [
@@ -57,7 +58,7 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-64 h-screen bg-slate-900 text-white flex flex-col fixed left-0 top-0 shadow-xl z-50">
-       <div className="p-6 border-b border-slate-800">
+      <div className="p-6 border-b border-slate-800">
         <Link href="/">
           <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-10 w-auto object-contain cursor-pointer mx-auto" />
         </Link>
