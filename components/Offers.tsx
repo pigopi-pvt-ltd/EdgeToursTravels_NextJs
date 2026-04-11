@@ -1,77 +1,70 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
+import Link from 'react-router-dom';
+import { HiArrowRight, HiStar, HiChevronRight } from 'react-icons/hi2';
+import { getAllVehicles } from '@/lib/fleetData';
 
-export default function Offers() {
-  return (
-    <>
-      {/* 
-      <section className="max-w-7xl mx-auto px-6 py-20 relative z-20">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Executive Transport</h4>
-            <h2 className="text-3xl font-bold text-[#0A1128]">Government & VIP Fleets</h2>
-          </div>
-          <a href="#" className="text-sm font-semibold text-gray-600 hover:text-black flex items-center">
-            View All Vehicles <span className="ml-2">→</span>
-          </a>
-        </div>
+export default function FleetShowcase() {
+    // Select a few premium vehicles for showcase
+    const showcaseVehicles = getAllVehicles().filter(v => 
+        ['swift-dzire', 'fortuner', 'innova-crysta', 'e-class', 'tempo-traveller', 'ioniq-5'].includes(v.slug)
+    );
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="relative h-96 rounded-3xl overflow-hidden group cursor-pointer shadow-lg">
-            <img src="https://static3.toyotabharat.com/images/showroom/innova-hycross/comfort-img1.webp" alt="Innova Hycross" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute top-4 left-4 bg-[#FFB800] text-black text-xs font-bold px-3 py-1 rounded-full">MINISTRY SPECIAL</div>
-            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end text-white">
-              <div>
-                <p className="text-xs font-medium mb-1">Monthly Retainer</p>
-                <h3 className="text-xl font-bold">Delhi NCR Executive Fleet</h3>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] uppercase opacity-80">Starting</p>
-                <p className="font-bold text-lg">Rs 45,000/mo</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative h-96 rounded-3xl overflow-hidden group cursor-pointer shadow-lg bg-white border border-gray-100">
-            <div className="h-1/2 relative overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070&auto=format&fit=crop" alt="Indian Premium Sedan Exterior" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-              <div className="absolute top-4 left-4 bg-[#0A1128] text-white text-xs font-bold px-3 py-1 rounded-full">EDGE FLEET</div>
-            </div>
-            <div className="p-6 flex flex-col justify-between h-1/2">
-              <div>
-                <h3 className="text-xl font-bold text-[#0A1128] mb-2">Inter-State VIP Transfers</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">Book 10 inter-city transfers between Lucknow and Delhi, and receive Rs 2500 credit toward your next ride.</p>
-              </div>
-              <div className="flex justify-between items-end">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Wallet Credit</p>
-                <p className="font-bold text-xl text-[#0A1128]">Rs 2500</p>
-              </div>
-            </div>
-          </div>
-
-          <Link href="/fleet/sedans/swift-dzire" className="relative h-96 rounded-3xl overflow-hidden group cursor-pointer shadow-lg block">
-            <img src="https://www.mercedes-benz.co.in/content/dam/hq/passengercars/cars/s-class/s-class-saloon-long-v223-pi/overview/spa-highlight/02-2025/images/mercedes-benz-s-class-v223-spa-rear-compartment-2400x2400-02-2025.jpg?im=Resize,width=1014" alt="Luxury Prime Sedan Interior Rear Seat" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-            <div className="absolute top-4 left-4 bg-[#EB664E] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Premium Choice</div>
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-xs font-medium mb-1 text-gray-300">Comfort Priority</p>
-              <h3 className="text-xl font-bold text-white mb-3">Prime Sedan Upgrades</h3>
-              <div className="flex justify-between items-end text-white border-t border-white/20 pt-3">
-                <div className="w-2/3">
-                   <p className="text-xs text-gray-300 leading-snug mb-2">Experience unmatched legroom and verified comfort on all Swift Dzire bookings.</p>
-                   <span className="inline-block text-[10px] font-black uppercase tracking-[0.2em] text-[#EB664E] group-hover:translate-x-1 transition-transform">View Vehicle →</span>
+    return (
+        <section className="py-24 bg-white overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div className="space-y-4">
+                        <span className="text-[#EB664E] font-black uppercase tracking-[0.3em] text-[10px]">Premium Selection</span>
+                        <h2 className="text-4xl md:text-5xl font-black text-[#0A1128] uppercase tracking-tighter">Explore Our <span className="text-[#EB664E]">Verified</span> Fleet</h2>
+                    </div>
+                    <a href="/fleet/sedans" className="group flex items-center gap-3 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-[#EB664E] transition-colors">
+                        View Full Fleet <HiArrowRight className="group-hover:translate-x-2 transition-transform" />
+                    </a>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] uppercase opacity-80 text-gray-300">Status</p>
-                  <p className="font-bold text-white">Verified</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {showcaseVehicles.map((vehicle) => (
+                        <a 
+                            href={`/fleet/${vehicle.category}/${vehicle.slug}`} 
+                            key={vehicle.slug}
+                            className="group bg-gray-50 rounded-[2.5rem] overflow-hidden border border-transparent hover:border-[#EB664E]/20 hover:bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col"
+                        >
+                            <div className="relative aspect-[16/10] overflow-hidden">
+                                <img 
+                                    src={vehicle.images[0]} 
+                                    alt={vehicle.name}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-[#0A1128] shadow-sm">
+                                    {vehicle.type}
+                                </div>
+                            </div>
+                            
+                            <div className="p-8 flex-1 flex flex-col">
+                                <div className="flex items-center gap-1 mb-3 text-orange-400">
+                                    {[...Array(5)].map((_, i) => <HiStar key={i} className="w-3 h-3 fill-current" />)}
+                                </div>
+                                
+                                <h3 className="text-xl font-black text-[#0A1128] uppercase tracking-tight mb-2 group-hover:text-[#EB664E] transition-colors">{vehicle.name}</h3>
+                                <p className="text-gray-500 text-xs font-medium mb-6 line-clamp-2">{vehicle.tagline}</p>
+                                
+                                <div className="mt-auto pt-6 border-t border-gray-100 flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Rate Starts</span>
+                                        <span className="text-[#0A1128] font-black text-base">{vehicle.price}</span>
+                                    </div>
+                                    
+                                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#0A1128] group-hover:bg-[#EB664E] group-hover:text-white transition-all transform group-hover:rotate-45 shadow-sm">
+                                        <HiChevronRight className="text-lg" />
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    ))}
                 </div>
-              </div>
             </div>
-          </Link>
-        </div>
-      </section>
-      */}
-    </>
-  );
+        </section>
+    );
 }
