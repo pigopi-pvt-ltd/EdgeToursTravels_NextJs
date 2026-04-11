@@ -14,6 +14,6 @@ export async function GET(request: NextRequest) {
   }
 
   await connectToDatabase();
-  const employees = await User.find({ role: 'employee' }).select('-password');
+  const employees = await User.find({ role: 'driver' }).select('-password');
   return NextResponse.json({ employees });
 }

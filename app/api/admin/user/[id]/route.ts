@@ -1,70 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
-import { getAuthToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/jwt';
 
-// GET a single user by ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  await connectToDatabase();
-  const { id } = await params;
-
-  try {
-    const user = await User.findById(id).select('-password');
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-    return NextResponse.json({ success: true, user });
-  } catch (error) {
-    console.error('GET user error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  }
-}
-
-// UPDATE a user by ID
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  await connectToDatabase();
-  const { id } = await params;
-  const body = await request.json();
-
   try {
-    const updatedUser = await User.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    }).select('-password');
-
-    if (!updatedUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    const token = request.headers.get('authorization')?.split(' ')[1];
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const payload = verifyToken(token);
+    if (!payload || payload.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true, user: updatedUser });
-  } catch (error) {
-    console.error('PUT user error:', error);
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
-  }
-}
+    await connectToDatabase();
+    const { id } = await params;
+    const user = await User.findById(id);
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-// DELETE a user by ID
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  await connectToDatabase();
-  const { id } = await params;
+    const { name, mobileNumber, role, driverDetails } = await request.json();
 
-  try {
-    const deletedUser = await User.findByIdAndDelete(id);
-    if (!deletedUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (name !== undefined) user.name = name;
+    if (mobileNumber !== undefined) user.mobileNumber = mobileNumber;
+    if (role !== undefined) user.role = role;
+    if (driverDetails !== undefined) {
+      user.driverDetails = { ...(user.driverDetails || {}), ...driverDetails };
     }
-    return NextResponse.json({ success: true, message: 'User deleted' });
+    await user.save();
+    return NextResponse.json({ success: true, user });
   } catch (error) {
-    console.error('DELETE user error:', error);
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    console.error('Update user error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

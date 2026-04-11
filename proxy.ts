@@ -46,7 +46,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/employee')) {
     if (!token) return NextResponse.redirect(new URL('/login', request.url));
     const payload = verifyToken(token);
-    if (!payload || payload.role !== 'employee') {
+    if (!payload || payload.role !== 'driver') {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

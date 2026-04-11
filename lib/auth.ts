@@ -10,7 +10,7 @@ export interface RegisterData {
   password: string;
   mobileNumber: string;
   name?: string;
-  role?: 'admin' | 'employee' | 'driver';
+  role?: 'admin' | 'driver';
 }
 
 export interface AuthResponse {
@@ -19,7 +19,7 @@ export interface AuthResponse {
     email: string;
     mobileNumber: string;
     name?: string;
-    role: 'admin' | 'employee' | 'driver';
+    role: 'admin' | 'driver';
     createdAt: string;
   };
   token: string;

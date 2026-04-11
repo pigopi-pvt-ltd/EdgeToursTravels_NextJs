@@ -11,19 +11,16 @@ export interface IDriverDetails {
   vehicleMake?: string;
   vehicleModel?: string;
   vehicleYear?: number;
-  // KYC documents
   aadhaarFront?: string;
   aadhaarBack?: string;
   drivingLicenseImage?: string;
   vehicleRCImage?: string;
   insuranceImage?: string;
   pucImage?: string;
-  // Bank details
   accountHolderName?: string;
   bankName?: string;
   accountNumber?: string;
   ifscCode?: string;
-  // Verification status
   kycStatus?: 'pending' | 'submitted' | 'approved' | 'rejected';
   rejectionReason?: string;
 }
@@ -33,7 +30,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   mobileNumber: string;
   name?: string;
-  role: 'admin' | 'employee' | 'driver';
+  role: 'admin' | 'driver' ;   // only admin and driver
   profileCompleted: boolean;
   driverDetails?: IDriverDetails;
   createdAt: Date;
@@ -70,7 +67,7 @@ const UserSchema = new Schema<IUser>({
   mobileNumber: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
   name: { type: String, trim: true },
-  role: { type: String, enum: ['admin', 'employee', 'driver'], default: 'employee' },
+  role: { type: String, enum: ['admin', 'driver'], default: 'driver' }, // ✅ default driver
   profileCompleted: { type: Boolean, default: false },
   driverDetails: DriverDetailsSchema,
   createdAt: { type: Date, default: Date.now },
@@ -85,6 +82,7 @@ UserSchema.pre('save', async function (this: IUser) {
 });
 
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  // if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 
