@@ -11,6 +11,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Edge Tours and Travels",
   description: "The world's most refined booking engine for global elites.",
+  icons: {
+    icon: "/vercel.png",
+  },
 };
 
 export default function RootLayout({
