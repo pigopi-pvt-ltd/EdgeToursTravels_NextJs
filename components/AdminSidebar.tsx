@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   HiOutlineViewGrid,
   HiOutlineUsers,
@@ -17,11 +17,10 @@ import {
   HiOutlineCog
 } from 'react-icons/hi';
 import { clearAuthData, getStoredUser } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
 
 const adminItems = [
   { name: 'Dashboard', icon: HiOutlineViewGrid, href: '/admin-dashboard' },
-  // { name: 'Drivers', icon: HiOutlineUsers, href: '/admin-dashboard/drivers' },
+  { name: 'Drivers', icon: HiOutlineUsers, href: '/admin-dashboard/drivers' },
   { name: 'Availability', icon: HiOutlineCalendar, href: '/admin-dashboard/availability' },
   { name: 'Manage Employee', icon: HiOutlineUserGroup, href: '/admin-dashboard/employees' },
   { name: 'Review', icon: HiOutlineStar, href: '/admin-dashboard/reviews' },
@@ -43,10 +42,11 @@ export default function AdminSidebar() {
 
   React.useEffect(() => {
     const user = getStoredUser();
-    if (user?.role === 'employee') {
+    // ✅ Fix: role is either 'admin' or 'driver' (not 'employee')
+    if (user?.role === 'driver') {
       setItems(employeeItems);
     } else {
-      setItems(adminItems);
+      setItems(adminItems); // default for admin or any other role
     }
   }, []);
 
@@ -57,7 +57,7 @@ export default function AdminSidebar() {
 
   return (
     <aside className="w-64 h-screen bg-slate-900 text-white flex flex-col fixed left-0 top-0 shadow-xl z-50">
-       <div className="p-6 border-b border-slate-800">
+      <div className="p-6 border-b border-slate-800">
         <Link href="/">
           <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-10 w-auto object-contain cursor-pointer mx-auto" />
         </Link>
@@ -71,10 +71,11 @@ export default function AdminSidebar() {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-6 py-3 transition-all duration-200 group ${isActive
-                    ? 'bg-orange-500/10 text-orange-400 border-r-4 border-orange-500'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                    }`}
+                  className={`flex items-center gap-3 px-6 py-3 transition-all duration-200 group ${
+                    isActive
+                      ? 'bg-orange-500/10 text-orange-400 border-r-4 border-orange-500'
+                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  }`}
                 >
                   <item.icon className={`text-xl ${isActive ? 'text-orange-400' : 'group-hover:text-white'}`} />
                   <span className="font-medium">{item.name}</span>

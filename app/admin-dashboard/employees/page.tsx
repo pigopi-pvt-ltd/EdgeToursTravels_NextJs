@@ -1,409 +1,430 @@
+// app/admin-dashboard/employees/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { getAuthToken } from '@/lib/auth';
-import { HiSearch, HiPlus, HiOutlineEye } from 'react-icons/hi';
+import { 
+  HiSearch, 
+  HiPlus, 
+  HiOutlineEye,
+  HiX,
+  HiClipboardCopy,
+  HiCheck
+} from 'react-icons/hi';
+import UserDetailsModal from './UserDetailsModal';
 
-function EmployeesPage() {
-  const [employees, setEmployees] = useState<any[]>([]);
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  role: 'admin' | 'employee' | 'driver';
+  driverDetails?: { kycStatus?: string };
+  profileCompleted?: boolean;
+}
+
+export default function EmployeesPage() {
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDriver, setIsDriver] = useState(false);
-  const [newEmployee, setNewEmployee] = useState({
-    email: '',
-    mobileNumber: '',
-    name: '',
-    // Driver-specific fields
-    fullName: '',
-    dateOfBirth: '',
-    drivingLicenseNumber: '',
-    dlExpiryDate: '',
-    vehicleRegNumber: '',
-    vehicleType: 'car',
-    vehicleMake: '',
-    vehicleModel: '',
-    vehicleYear: '',
-    accountHolderName: '',
-    bankName: '',
-    accountNumber: '',
-    ifscCode: '',
+  const [newUser, setNewUser] = useState({
+    email: '', mobileNumber: '', name: '',
+    fullName: '', dateOfBirth: '', drivingLicenseNumber: '', dlExpiryDate: '',
+    vehicleRegNumber: '', vehicleType: 'car', vehicleMake: '', vehicleModel: '', vehicleYear: '',
+    accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '',
   });
   const [message, setMessage] = useState('');
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const formatName = (name: string) => {
-    return name
-      .toLowerCase()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
-  const fetchEmployees = async () => {
+  const fetchUsers = async () => {
     try {
       const token = getAuthToken();
       const res = await fetch('/api/admin/employees', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok && data.employees && data.employees.length > 0) {
-        const enhancedEmployees = data.employees.map((emp: any) => ({
-          ...emp,
-          username: emp.username || emp.name?.toLowerCase().replace(/\s+/g, ''),
-          role: emp.role || 'Employee',
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.name}`,
-          status: 'Active',
-        }));
-        setEmployees(enhancedEmployees);
-      } else if (res.ok) {
-        setEmployees([]);
-      }
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-    }
+      if (res.ok && data.employees) setUsers(data.employees);
+    } catch (error) { console.error(error); }
+    finally { setLoading(false); }
   };
 
-  const handleCreateEmployee = async (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setCreating(true);
     setMessage('');
-
+    setTempPassword(null);
+    setCopySuccess(false);
     const token = getAuthToken();
-    let payload: any = {
-      email: newEmployee.email,
-      mobileNumber: newEmployee.mobileNumber,
-      name: newEmployee.name,
+    const payload: any = {
+      email: newUser.email,
+      mobileNumber: newUser.mobileNumber,
+      name: newUser.name,
+      role: isDriver ? 'driver' : 'employee',
     };
-
     if (isDriver) {
-      payload.role = 'driver';
       payload.driverDetails = {
-        fullName: newEmployee.fullName,
-        dateOfBirth: newEmployee.dateOfBirth,
-        drivingLicenseNumber: newEmployee.drivingLicenseNumber,
-        dlExpiryDate: newEmployee.dlExpiryDate,
-        vehicleRegNumber: newEmployee.vehicleRegNumber,
-        vehicleType: newEmployee.vehicleType,
-        vehicleMake: newEmployee.vehicleMake,
-        vehicleModel: newEmployee.vehicleModel,
-        vehicleYear: newEmployee.vehicleYear ? parseInt(newEmployee.vehicleYear as any) : undefined,
-        accountHolderName: newEmployee.accountHolderName,
-        bankName: newEmployee.bankName,
-        accountNumber: newEmployee.accountNumber,
-        ifscCode: newEmployee.ifscCode,
+        fullName: newUser.fullName,
+        dateOfBirth: newUser.dateOfBirth,
+        drivingLicenseNumber: newUser.drivingLicenseNumber,
+        dlExpiryDate: newUser.dlExpiryDate,
+        vehicleRegNumber: newUser.vehicleRegNumber,
+        vehicleType: newUser.vehicleType,
+        vehicleMake: newUser.vehicleMake,
+        vehicleModel: newUser.vehicleModel,
+        vehicleYear: newUser.vehicleYear ? parseInt(newUser.vehicleYear) : undefined,
+        accountHolderName: newUser.accountHolderName,
+        bankName: newUser.bankName,
+        accountNumber: newUser.accountNumber,
+        ifscCode: newUser.ifscCode,
       };
-    } else {
-      payload.role = 'employee';
     }
-
     try {
       const res = await fetch('/api/admin/create-employee', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage(`Success! Temporary password: ${data.temporaryPassword}`);
-        setNewEmployee({
-          email: '',
-          mobileNumber: '',
-          name: '',
-          fullName: '',
-          dateOfBirth: '',
-          drivingLicenseNumber: '',
-          dlExpiryDate: '',
-          vehicleRegNumber: '',
-          vehicleType: 'car',
-          vehicleMake: '',
-          vehicleModel: '',
-          vehicleYear: '',
-          accountHolderName: '',
-          bankName: '',
-          accountNumber: '',
-          ifscCode: '',
+        setTempPassword(data.temporaryPassword);
+        setMessage(`User created successfully!`);
+        setNewUser({
+          email: '', mobileNumber: '', name: '',
+          fullName: '', dateOfBirth: '', drivingLicenseNumber: '', dlExpiryDate: '',
+          vehicleRegNumber: '', vehicleType: 'car', vehicleMake: '', vehicleModel: '', vehicleYear: '',
+          accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '',
         });
         setIsDriver(false);
-        fetchEmployees();
-        setTimeout(() => {
-          setIsModalOpen(false);
+        fetchUsers();
+        setTimeout(() => { 
+          setIsModalOpen(false); 
           setMessage('');
-        }, 3000);
+          setTempPassword(null);
+        }, 4000);
       } else {
         setMessage(`Error: ${data.error}`);
       }
-    } catch (err) {
-      setMessage('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
+    } catch (err) { setMessage('Something went wrong. Please try again.'); }
+    finally { setCreating(false); }
+  };
+
+  const copyPasswordToClipboard = async () => {
+    if (tempPassword) {
+      await navigator.clipboard.writeText(tempPassword);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
     }
   };
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const getInitials = (name: string) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : '?';
+  const formatName = (name: string) => name ? name.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : '';
+
+  const filteredUsers = users.filter(u =>
+    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.mobileNumber.includes(searchTerm)
   );
 
-  return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
-      <div className="bg-white border-b border-slate-200 overflow-hidden">
-        {/* Header Toolbar */}
-        <div className="bg-[#f8f9fa] py-2 px-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            Users <span className="text-slate-400 font-normal">({employees.length})</span>
-          </h2>
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6 animate-pulse">
+        <div className="flex justify-between items-center">
+          <div className="h-8 w-48 bg-slate-200 rounded-lg"></div>
+          <div className="flex gap-3">
+            <div className="h-10 w-64 bg-slate-200 rounded-lg"></div>
+            <div className="h-10 w-32 bg-slate-200 rounded-lg"></div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="h-96 bg-gradient-to-b from-slate-50 to-white"></div>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full md:w-64">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 -mt-8 -mx-8 animate-in fade-in duration-500">
+      <div className="p-6 lg:p-8">
+        {/* Header Section */}
+        <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              Team Management
+            </h1>
+            <p className="text-slate-500 mt-1 text-sm">Manage employees, drivers, and their access</p>
+          </div>
+          <button 
+            onClick={() => setIsModalOpen(true)} 
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <HiPlus className="text-lg" /> Add New User
+          </button>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-100 border border-slate-100 overflow-hidden transition-all duration-300">
+          {/* Search Bar */}
+          <div className="p-4 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+            <div className="relative max-w-md">
               <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder="Search by name, email or mobile..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all text-sm"
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all text-sm"
               />
             </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 bg-[#48bb78] hover:bg-[#38a169] text-white px-4 py-2 rounded-md font-bold text-sm transition-colors whitespace-nowrap shadow-sm"
-            >
-              <HiPlus className="w-5 h-5" /> Add User
-            </button>
           </div>
-        </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-white border-b border-slate-200">
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700 border-r border-slate-200">Name</th>
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700 border-r border-slate-200">Username</th>
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700 border-r border-slate-200">Email</th>
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700 border-r border-slate-200">Role</th>
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700 border-r border-slate-200">Status</th>
-                <th className="px-6 py-2 text-left text-[13px] font-bold text-slate-700">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredEmployees.map((emp: any) => (
-                <tr key={emp._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-1.5 text-sm font-medium text-slate-800 border-r border-slate-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-green-100 text-green-700 font-bold text-xs ring-1 ring-green-200 flex-shrink-0">
-                        {getInitials(emp.name)}
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-slate-50/80 border-b border-slate-100">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">KYC Status</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredUsers.map((user, idx) => (
+                  <tr 
+                    key={user._id} 
+                    className="group hover:bg-indigo-50/30 transition-colors duration-150"
+                    style={{ animationDelay: `${idx * 30}ms` }}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 font-bold text-sm flex items-center justify-center shadow-sm">
+                          {getInitials(user.name)}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-800">{formatName(user.name)}</div>
+                          <div className="text-xs text-slate-400">{user.email}</div>
+                        </div>
                       </div>
-                      <span className="truncate">{formatName(emp.name)}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-1.5 text-sm text-slate-600 border-r border-slate-200">{emp.username}</td>
-                  <td className="px-6 py-1.5 text-sm text-slate-600 border-r border-slate-200">{emp.email}</td>
-                  <td className="px-6 py-1.5 text-sm text-slate-600 font-medium border-r border-slate-200">{emp.role}</td>
-                  <td className="px-6 py-1.5 text-sm border-r border-slate-200">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${emp.status === 'Active' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
-                      {emp.status || 'Active'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-1.5 text-sm text-center">
-                    <button className="p-1.5 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-all duration-200" title="View Details">
-                      <HiOutlineEye className="text-xl" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredEmployees.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-8 py-12 text-center text-slate-400 bg-white">
-                    <p className="text-lg">No users found</p>
-                    <p className="text-sm">Try adjusting your search filters</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600 font-mono">
+                      {user.mobileNumber}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`
+                        inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize
+                        ${user.role === 'admin' ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' : ''}
+                        ${user.role === 'employee' ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200' : ''}
+                        ${user.role === 'driver' ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' : ''}
+                      `}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {user.role === 'driver' ? (
+                        <span className={`
+                          inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize
+                          ${user.driverDetails?.kycStatus === 'approved' ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200' : ''}
+                          ${user.driverDetails?.kycStatus === 'rejected' ? 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' : ''}
+                          ${user.driverDetails?.kycStatus === 'submitted' ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' : ''}
+                          ${!user.driverDetails?.kycStatus || user.driverDetails?.kycStatus === 'pending' ? 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' : ''}
+                        `}>
+                          {user.driverDetails?.kycStatus || 'pending'}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        onClick={() => setSelectedUserId(user._id)} 
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-200 group-hover:scale-105"
+                        title="View Details"
+                      >
+                        <HiOutlineEye className="text-xl" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filteredUsers.length === 0 && (
+              <div className="text-center py-16">
+                <div className="text-slate-300 text-5xl mb-3">👥</div>
+                <p className="text-slate-500 font-medium">No users found</p>
+                <p className="text-slate-400 text-sm mt-1">Try adjusting your search</p>
+              </div>
+            )}
+          </div>
+          {/* Footer Stats */}
+          <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/30 text-xs text-slate-500 flex justify-between">
+            <span>Total users: {users.length}</span>
+            <span>Showing {filteredUsers.length} of {users.length}</span>
+          </div>
         </div>
       </div>
 
-      {/* Add User Modal with Driver Fields */}
+      {/* Add User Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div
-            className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" 
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl animate-in slide-in-from-bottom-10 duration-300"
+            onClick={e => e.stopPropagation()}
           >
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-[#1e293b] flex items-center gap-3 mb-6">
-                <span className="w-1.5 h-8 bg-orange-500 rounded-full"></span>
-                Create New Employee
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-6 py-4 flex justify-between items-center z-20">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Create New User
               </h2>
-
-              <form onSubmit={handleCreateEmployee} className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Full Name *</label>
-                    <input
-                      type="text"
-                      placeholder="John Doe"
-                      required
-                      value={newEmployee.name}
-                      onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Email Address *</label>
-                    <input
-                      type="email"
-                      placeholder="john@example.com"
-                      required
-                      value={newEmployee.email}
-                      onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Mobile Number *</label>
-                    <input
-                      type="tel"
-                      placeholder="10 digit number"
-                      required
-                      value={newEmployee.mobileNumber}
-                      onChange={(e) => setNewEmployee({ ...newEmployee, mobileNumber: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Driver Toggle */}
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                  <input
-                    type="checkbox"
-                    id="isDriver"
-                    checked={isDriver}
-                    onChange={(e) => setIsDriver(e.target.checked)}
-                    className="w-4 h-4 text-orange-500 focus:ring-orange-500 border-slate-300 rounded"
-                  />
-                  <label htmlFor="isDriver" className="text-sm font-semibold text-slate-700">
-                    This user is a driver (add driver details)
-                  </label>
-                </div>
-
-                {/* Driver-specific fields (conditionally shown) */}
-                {isDriver && (
-                  <div className="space-y-6 border-t pt-4">
-                    <h3 className="text-lg font-semibold text-slate-800">Driver Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Full Name (as per DL) *</label>
-                        <input type="text" required value={newEmployee.fullName} onChange={e => setNewEmployee({ ...newEmployee, fullName: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Date of Birth *</label>
-                        <input type="date" required value={newEmployee.dateOfBirth} onChange={e => setNewEmployee({ ...newEmployee, dateOfBirth: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Driving License Number *</label>
-                        <input type="text" required value={newEmployee.drivingLicenseNumber} onChange={e => setNewEmployee({ ...newEmployee, drivingLicenseNumber: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">DL Expiry Date *</label>
-                        <input type="date" required value={newEmployee.dlExpiryDate} onChange={e => setNewEmployee({ ...newEmployee, dlExpiryDate: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Vehicle Registration Number *</label>
-                        <input type="text" required value={newEmployee.vehicleRegNumber} onChange={e => setNewEmployee({ ...newEmployee, vehicleRegNumber: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Vehicle Type *</label>
-                        <select value={newEmployee.vehicleType} onChange={e => setNewEmployee({ ...newEmployee, vehicleType: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2">
-                          <option value="auto">Auto</option>
-                          <option value="bike">Bike</option>
-                          <option value="car">Car</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Vehicle Make</label>
-                        <input type="text" value={newEmployee.vehicleMake} onChange={e => setNewEmployee({ ...newEmployee, vehicleMake: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Vehicle Model</label>
-                        <input type="text" value={newEmployee.vehicleModel} onChange={e => setNewEmployee({ ...newEmployee, vehicleModel: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Year of Manufacture</label>
-                        <input type="number" value={newEmployee.vehicleYear} onChange={e => setNewEmployee({ ...newEmployee, vehicleYear: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-slate-800 mt-4">Bank Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Account Holder Name *</label>
-                        <input type="text" required value={newEmployee.accountHolderName} onChange={e => setNewEmployee({ ...newEmployee, accountHolderName: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Bank Name *</label>
-                        <input type="text" required value={newEmployee.bankName} onChange={e => setNewEmployee({ ...newEmployee, bankName: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">Account Number *</label>
-                        <input type="text" required value={newEmployee.accountNumber} onChange={e => setNewEmployee({ ...newEmployee, accountNumber: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700">IFSC Code *</label>
-                        <input type="text" required value={newEmployee.ifscCode} onChange={e => setNewEmployee({ ...newEmployee, ifscCode: e.target.value })} className="mt-1 w-full border rounded-lg px-3 py-2" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {message && (
-                  <div className={`p-4 rounded-lg text-sm font-medium ${message.startsWith('Error') ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
-                    {message}
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 font-bold rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-[2] bg-[#0f172a] text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 shadow-lg shadow-slate-200"
-                  >
-                    {loading ? 'Creating...' : 'Create Employee'}
-                  </button>
-                </div>
-              </form>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+              >
+                <HiX className="text-2xl" />
+              </button>
             </div>
+            
+            <form onSubmit={handleCreateUser} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Full Name *</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={newUser.name} 
+                    onChange={e => setNewUser({...newUser, name: e.target.value})} 
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Email Address *</label>
+                  <input 
+                    type="email" 
+                    required 
+                    value={newUser.email} 
+                    onChange={e => setNewUser({...newUser, email: e.target.value})} 
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all"
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Mobile Number *</label>
+                  <input 
+                    type="tel" 
+                    required 
+                    value={newUser.mobileNumber} 
+                    onChange={e => setNewUser({...newUser, mobileNumber: e.target.value})} 
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all"
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+              </div>
+
+              {/* Driver Toggle */}
+              <div className="flex items-center justify-between p-5 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-xl border border-slate-100">
+                <div>
+                  <p className="font-semibold text-slate-800">Driver Account</p>
+                  <p className="text-sm text-slate-500">Enable to add driver details, bank info, and KYC</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setIsDriver(!isDriver)} 
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${isDriver ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${isDriver ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {isDriver && (
+                <div className="space-y-6 border-t border-slate-100 pt-6 animate-in slide-in-from-top-3 duration-300">
+                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
+                    Driver Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="text-sm font-semibold text-slate-700">Full Name (as per DL) *</label><input type="text" required value={newUser.fullName} onChange={e => setNewUser({...newUser, fullName: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Date of Birth *</label><input type="date" required value={newUser.dateOfBirth} onChange={e => setNewUser({...newUser, dateOfBirth: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Driving License Number *</label><input type="text" required value={newUser.drivingLicenseNumber} onChange={e => setNewUser({...newUser, drivingLicenseNumber: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">DL Expiry Date *</label><input type="date" required value={newUser.dlExpiryDate} onChange={e => setNewUser({...newUser, dlExpiryDate: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Vehicle Registration Number *</label><input type="text" required value={newUser.vehicleRegNumber} onChange={e => setNewUser({...newUser, vehicleRegNumber: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Vehicle Type *</label><select value={newUser.vehicleType} onChange={e => setNewUser({...newUser, vehicleType: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none"><option value="auto">Auto</option><option value="bike">Bike</option><option value="car">Car</option></select></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Vehicle Make</label><input type="text" value={newUser.vehicleMake} onChange={e => setNewUser({...newUser, vehicleMake: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Vehicle Model</label><input type="text" value={newUser.vehicleModel} onChange={e => setNewUser({...newUser, vehicleModel: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Year of Manufacture</label><input type="number" value={newUser.vehicleYear} onChange={e => setNewUser({...newUser, vehicleYear: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mt-4">
+                    <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
+                    Bank Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="text-sm font-semibold text-slate-700">Account Holder Name *</label><input type="text" required value={newUser.accountHolderName} onChange={e => setNewUser({...newUser, accountHolderName: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Bank Name *</label><input type="text" required value={newUser.bankName} onChange={e => setNewUser({...newUser, bankName: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">Account Number *</label><input type="text" required value={newUser.accountNumber} onChange={e => setNewUser({...newUser, accountNumber: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none" /></div>
+                    <div><label className="text-sm font-semibold text-slate-700">IFSC Code *</label><input type="text" required value={newUser.ifscCode} onChange={e => setNewUser({...newUser, ifscCode: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 outline-none uppercase" /></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Message Display */}
+              {message && (
+                <div className={`p-4 rounded-xl text-sm flex items-center justify-between gap-4 ${message.includes('successfully') ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : 'bg-rose-50 text-rose-800 border border-rose-100'}`}>
+                  <span className="flex items-center gap-2">
+                    {message.includes('successfully') ? '🎉' : '⚠️'} {message}
+                  </span>
+                  {tempPassword && (
+                    <button 
+                      type="button"
+                      onClick={copyPasswordToClipboard}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-white rounded-lg shadow-sm hover:shadow transition-all"
+                    >
+                      {copySuccess ? <HiCheck className="text-emerald-600" /> : <HiClipboardCopy />}
+                      {copySuccess ? 'Copied!' : 'Copy Password'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4 border-t border-slate-100">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="flex-1 px-6 py-2.5 border border-slate-200 rounded-xl font-medium text-slate-600 hover:bg-slate-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={creating} 
+                  className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  {creating ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
+      )}
+
+      {/* User Details Modal */}
+      {selectedUserId && (
+        <UserDetailsModal 
+          userId={selectedUserId} 
+          onClose={() => setSelectedUserId(null)} 
+          onUpdate={fetchUsers} 
+        />
       )}
     </div>
   );
 }
-
-export default EmployeesPage;

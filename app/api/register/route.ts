@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       mobileNumber,
       password,
       name,
-      role: 'employee',
+      role: 'driver',
     });
 
     // Send welcome email with credentials

@@ -9,7 +9,7 @@ export default function EmployeeDashboard() {
 
   useEffect(() => {
     const user = getStoredUser();
-    if (!user || user.role !== 'employee') {
+    if (!user || user.role !== 'driver') {
       router.push('/login');
     }
   }, []);

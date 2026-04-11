@@ -6,6 +6,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { HiWrench } from 'react-icons/hi2';
 import {
   HiPlus,
   HiTrash,
@@ -13,6 +14,8 @@ import {
   HiX,
   HiCheck,
   HiCalendar,
+  HiChip,
+  HiUserGroup,
 } from 'react-icons/hi';
 
 interface Event {
@@ -87,8 +90,8 @@ export default function AvailabilityPage() {
       setEditingEvent(event);
       setFormData({
         title: event.title,
-        start: event.start.split('T')[0] + 'T' + event.start.split('T')[1]?.slice(0, 5),
-        end: event.end.split('T')[0] + 'T' + event.end.split('T')[1]?.slice(0, 5),
+        start: event.start.split('T')[0] + 'T' + (event.start.split('T')[1]?.slice(0, 5) || ''),
+        end: event.end.split('T')[0] + 'T' + (event.end.split('T')[1]?.slice(0, 5) || ''),
         status: event.status,
         vehicleId: event.vehicleId || '',
         driverId: event.driverId || '',
@@ -191,11 +194,27 @@ export default function AvailabilityPage() {
     setEditingEvent(null);
   };
 
+  // Statistics
+  const stats = {
+    available: events.filter((e) => e.status === 'available').length,
+    booked: events.filter((e) => e.status === 'booked').length,
+    maintenance: events.filter((e) => e.status === 'maintenance').length,
+  };
+
   if (loading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-10 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-[600px] bg-gray-100 rounded-xl"></div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
+          <div className="h-[600px] bg-gray-100 rounded-xl"></div>
+        </div>
       </div>
     );
   }
@@ -205,30 +224,132 @@ export default function AvailabilityPage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 ${
+          className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 ${
             toast.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-green-500 text-white'
+              : 'bg-red-500 text-white'
           }`}
         >
           {toast.type === 'success' ? <HiCheck className="w-5 h-5" /> : <HiX className="w-5 h-5" />}
-          <span>{toast.message}</span>
+          <span className="font-medium">{toast.message}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <HiCalendar className="w-6 h-6 text-indigo-600" />
-          Availability Calendar
-        </h1>
-        <p className="text-sm text-gray-500">
-          Monitor and schedule vehicle availability in real-time with our advanced tracking system.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent flex items-center gap-2">
+            <HiCalendar className="w-8 h-8 text-indigo-600" />
+            Availability Calendar
+          </h1>
+          <p className="text-gray-500 mt-1">Manage and track vehicle availability in real-time</p>
+        </div>
+        <button
+          onClick={() => {
+            setEditingEvent(null);
+            setFormData({
+              title: '',
+              start: '',
+              end: '',
+              status: 'available',
+              vehicleId: '',
+              driverId: '',
+              notes: '',
+            });
+            setIsModalOpen(true);
+          }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow-md hover:shadow-lg"
+        >
+          <HiPlus className="w-5 h-5" />
+          <span>Add Slot</span>
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <p className="text-sm text-gray-500">Available</p>
+            <p className="text-3xl font-bold text-emerald-600">{stats.available}</p>
+          </div>
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+            <HiChip className="w-6 h-6 text-emerald-600" />
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <p className="text-sm text-gray-500">Booked</p>
+            <p className="text-3xl font-bold text-rose-600">{stats.booked}</p>
+          </div>
+          <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center">
+            <HiUserGroup className="w-6 h-6 text-rose-600" />
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <p className="text-sm text-gray-500">Maintenance</p>
+            <p className="text-3xl font-bold text-amber-600">{stats.maintenance}</p>
+          </div>
+          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+            <HiWrench className="w-6 h-6 text-amber-600" />
+          </div>
+        </div>
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 transition hover:shadow-md">
+        <style jsx global>{`
+          .fc {
+            font-family: inherit;
+          }
+          .fc .fc-toolbar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+          }
+          .fc .fc-button-primary {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #1e293b;
+            text-transform: capitalize;
+            font-weight: 500;
+            box-shadow: none;
+          }
+          .fc .fc-button-primary:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #0f172a;
+          }
+          .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #6366f1;
+            border-color: #6366f1;
+            color: white;
+          }
+          .fc .fc-daygrid-day.fc-day-today {
+            background-color: #fefce8;
+          }
+          .fc .fc-daygrid-day-number {
+            color: #334155;
+          }
+          .fc .fc-col-header-cell-cushion {
+            color: #475569;
+            font-weight: 600;
+          }
+          .fc .fc-event {
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 2px 4px;
+            border: none;
+            transition: transform 0.1s ease;
+          }
+          .fc .fc-event:hover {
+            transform: scale(1.02);
+          }
+          .fc .fc-daygrid-event {
+            white-space: normal;
+          }
+        `}</style>
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           headerToolbar={{
@@ -259,6 +380,7 @@ export default function AvailabilityPage() {
                 : event.status === 'booked'
                 ? '#ef4444'
                 : '#f59e0b',
+            textColor: '#ffffff',
           }))}
           select={handleDateSelect}
           eventClick={handleEventClick}
@@ -268,96 +390,109 @@ export default function AvailabilityPage() {
         />
       </div>
 
-      {/* Modal for Create/Edit */}
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={closeModal}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                {editingEvent ? 'Edit Availability' : 'Add Availability Slot'}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4 animate-in fade-in zoom-in duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                {editingEvent ? 'Edit Availability Slot' : 'Create New Slot'}
               </h2>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition">
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition p-1 rounded-full hover:bg-gray-100"
+              >
                 <HiX className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Title *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    placeholder="e.g., Cab Booking"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   >
-                    <option value="available">Available</option>
-                    <option value="booked">Booked</option>
-                    <option value="maintenance">Maintenance</option>
+                    <option value="available">✅ Available</option>
+                    <option value="booked">🔴 Booked</option>
+                    <option value="maintenance">🟡 Maintenance</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Start Date & Time *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start *</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.start}
                     onChange={(e) => setFormData({ ...formData, start: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">End Date & Time *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End *</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.end}
                     onChange={(e) => setFormData({ ...formData, end: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Vehicle ID (optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle ID</label>
                   <input
                     type="text"
                     value={formData.vehicleId}
                     onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    placeholder="Optional"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Driver ID (optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Driver ID</label>
                   <input
                     type="text"
                     value={formData.driverId}
                     onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    placeholder="Optional"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                   <textarea
                     rows={3}
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="mt-1 w-full border rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    placeholder="Additional details..."
                   />
                 </div>
               </div>
-              <div className="flex justify-between gap-3 pt-4 border-t">
+              <div className="flex justify-between gap-3 pt-4 border-t border-gray-100">
                 {editingEvent && (
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm flex items-center gap-2"
+                    className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl transition shadow-sm flex items-center gap-2"
                   >
                     <HiTrash className="w-4 h-4" /> Delete
                   </button>
@@ -366,14 +501,15 @@ export default function AvailabilityPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                    className="px-5 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm"
+                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow-md flex items-center gap-2"
                   >
+                    {editingEvent ? <HiPencil className="w-4 h-4" /> : <HiPlus className="w-4 h-4" />}
                     {editingEvent ? 'Update' : 'Create'}
                   </button>
                 </div>

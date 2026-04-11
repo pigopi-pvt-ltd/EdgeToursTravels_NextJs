@@ -7,9 +7,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     const token = authHeader?.split(' ')[1];
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const payload = verifyToken(token);
     if (!payload || payload.role !== 'admin') {
@@ -17,15 +15,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { userId } = await request.json();
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
-    }
+    if (!userId) return NextResponse.json({ error: 'User ID required' }, { status: 400 });
 
     await connectToDatabase();
     const user = await User.findById(userId);
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     if (user.role === 'admin') {
       return NextResponse.json({ error: 'Cannot delete admin' }, { status: 403 });
     }

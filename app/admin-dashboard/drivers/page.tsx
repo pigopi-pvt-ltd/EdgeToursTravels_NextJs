@@ -54,7 +54,6 @@ export default function DriversPage() {
       });
       const data = await res.json();
       if (res.ok && data.employees) {
-        // FIX: Include employees who have role='driver' OR have driverDetails (non-empty)
         const driverList = data.employees.filter((emp: any) => 
           emp.role === 'driver' || (emp.driverDetails && Object.keys(emp.driverDetails).length > 0)
         );
@@ -322,11 +321,13 @@ export default function DriversPage() {
                 </td>
               </tr>
             ))}
+            {filteredDrivers.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center py-12 text-gray-500">No drivers found</td>
+              </tr>
+            )}
           </tbody>
         </table>
-        {filteredDrivers.length === 0 && (
-          <div className="text-center py-12 text-gray-500">No drivers found</div>
-        )}
       </div>
 
       {/* Mobile Cards */}
