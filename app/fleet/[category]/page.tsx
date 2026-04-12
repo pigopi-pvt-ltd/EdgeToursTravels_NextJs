@@ -7,6 +7,8 @@ import Footer from '@/components/Footer';
 import { VEHICLE_DATA } from '@/lib/fleetData';
 import { HiChevronRight, HiStar } from 'react-icons/hi2';
 
+export const dynamic = 'force-dynamic';
+
 export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
     const resolvedParams = use(params);
     const category = resolvedParams.category;
@@ -42,10 +44,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                     <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">
                         {title.split(' ')[0]} <span className="text-[#EB664E]">{title.split(' ').slice(1).join(' ')}</span>
                     </h1>
-                    <p className="text-white/60 max-w-2xl mx-auto font-medium text-lg leading-relaxed">
-                        Explore our premium range of vehicles in the {category.replace('-', ' ')} category. 
-                        Safe, reliable, and comfortable rides for every journey.
-                    </p>
+                   <p>Explore our premium range of vehicles in the {category?.replace('-', ' ') ?? ''} category.</p>
                 </div>
             </section>
 

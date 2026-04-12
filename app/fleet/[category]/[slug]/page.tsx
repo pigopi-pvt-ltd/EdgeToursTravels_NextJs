@@ -10,6 +10,7 @@ import { submitBooking, BookingFormData } from '@/lib/bookForm';
 import { VEHICLE_DATA } from '@/lib/fleetData';
 import DateTimePicker from '@/components/DateTimePicker';
 
+
 export default function VehicleDetailPage({ params }: { params: Promise<{ category: string, slug: string }> }) {
     const router = useRouter();
     const resolvedParams = use(params);
