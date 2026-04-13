@@ -206,14 +206,14 @@ export default function AvailabilityPage() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 animate-pulse transition-colors">
+              <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-1/2 mb-4"></div>
+              <div className="h-8 bg-gray-200 dark:bg-slate-700 rounded w-1/3"></div>
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
-          <div className="h-[600px] bg-gray-100 rounded-xl"></div>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-6 animate-pulse transition-colors">
+          <div className="h-[600px] bg-gray-100 dark:bg-slate-700 rounded-xl"></div>
         </div>
       </div>
     );
@@ -238,11 +238,11 @@ export default function AvailabilityPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent flex items-center gap-2">
-            <HiCalendar className="w-8 h-8 text-indigo-600" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2 transition-colors">
+            <HiCalendar className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
             Availability Calendar
           </h1>
-          <p className="text-gray-500 mt-1">Manage and track vehicle availability in real-time</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 transition-colors">Manage and track vehicle availability in real-time</p>
         </div>
         <button
           onClick={() => {
@@ -258,7 +258,7 @@ export default function AvailabilityPage() {
             });
             setIsModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow-md hover:shadow-lg"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl transition shadow-md hover:shadow-lg"
         >
           <HiPlus className="w-5 h-5" />
           <span>Add Slot</span>
@@ -267,37 +267,37 @@ export default function AvailabilityPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-5 flex items-center justify-between hover:shadow-md transition">
           <div>
-            <p className="text-sm text-gray-500">Available</p>
-            <p className="text-3xl font-bold text-emerald-600">{stats.available}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Available</p>
+            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{stats.available}</p>
           </div>
-          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-            <HiChip className="w-6 h-6 text-emerald-600" />
+          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+            <HiChip className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
           </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-5 flex items-center justify-between hover:shadow-md transition">
           <div>
-            <p className="text-sm text-gray-500">Booked</p>
-            <p className="text-3xl font-bold text-rose-600">{stats.booked}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Booked</p>
+            <p className="text-3xl font-bold text-rose-600 dark:text-rose-400">{stats.booked}</p>
           </div>
-          <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center">
-            <HiUserGroup className="w-6 h-6 text-rose-600" />
+          <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center">
+            <HiUserGroup className="w-6 h-6 text-rose-600 dark:text-rose-400" />
           </div>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between hover:shadow-md transition">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-5 flex items-center justify-between hover:shadow-md transition">
           <div>
-            <p className="text-sm text-gray-500">Maintenance</p>
-            <p className="text-3xl font-bold text-amber-600">{stats.maintenance}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Maintenance</p>
+            <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.maintenance}</p>
           </div>
-          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-            <HiWrench className="w-6 h-6 text-amber-600" />
+          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+            <HiWrench className="w-6 h-6 text-amber-600 dark:text-amber-400" />
           </div>
         </div>
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 transition hover:shadow-md">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-4 transition hover:shadow-md">
         <style jsx global>{`
           .fc {
             font-family: inherit;
@@ -307,6 +307,9 @@ export default function AvailabilityPage() {
             font-weight: 600;
             color: #1e293b;
           }
+          .dark .fc .fc-toolbar-title {
+            color: white;
+          }
           .fc .fc-button-primary {
             background-color: #f8fafc;
             border-color: #e2e8f0;
@@ -315,10 +318,20 @@ export default function AvailabilityPage() {
             font-weight: 500;
             box-shadow: none;
           }
+          .dark .fc .fc-button-primary {
+            background-color: #334155;
+            border-color: #475569;
+            color: white;
+          }
           .fc .fc-button-primary:hover {
             background-color: #f1f5f9;
             border-color: #cbd5e1;
             color: #0f172a;
+          }
+          .dark .fc .fc-button-primary:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: white;
           }
           .fc .fc-button-primary:not(:disabled).fc-button-active {
             background-color: #6366f1;
@@ -328,12 +341,24 @@ export default function AvailabilityPage() {
           .fc .fc-daygrid-day.fc-day-today {
             background-color: #fefce8;
           }
+          .dark .fc .fc-daygrid-day.fc-day-today {
+            background-color: #1e293b;
+          }
           .fc .fc-daygrid-day-number {
             color: #334155;
+          }
+          .dark .fc .fc-daygrid-day-number {
+            color: #94a3b8;
           }
           .fc .fc-col-header-cell-cushion {
             color: #475569;
             font-weight: 600;
+          }
+          .dark .fc .fc-col-header-cell-cushion {
+            color: #cbd5e1;
+          }
+          .dark .fc table, .dark .fc th, .dark .fc td {
+             border-color: #334155 !important;
           }
           .fc .fc-event {
             border-radius: 8px;
@@ -397,16 +422,16 @@ export default function AvailabilityPage() {
           onClick={closeModal}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4 animate-in fade-in zoom-in duration-200"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4 animate-in fade-in zoom-in duration-200 transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-6 py-4 flex justify-between items-center rounded-t-2xl">
-              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
                 {editingEvent ? 'Edit Availability Slot' : 'Create New Slot'}
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition p-1 rounded-full hover:bg-gray-100"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-white transition p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800"
               >
                 <HiX className="w-6 h-6" />
               </button>
@@ -414,22 +439,22 @@ export default function AvailabilityPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title *</label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                     placeholder="e.g., Cab Booking"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                   >
                     <option value="available">✅ Available</option>
                     <option value="booked">🔴 Booked</option>
@@ -437,57 +462,57 @@ export default function AvailabilityPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Start *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start *</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.start}
                     onChange={(e) => setFormData({ ...formData, start: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">End *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End *</label>
                   <input
                     type="datetime-local"
                     required
                     value={formData.end}
                     onChange={(e) => setFormData({ ...formData, end: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle ID</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle ID</label>
                   <input
                     type="text"
                     value={formData.vehicleId}
                     onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                     placeholder="Optional"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Driver ID</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver ID</label>
                   <input
                     type="text"
                     value={formData.driverId}
                     onChange={(e) => setFormData({ ...formData, driverId: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                     placeholder="Optional"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                   <textarea
                     rows={3}
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition dark:text-white"
                     placeholder="Additional details..."
                   />
                 </div>
               </div>
-              <div className="flex justify-between gap-3 pt-4 border-t border-gray-100">
+              <div className="flex justify-between gap-3 pt-4 border-t border-gray-100 dark:border-slate-800">
                 {editingEvent && (
                   <button
                     type="button"
@@ -501,13 +526,13 @@ export default function AvailabilityPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-5 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition"
+                    className="px-5 py-2.5 border border-gray-300 dark:border-slate-700 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow-md flex items-center gap-2"
+                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl transition shadow-md flex items-center gap-2"
                   >
                     {editingEvent ? <HiPencil className="w-4 h-4" /> : <HiPlus className="w-4 h-4" />}
                     {editingEvent ? 'Update' : 'Create'}

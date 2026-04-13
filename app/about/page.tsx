@@ -34,30 +34,30 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white flex flex-col pt-24 font-sans antialiased text-[#0A1128]">
+    <main className="min-h-screen bg-white dark:bg-[#0A1128] flex flex-col pt-24 font-sans antialiased text-[#0A1128] dark:text-white transition-colors duration-300">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gray-50 py-32 border-b border-gray-100 relative overflow-hidden">
+      <section className="bg-gray-50 dark:bg-slate-900/50 py-32 border-b border-gray-100 dark:border-slate-800 relative overflow-hidden transition-colors">
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-[#FFB800]/10 rounded-full blur-3xl opacity-50"></div>
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-[#0A1128]/5 rounded-full blur-3xl opacity-50"></div>
         
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
           <h4 className="text-xs font-bold text-[#FFB800] uppercase tracking-widest mb-4 italic">Defining the Standard</h4>
           <h1 className="text-5xl lg:text-7xl font-extrabold mb-8 tracking-tighter leading-tight">
-            Journey Beyond <br /><span className="text-[#0A1128]">Expectations.</span>
+            Journey Beyond <br /><span className="text-[#0A1128] dark:text-white">Expectations.</span>
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed transition-colors">
             Edge Tours & Travels was founded on a simple principle: to provide unparalleled travel management services for the global elite.
           </p>
         </div>
       </section>
 
       {/* Our Story */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-[#0A1128] transition-colors">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
            <div className="relative">
-              <div className="aspect-square bg-gray-100 rounded-[3rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl">
+              <div className="aspect-square bg-gray-100 dark:bg-slate-800 rounded-[3rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl">
                  <img src="/images/hero_bg.png" className="w-full h-full object-cover" alt="Elite Fleet" />
               </div>
               <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-[#0A1128] rounded-[2rem] p-8 text-white hidden md:flex flex-col justify-end shadow-2xl">
@@ -68,20 +68,20 @@ export default function AboutPage() {
            <div>
               <h4 className="text-xs font-bold text-[#FFB800] uppercase tracking-widest mb-4">Our Story</h4>
               <h2 className="text-4xl font-bold mb-8 leading-tight">Founded on Precision and Powered by Passion.</h2>
-              <div className="space-y-6 text-gray-500 leading-relaxed">
+              <div className="space-y-6 text-gray-500 dark:text-gray-400 leading-relaxed transition-colors">
                  <p>
                     Started in 2014, Edge Tours & Travels began as a boutique concierge service for corporate executives in New Delhi. Over the decade, we've expanded our horizons to become a global leader in VIP travel and fleet management.
                  </p>
                  <p>
                     Today, we manage a diverse portfolio of services ranging from government-grade security transfers to bespoke luxury island retreats. Our commitment to discretion, safety, and comfort remains unchanged.
                  </p>
-                 <div className="pt-8 grid grid-cols-2 gap-8 border-t border-gray-100">
+                 <div className="pt-8 grid grid-cols-2 gap-8 border-t border-gray-100 dark:border-slate-800 transition-colors">
                     <div>
-                       <h5 className="font-bold text-[#0A1128] mb-1">Global Network</h5>
+                       <h5 className="font-bold text-[#0A1128] dark:text-white mb-1">Global Network</h5>
                        <p className="text-sm">50+ Major Cities Covered</p>
                     </div>
                     <div>
-                       <h5 className="font-bold text-[#0A1128] mb-1">Executive Fleet</h5>
+                       <h5 className="font-bold text-[#0A1128] dark:text-white mb-1">Executive Fleet</h5>
                        <p className="text-sm">Managed & Maintained Daily</p>
                     </div>
                  </div>
@@ -116,17 +116,17 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline / Vision */}
-      <section className="py-24 bg-gray-50 overflow-hidden">
+      <section className="py-24 bg-gray-50 dark:bg-slate-900/50 overflow-hidden transition-colors">
         <div className="max-w-7xl mx-auto px-6">
            <div className="flex flex-col lg:flex-row gap-16 items-center">
               <div className="lg:w-1/2">
-                 <h2 className="text-4xl font-bold mb-8">Vision for the 21st Century</h2>
-                 <p className="text-gray-500 text-lg mb-10 leading-relaxed italic">
+                 <h2 className="text-4xl font-bold mb-8 dark:text-white transition-colors">Vision for the 21st Century</h2>
+                 <p className="text-gray-500 dark:text-gray-400 text-lg mb-10 leading-relaxed italic transition-colors">
                     "We don't just move people; we move expectations. Our vision is to become the invisible hand that makes travel perfectly seamless for the world's decision-makers."
                  </p>
                  <div className="flex items-center gap-4">
                     <div className="w-16 h-1 bg-[#FFB800]"></div>
-                    <span className="font-bold text-[#0A1128] uppercase tracking-widest text-sm">The Edge Leadership</span>
+                    <span className="font-bold text-[#0A1128] dark:text-orange-400 uppercase tracking-widest text-sm transition-colors">The Edge Leadership</span>
                  </div>
               </div>
               <div className="lg:w-1/2 grid grid-cols-1 gap-4">
@@ -136,9 +136,9 @@ export default function AboutPage() {
                     { year: '2020', event: 'Global Hub Expansion' },
                     { year: '2024', event: 'Digital Concierge Integration' }
                  ].map((item, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-2xl flex items-center gap-8 border border-gray-100 group hover:border-[#FFB800] transition-colors">
-                       <span className="text-2xl font-black text-[#0A1128]/10 group-hover:text-[#FFB800] transition-colors">{item.year}</span>
-                       <span className="font-bold text-gray-700">{item.event}</span>
+                    <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl flex items-center gap-8 border border-gray-100 dark:border-slate-700 group hover:border-[#FFB800] transition-colors">
+                       <span className="text-2xl font-black text-[#0A1128]/10 dark:text-white/10 group-hover:text-[#FFB800] transition-colors">{item.year}</span>
+                       <span className="font-bold text-gray-700 dark:text-gray-300 group-hover:text-white transition-colors">{item.event}</span>
                     </div>
                  ))}
               </div>
@@ -147,7 +147,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-[#0A1128] transition-colors">
         <div className="max-w-7xl mx-auto px-6">
            <div className="bg-[#FFB800] rounded-[3rem] p-12 lg:p-24 text-[#0A1128] text-center relative overflow-hidden shadow-2xl">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#0A1128] rounded-full blur-[120px] opacity-10 -translate-y-1/2 translate-x-1/2"></div>

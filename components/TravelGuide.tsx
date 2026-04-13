@@ -26,7 +26,7 @@ const TIPS = [
 
 export default function TravelGuide() {
   return (
-    <section className="py-24 bg-[#FAF7F2]">
+    <section className="py-24 bg-[#FAF7F2] dark:bg-slate-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="relative rounded-[3rem] overflow-hidden shadow-2xl aspect-[4/3] group">
           <img 
@@ -38,18 +38,18 @@ export default function TravelGuide() {
         </div>
 
         <div>
-          <span className="text-red-500 text-xs font-bold uppercase tracking-widest mb-4 block">Get to Know Us</span>
-          <h2 className="text-4xl font-black text-[#0A1128] uppercase tracking-tight mb-12">Travel Guide and Tips</h2>
+           <span className="text-red-500 text-xs font-bold uppercase tracking-widest mb-4 block">Get to Know Us</span>
+          <h2 className="text-4xl font-black text-[#0A1128] dark:text-white uppercase tracking-tight mb-12 transition-colors">Travel Guide and Tips</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
             {TIPS.map((tip, idx) => (
               <div key={idx} className="flex flex-col gap-4">
-                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-[#EB664E] shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-[#EB664E] shadow-sm transition-colors">
                   <tip.icon className="text-2xl" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider">{tip.title}</h3>
-                  <p className="text-[12px] text-gray-500 font-medium leading-relaxed">{tip.desc}</p>
+                  <h3 className="text-sm font-black text-[#0A1128] dark:text-white uppercase tracking-wider transition-colors">{tip.title}</h3>
+                  <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed transition-colors">{tip.desc}</p>
                 </div>
               </div>
             ))}

@@ -51,29 +51,29 @@ export default function AdminDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Stats Summary Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-orange-200 transition-colors group">
-          <p className="text-slate-500 text-sm font-medium">Total Employees</p>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-colors group">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Employees</p>
           <div className="flex justify-between items-end mt-2">
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">{employees.length}</h3>
-            <span className="text-xs text-green-500 font-semibold bg-green-50 px-2 py-1 rounded-md">+2 this month</span>
+            <h3 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">{employees.length}</h3>
+            <span className="text-xs text-green-500 font-semibold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md">+2 this month</span>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-orange-200 transition-colors group">
-          <p className="text-slate-500 text-sm font-medium">Active Drivers</p>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-colors group">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Active Drivers</p>
           <div className="flex justify-between items-end mt-2">
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">24</h3>
-            <span className="text-xs text-orange-400 font-semibold bg-orange-50 px-2 py-1 rounded-md">8 on duty</span>
+            <h3 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">24</h3>
+            <span className="text-xs text-orange-400 font-semibold bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded-md">8 on duty</span>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-orange-200 transition-colors group">
-          <p className="text-slate-500 text-sm font-medium">Pending Reviews</p>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-colors group">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Pending Reviews</p>
           <div className="flex justify-between items-end mt-2">
-            <h3 className="text-3xl font-bold text-slate-800 tracking-tight">12</h3>
-            <span className="text-xs text-red-500 font-semibold bg-red-50 px-2 py-1 rounded-md">Action required</span>
+            <h3 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">12</h3>
+            <span className="text-xs text-red-500 font-semibold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md">Action required</span>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-orange-200 transition-colors group">
-          <p className="text-slate-500 text-sm font-medium">System Status</p>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-colors group">
+          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">System Status</p>
           <div className="flex items-center gap-2 mt-2">
             <h3 className="text-3xl font-bold text-green-500 tracking-tight flex items-center gap-2">
               <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
@@ -82,7 +82,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

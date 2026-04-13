@@ -30,10 +30,10 @@ const OFFERS = [
 
 export default function WhatWeOffer() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-white dark:bg-[#0A1128] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-20">
-          <h2 className="text-4xl font-black text-[#0A1128] uppercase tracking-tight">What We Offer</h2>
+          <h2 className="text-4xl font-black text-[#0A1128] dark:text-white uppercase tracking-tight">What We Offer</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -42,9 +42,9 @@ export default function WhatWeOffer() {
               <div className="relative aspect-video w-full mb-6 rounded-2xl overflow-hidden shadow-lg group">
                 <img src={offer.img} alt={offer.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="bg-[#F8F9FA] p-6 rounded-2xl text-center flex-grow flex flex-col justify-center min-h-[160px] border border-gray-100">
-                <h3 className="text-sm font-black text-blue-900 uppercase tracking-widest mb-3 leading-tight">{offer.title}</h3>
-                <p className="text-xs text-gray-500 font-medium leading-relaxed">{offer.desc}</p>
+              <div className="bg-[#F8F9FA] dark:bg-slate-800/50 p-6 rounded-2xl text-center flex-grow flex flex-col justify-center min-h-[160px] border border-gray-100 dark:border-slate-800 transition-colors">
+                <h3 className="text-sm font-black text-blue-900 dark:text-orange-400 uppercase tracking-widest mb-3 leading-tight transition-colors">{offer.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed transition-colors">{offer.desc}</p>
               </div>
             </div>
           ))}

@@ -27,6 +27,7 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
         dateTime: '',
         name: '',
         contact: '',
+        price: vehicle.price || '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -83,7 +84,7 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
             const result = await submitBooking(formData);
             if (result.success) {
                 setStatus({ type: 'success', message: result.message });
-                setFormData({ from: '', destination: '', dateTime: '', name: '', contact: '' });
+                setFormData({ from: '', destination: '', dateTime: '', name: '', contact: '', price: vehicle.price || '' });
                 // Redirect or show success
                 // router.push('/admin-dashboard/bookings');
             } else {
@@ -118,18 +119,18 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
     const categoryName = categoryDisplayNames[resolvedParams.category] || resolvedParams.category.toUpperCase();
 
     return (
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50 dark:bg-[#0A1128] transition-colors duration-300">
             <Navbar />
 
-            <section className="pt-32 pb-12 bg-white border-b border-gray-100">
+            <section className="pt-32 pb-12 bg-white dark:bg-[#0A1128] border-b border-gray-100 dark:border-slate-800 transition-colors">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <h1 className="text-4xl md:text-6xl font-black text-[#0A1128] tracking-tight uppercase">
+                    <h1 className="text-4xl md:text-6xl font-black text-[#0A1128] dark:text-white tracking-tight uppercase transition-colors">
                         {vehicle.name.split(' ')[0]} <span className="text-[#EB664E]">{vehicle.name.split(' ').slice(1).join(' ')}</span>
                     </h1>
-                    <div className="mt-4 flex items-center justify-center gap-2 text-gray-500 font-bold uppercase tracking-widest text-[10px]">
+                    <div className="mt-4 flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-[10px] transition-colors">
                         <span className="hover:text-[#EB664E] cursor-pointer transition-colors" onClick={() => router.push(`/fleet/${resolvedParams.category}`)}>{categoryName}</span>
-                        <HiChevronRight className="w-3 h-3 text-gray-300" />
-                        <span className="text-gray-400">{vehicle.tagline}</span>
+                        <HiChevronRight className="w-3 h-3 text-gray-300 dark:text-gray-700" />
+                        <span className="text-gray-400 dark:text-gray-500">{vehicle.tagline}</span>
                     </div>
                 </div>
             </section>
@@ -137,7 +138,7 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
             <section className="py-16 max-w-7xl mx-auto px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     <div className="lg:col-span-7 space-y-6">
-                        <div className="relative aspect-[16/9] bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-2xl group">
+                        <div className="relative aspect-[16/9] bg-white dark:bg-slate-800 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-slate-800 shadow-2xl group transition-colors">
                             <img
                                 src={vehicle.images[activeImage]}
                                 alt={vehicle.name}
@@ -264,8 +265,21 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
                                             maxLength={10}
                                             className={`w-full bg-white/5 border rounded-2xl px-5 py-4 text-sm font-bold outline-none transition-all duration-300 ${errors.contact ? 'border-red-500/50 ring-2 ring-red-500/10' : 'border-white/10 focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10'}`}
                                         />
-                                        {errors.contact && <p className="text-[9px] font-black text-red-400 uppercase tracking-widest pl-1 animate-in fade-in slide-in-from-left-2">{errors.contact}</p>}
                                     </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 text-white/50">
+                                        <HiCurrencyDollar className="text-[#EB664E]" /> Price Estimate
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={handleChange}
+                                        placeholder="Price details"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold outline-none transition-all duration-300 focus:border-[#EB664E] focus:ring-4 focus:ring-[#EB664E]/10"
+                                    />
                                 </div>
 
                                 <button
@@ -334,24 +348,24 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
                 }
             `}</style>
 
-            <section className="py-20 bg-white">
+            <section className="py-20 bg-white dark:bg-[#0A1128] transition-colors">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex border-b border-gray-100 mb-12">
-                        <button onClick={() => setActiveTab('rental')} className={`px-8 py-4 text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'rental' ? 'text-[#EB664E]' : 'text-gray-400 hover:text-gray-600'}`}>Rental Details {activeTab === 'rental' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#EB664E]" />}</button>
-                        <button onClick={() => setActiveTab('vehicle')} className={`px-8 py-4 text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'vehicle' ? 'text-[#EB664E]' : 'text-gray-400 hover:text-gray-600'}`}>Vehicle Details {activeTab === 'vehicle' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#EB664E]" />}</button>
+                    <div className="flex border-b border-gray-100 dark:border-slate-800 mb-12 transition-colors">
+                        <button onClick={() => setActiveTab('rental')} className={`px-8 py-4 text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'rental' ? 'text-[#EB664E]' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}>Rental Details {activeTab === 'rental' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#EB664E]" />}</button>
+                        <button onClick={() => setActiveTab('vehicle')} className={`px-8 py-4 text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'vehicle' ? 'text-[#EB664E]' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}>Vehicle Details {activeTab === 'vehicle' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#EB664E]" />}</button>
                     </div>
 
                     <div className="space-y-12">
                         <div className="max-w-3xl">
-                            <h2 className="text-3xl font-black text-[#0A1128] uppercase tracking-tight mb-6">{vehicle.name} Rental Service</h2>
-                            <p className="text-gray-500 leading-relaxed font-medium">{vehicle.description}</p>
+                            <h2 className="text-3xl font-black text-[#0A1128] dark:text-white uppercase tracking-tight mb-6 transition-colors">{vehicle.name} Rental Service</h2>
+                            <p className="text-gray-500 dark:text-gray-400 leading-relaxed font-medium transition-colors">{vehicle.description}</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100/50 hover:shadow-xl transition-all group">
-                                <HiCheckCircle className="text-3xl text-blue-600 mb-6 group-hover:scale-110 transition-transform" />
-                                <h4 className="text-xl font-black text-[#0A1128] uppercase tracking-wider mb-4">Travel Inclusions</h4>
-                                <ul className="space-y-3 text-sm text-gray-600 font-bold">
+                            <div className="bg-blue-50/50 dark:bg-blue-900/10 p-8 rounded-[2rem] border border-blue-100/50 dark:border-blue-900/20 hover:shadow-xl transition-all group">
+                                <HiCheckCircle className="text-3xl text-blue-600 dark:text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
+                                <h4 className="text-xl font-black text-[#0A1128] dark:text-white uppercase tracking-wider mb-4 transition-colors">Travel Inclusions</h4>
+                                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400 font-bold transition-colors">
                                     <li className="flex items-center gap-2"> Clean & Sanitized Vehicle</li>
                                     <li className="flex items-center gap-2"> Experienced Chauffeur</li>
                                     <li className="flex items-center gap-2"> Fuel & Maintenance</li>
@@ -359,10 +373,10 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
                                 </ul>
                             </div>
 
-                            <div className="bg-orange-50/50 p-8 rounded-[2rem] border border-orange-100/50 hover:shadow-xl transition-all group">
+                            <div className="bg-orange-50/50 dark:bg-orange-900/10 p-8 rounded-[2rem] border border-orange-100/50 dark:border-orange-900/20 hover:shadow-xl transition-all group">
                                 <HiSparkles className="text-3xl text-[#EB664E] mb-6 group-hover:scale-110 transition-transform" />
-                                <h4 className="text-xl font-black text-[#0A1128] uppercase tracking-wider mb-4">Amenities</h4>
-                                <ul className="space-y-3 text-sm text-gray-600 font-bold">
+                                <h4 className="text-xl font-black text-[#0A1128] dark:text-white uppercase tracking-wider mb-4 transition-colors">Amenities</h4>
+                                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400 font-bold transition-colors">
                                     <li className="flex items-center gap-2"> Air Conditioning</li>
                                     <li className="flex items-center gap-2"> Music System (BT/Aux)</li>
                                     <li className="flex items-center gap-2"> Mobile Charging Points</li>
@@ -370,10 +384,10 @@ export default function VehicleDetailPage({ params }: { params: Promise<{ catego
                                 </ul>
                             </div>
 
-                            <div className="bg-indigo-50/50 p-8 rounded-[2rem] border border-indigo-100/50 hover:shadow-xl transition-all group">
-                                <HiShieldCheck className="text-3xl text-indigo-600 mb-6 group-hover:scale-110 transition-transform" />
-                                <h4 className="text-xl font-black text-[#0A1128] uppercase tracking-wider mb-4">Features</h4>
-                                <ul className="space-y-3 text-sm text-gray-600 font-bold">
+                            <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-8 rounded-[2rem] border border-indigo-100/50 dark:border-indigo-900/20 hover:shadow-xl transition-all group">
+                                <HiShieldCheck className="text-3xl text-indigo-600 dark:text-indigo-400 mb-6 group-hover:scale-110 transition-transform" />
+                                <h4 className="text-xl font-black text-[#0A1128] dark:text-white uppercase tracking-wider mb-4 transition-colors">Features</h4>
+                                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400 font-bold transition-colors">
                                     {vehicle.features.map((f: string, i: number) => (
                                         <li key={i} className="flex items-center gap-2"> {f}</li>
                                     ))}
