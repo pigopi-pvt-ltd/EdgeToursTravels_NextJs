@@ -24,23 +24,25 @@ export default function SearchForm() {
                 <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
 
                 <div className="bg-white dark:bg-[#0F172A] border border-gray-100 dark:border-slate-800 rounded-[3rem] p-3 md:p-6 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] overflow-hidden transition-colors duration-300">
-                    {/* Floating Tab Navigation */}
-                    <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-8 px-4">
-                        {TABS.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`relative px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 overflow-hidden ${activeTab === tab.id
-                                        ? 'text-white'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
-                                    }`}
-                            >
-                                {activeTab === tab.id && (
-                                    <div className="absolute inset-0 bg-[#EB664E] shadow-[0_0_25px_rgba(235,102,78,0.4)] transition-all duration-500"></div>
-                                )}
-                                <span className="relative z-10">{tab.label}</span>
-                            </button>
-                        ))}
+                    {/* Floating Tab Navigation - Scrollable on Mobile */}
+                    <div className="flex items-center w-full overflow-x-auto no-scrollbar mb-6 md:mb-8 px-2">
+                        <div className="flex items-center gap-2 md:gap-4 shrink-0 pb-2">
+                            {TABS.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`relative px-5 md:px-6 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 overflow-hidden whitespace-nowrap ${activeTab === tab.id
+                                            ? 'text-white'
+                                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'
+                                        }`}
+                                >
+                                    {activeTab === tab.id && (
+                                        <div className="absolute inset-0 bg-[#EB664E] shadow-[0_0_25px_rgba(235,102,78,0.4)] transition-all duration-500"></div>
+                                    )}
+                                    <span className="relative z-10">{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Integrated Form Container with conditional rendering based on activeTab */}

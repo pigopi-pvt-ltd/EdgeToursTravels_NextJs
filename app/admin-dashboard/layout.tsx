@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStoredUser, clearAuthData } from '@/lib/auth';
 import AdminSidebar from '@/components/AdminSidebar';
-import { HiOutlineUser, HiOutlineCog6Tooth, HiOutlinePencilSquare, HiOutlineLockClosed, HiOutlineSun, HiOutlineMoon, HiOutlineArrowRightOnRectangle } from 'react-icons/hi2';
+import { HiOutlineUser, HiOutlineCog6Tooth, HiOutlinePencilSquare, HiOutlineLockClosed, HiOutlineSun, HiOutlineMoon, HiOutlineArrowRightOnRectangle, HiBars3BottomLeft } from 'react-icons/hi2';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function AdminLayout({
@@ -15,6 +15,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,8 +38,6 @@ export default function AdminLayout({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-
-
   const handleLogout = () => {
     clearAuthData();
     router.push('/login');
@@ -46,29 +45,38 @@ export default function AdminLayout({
 
   if (!isAuthorized) {
     return (
-      <div className="flex items-center justify-center min-vh-100 bg-slate-50">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex transition-colors duration-300">
-      <AdminSidebar />
-      <main className="flex-1 ml-64 min-h-screen">
-        <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-8 sticky top-0 z-40 transition-colors duration-300">
-          <h1 className="text-xl font-semibold text-slate-800 dark:text-white capitalize text-nowrap">
-            Admin Panel
-          </h1>
-
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] flex transition-colors duration-300">
+      <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      <main className="flex-1 lg:ml-64 min-h-screen w-full transition-all duration-300">
+        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 transition-colors duration-300">
           <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-slate-500 hover:text-orange-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all"
+            >
+              <HiBars3BottomLeft className="text-2xl" />
+            </button>
+            <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white capitalize truncate max-w-[150px] sm:max-w-none">
+              Admin Panel
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="relative" ref={dropdownRef}>
               <div
-                className="flex items-center gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 p-2 rounded-lg transition-all"
+                className="flex items-center gap-2 sm:gap-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1 sm:p-2 rounded-lg transition-all"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <span className="text-sm text-slate-500 dark:text-slate-400 hidden sm:inline">Welcome, Administrator</span>
-                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold shadow-md shadow-orange-200 ring-2 ring-white">
+                <span className="text-sm text-slate-500 dark:text-slate-400 hidden md:inline">Welcome, Administrator</span>
+                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold shadow-lg shadow-orange-200 ring-2 ring-white dark:ring-slate-700">
                   A
                 </div>
               </div>
@@ -80,21 +88,20 @@ export default function AdminLayout({
                     <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Account Details</p>
                   </div>
                   
-                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                     <HiOutlineUser className="text-lg text-slate-400 group-hover:text-orange-500" />
                     <span className="font-semibold">About</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                     <HiOutlineCog6Tooth className="text-lg text-slate-400 group-hover:text-orange-500" />
                     <span className="font-semibold">Settings</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                     <HiOutlineLockClosed className="text-lg text-slate-400 group-hover:text-orange-500" />
                     <span className="font-semibold">Change Password</span>
                   </button>
 
-                  {/* Dark Mode Toggle Item */}
-                  <div className="px-4 py-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group" onClick={toggleTheme}>
+                  <div className="px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group" onClick={toggleTheme}>
                     <div className="flex items-center gap-3">
                       {theme === 'dark' ? (
                         <HiOutlineSun className="text-lg text-orange-500" />
@@ -111,7 +118,7 @@ export default function AdminLayout({
                   <div className="h-px bg-slate-50 dark:bg-slate-700/50 my-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group"
                   >
                     <HiOutlineArrowRightOnRectangle className="text-lg group-hover:scale-110 transition-transform" />
                     <span className="font-black uppercase tracking-wider text-[11px]">Logout</span>
@@ -121,7 +128,7 @@ export default function AdminLayout({
             </div>
           </div>
         </header>
-        <div className="p-8">
+        <div className="p-4 sm:p-8">
           {children}
         </div>
       </main>
