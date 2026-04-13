@@ -301,78 +301,163 @@ export default function AvailabilityPage() {
         <style jsx global>{`
           .fc {
             font-family: inherit;
+            background: transparent;
           }
           .fc .fc-toolbar-title {
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #1e293b;
           }
           .dark .fc .fc-toolbar-title {
-            color: white;
+            color: #f8fafc;
           }
           .fc .fc-button-primary {
-            background-color: #f8fafc;
+            background-color: #ffffff;
             border-color: #e2e8f0;
-            color: #1e293b;
+            color: #475569;
             text-transform: capitalize;
-            font-weight: 500;
-            box-shadow: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s;
           }
           .dark .fc .fc-button-primary {
-            background-color: #334155;
-            border-color: #475569;
-            color: white;
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #cbd5e1;
           }
           .fc .fc-button-primary:hover {
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             border-color: #cbd5e1;
-            color: #0f172a;
+            color: #1e293b;
           }
           .dark .fc .fc-button-primary:hover {
-            background-color: #475569;
-            border-color: #64748b;
-            color: white;
+            background-color: #334155;
+            border-color: #475569;
+            color: #ffffff;
           }
           .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+            color: #ffffff;
+          }
+          .dark .fc .fc-button-primary:not(:disabled).fc-button-active {
             background-color: #6366f1;
             border-color: #6366f1;
-            color: white;
+            color: #ffffff;
           }
-          .fc .fc-daygrid-day.fc-day-today {
-            background-color: #fefce8;
+          
+          /* Table Borders & Backgrounds */
+          .fc theme-system {
+             background: transparent;
           }
-          .dark .fc .fc-daygrid-day.fc-day-today {
-            background-color: #1e293b;
+          .fc table {
+            border-color: #f1f5f9 !important;
           }
+          .dark .fc table {
+            border-color: #334155 !important;
+          }
+          .fc th, .fc td {
+             border-color: #f1f5f9 !important;
+          }
+          .dark .fc th, .dark .fc td {
+             border-color: #334155 !important;
+          }
+
+          /* Day Cells */
           .fc .fc-daygrid-day-number {
-            color: #334155;
+            color: #64748b;
+            font-weight: 600;
+            padding: 8px !important;
           }
           .dark .fc .fc-daygrid-day-number {
             color: #94a3b8;
           }
+          .fc .fc-daygrid-day.fc-day-today {
+            background-color: #f5f3ff !important;
+          }
+          .dark .fc .fc-daygrid-day.fc-day-today {
+            background-color: rgba(99, 102, 241, 0.1) !important;
+          }
+          .fc .fc-day-other {
+            background-color: #f8fafc;
+          }
+          .dark .fc .fc-day-other {
+            background-color: rgba(15, 23, 42, 0.3);
+          }
+
+          /* Header Cells */
+          .fc .fc-col-header-cell {
+            background-color: #f8fafc;
+          }
+          .dark .fc .fc-col-header-cell {
+            background-color: #1e293b;
+          }
           .fc .fc-col-header-cell-cushion {
             color: #475569;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 12px 0 !important;
+            display: block;
           }
           .dark .fc .fc-col-header-cell-cushion {
-            color: #cbd5e1;
+            color: #94a3b8;
           }
-          .dark .fc table, .dark .fc th, .dark .fc td {
-             border-color: #334155 !important;
+
+          /* Grid Cell Backgrounds */
+          .fc .fc-daygrid-day {
+             background-color: #ffffff;
           }
+          .dark .fc .fc-daygrid-day {
+             background-color: #1e293b;
+          }
+          .fc .fc-day-other {
+            background-color: #f8fafc;
+          }
+          .dark .fc .fc-day-other {
+            background-color: rgba(15, 23, 42, 0.5);
+          }
+          
+          /* Events */
           .fc .fc-event {
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            padding: 2px 4px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
             border: none;
-            transition: transform 0.1s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin: 2px 4px !important;
+            cursor: pointer;
           }
-          .fc .fc-event:hover {
-            transform: scale(1.02);
+          .fc .fc-event-title {
+             white-space: normal;
           }
-          .fc .fc-daygrid-event {
-            white-space: normal;
+          .fc .fc-daygrid-event-dot {
+            border-color: currentColor;
+          }
+
+          /* Links in dark mode */
+          .dark .fc a {
+            color: inherit;
+          }
+          
+          /* Scrollbars for theme */
+          .fc .fc-scroller::-webkit-scrollbar {
+            width: 6px;
+          }
+          .fc .fc-scroller::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .fc .fc-scroller::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+          }
+          .dark .fc .fc-scroller::-webkit-scrollbar-thumb {
+            background: #334155;
           }
         `}</style>
         <FullCalendar
