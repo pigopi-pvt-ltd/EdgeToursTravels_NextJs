@@ -64,7 +64,26 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center dark:text-gray-400">Loading profile...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg mb-8"></div>
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="w-32 h-32 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700"></div>
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 w-24 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                  <div className="h-6 w-full max-w-xs bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 transition-colors">

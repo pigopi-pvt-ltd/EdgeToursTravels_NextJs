@@ -361,13 +361,21 @@ export default function DriversPage() {
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-              Drivers Management
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage driver profiles, KYC, and vehicle details</p>
+        <div className="px-6 lg:px-8 space-y-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                Drivers Management
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage driver profiles, KYC, and vehicle details</p>
+            </div>
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-105 active:scale-95"
+            >
+              <HiPlus className="text-lg" /> Add Driver
+            </button>
           </div>
           <button onClick={openCreateModal} className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-105 active:scale-95">
             <HiPlus className="text-lg" /> Add Driver
@@ -409,8 +417,8 @@ export default function DriversPage() {
                           {driver.name?.[0]?.toUpperCase() || '?'}
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-800 dark:text-white">{driver.name || '-'}</div>
-                          <div className="text-xs text-slate-400 dark:text-slate-500">{driver.email}</div>
+                          <div className="font-semibold text-slate-800 dark:text-white transition-colors">{driver.name || '-'}</div>
+                          <div className="text-xs text-slate-400 dark:text-slate-500 transition-colors">{driver.email}</div>
                         </div>
                       </div>
                     </td>
@@ -418,7 +426,7 @@ export default function DriversPage() {
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-mono">{driver.driverDetails?.drivingLicense || '-'}</td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{driver.driverDetails?.vehicleRegNumber || '-'}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize transition-colors ${
                         driver.driverDetails?.kycStatus === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-800' :
                         driver.driverDetails?.kycStatus === 'rejected' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 ring-1 ring-rose-200 dark:ring-rose-800' :
                         driver.driverDetails?.kycStatus === 'submitted' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 ring-1 ring-blue-200 dark:ring-blue-800' :
@@ -439,11 +447,6 @@ export default function DriversPage() {
                     </td>
                   </tr>
                 ))}
-                {filteredDrivers.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="text-center py-16 text-slate-500">No drivers found</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -466,15 +469,23 @@ export default function DriversPage() {
                     <span>License: {driver.driverDetails?.drivingLicense || '-'}</span>
                     <span>Vehicle: {driver.driverDetails?.vehicleRegNumber || '-'}</span>
                   </div>
-                  <div className="mt-2">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      driver.driverDetails?.kycStatus === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
-                      driver.driverDetails?.kycStatus === 'rejected' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' :
-                      driver.driverDetails?.kycStatus === 'submitted' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
-                      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                    }`}>
-                      {driver.driverDetails?.kycStatus || 'pending'}
-                    </span>
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                    driver.driverDetails?.kycStatus === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                    driver.driverDetails?.kycStatus === 'rejected' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' :
+                    'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                  }`}>
+                    {driver.driverDetails?.kycStatus || 'pending'}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Contact</label>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors">{driver.mobileNumber}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">License</label>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors truncate">{driver.driverDetails?.drivingLicenseNumber || '-'}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">

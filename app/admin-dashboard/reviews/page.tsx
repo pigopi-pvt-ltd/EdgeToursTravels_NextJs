@@ -93,116 +93,202 @@ export default function ReviewsPage() {
     await updateReview(selectedReview._id, selectedReview.status, responseText);
   };
 
-  if (loading) return <div className="p-8 text-center">Loading reviews...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="flex justify-between items-center">
+          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+          <div className="flex gap-3">
+            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            <div className="h-10 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 overflow-hidden">
+          <div className="h-12 bg-slate-50 dark:bg-slate-900/50 border-b dark:border-slate-700"></div>
+          <div className="divide-y dark:divide-slate-700">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-6 py-4 flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                  <div className="h-3 w-40 bg-slate-50 dark:bg-slate-800 rounded"></div>
+                </div>
+                <div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                <div className="h-4 w-48 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                <div className="h-6 w-20 bg-slate-50 dark:bg-slate-900 rounded-full"></div>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded"></div>
+                  <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {message && <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 p-3 rounded border border-blue-100 dark:border-blue-800 transition-colors">{message}</div>}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-[#0A1128] dark:via-[#0A1128] dark:to-[#0A1128] -mt-8 -mx-8 animate-in fade-in duration-500 transition-colors">
+      <div className="py-6 lg:py-8 space-y-6">
+        {message && (
+          <div className="px-6 lg:px-8">
+            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 p-3 rounded-xl border border-blue-100 dark:border-blue-800 transition-colors shadow-sm">{message}</div>
+          </div>
+        )}
 
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <h1 className="text-2xl font-bold dark:text-white transition-colors">Customer Reviews</h1>
-        <div className="flex gap-3">
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded px-3 py-2 transition-colors">
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <div className="relative">
-            <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
-            <input type="text" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded transition-colors" />
+        <div className="px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent transition-colors">Customer Reviews</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm transition-colors">Manage and respond to customer feedback</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm">
+              <option value="all">All Reviews</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <div className="relative flex-1 sm:flex-none sm:w-64">
+              <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
+              <input type="text" placeholder="Search customer or comment..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm" />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Table - Chipka Hua (Full Width) */}
+        <div className="bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700">
+              <thead className="bg-slate-50/50 dark:bg-slate-900/50">
+                <tr>
+                  <th className="px-8 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Customer</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Rating</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Title & feedback</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Status</th>
+                  <th className="px-8 py-4 text-right text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {reviews.map((review, idx) => (
+                  <tr key={review._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors duration-150" style={{ animationDelay: `${idx * 40}ms` }}>
+                    <td className="px-8 py-5">
+                      <div className="font-bold text-slate-800 dark:text-white transition-colors">{review.customerName}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-500 transition-colors">{review.customerEmail}</div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <HiStar key={i} className={`w-4 h-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`} />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 max-w-md">
+                      <div className="font-semibold text-slate-800 dark:text-slate-200 transition-colors text-sm">{review.title}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">{review.comment}</div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className={`px-3 py-1 text-[10px] rounded-full inline-block font-bold uppercase tracking-wider transition-colors ${
+                        review.status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
+                        review.status === 'rejected' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' : 
+                        'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                      }`}>
+                        {review.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right space-x-2 whitespace-nowrap">
+                      <button onClick={() => openResponseModal(review)} className="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 rounded-lg transition-all" title="View & Respond">
+                        <HiEye className="w-5 h-5" />
+                      </button>
+                      {review.status !== 'approved' && (
+                        <button onClick={() => updateReview(review._id, 'approved')} className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 rounded-lg transition-all" title="Approve">
+                          <HiCheck className="w-5 h-5" />
+                        </button>
+                      )}
+                      {review.status !== 'rejected' && (
+                        <button onClick={() => updateReview(review._id, 'rejected')} className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/50 rounded-lg transition-all" title="Reject">
+                          <HiX className="w-5 h-5" />
+                        </button>
+                      )}
+                      <button onClick={() => deleteReview(review._id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/50 rounded-lg transition-all" title="Delete">
+                        <HiTrash className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {reviews.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-20">
+                      <div className="text-4xl mb-3 opacity-20">💬</div>
+                      <p className="text-slate-400 dark:text-slate-500 font-medium">No reviews found matching your criteria</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700 transition-colors">
-        <table className="min-w-full divide-y dark:divide-slate-700">
-          <thead className="bg-gray-50 dark:bg-slate-900/50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400 tracking-wider">Customer</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400 tracking-wider">Rating</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400 tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-slate-400 tracking-wider">Status</th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase text-gray-500 dark:text-slate-400 tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y dark:divide-slate-700">
-            {reviews.map(review => (
-              <tr key={review._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="font-medium dark:text-white">{review.customerName}</div>
-                  <div className="text-sm text-gray-500 dark:text-slate-400">{review.customerEmail}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-1">
-                    {Array(review.rating).fill(0).map((_,i) => <HiStar key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />)}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="font-medium dark:text-white">{review.title}</div>
-                  <div className="text-sm text-gray-500 dark:text-slate-400 line-clamp-2">{review.comment}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 text-xs rounded-full inline-block font-semibold transition-colors ${
-                    review.status === 'approved' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 
-                    review.status === 'rejected' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400' : 
-                    'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
-                  }`}>
-                    {review.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                  <button onClick={() => openResponseModal(review)} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300" title="Respond">
-                    <HiEye className="w-5 h-5 inline" />
-                  </button>
-                  {review.status !== 'approved' && <button onClick={() => updateReview(review._id, 'approved')} className="text-green-600 dark:text-green-400 hover:text-green-900 transition-colors"><HiCheck className="w-5 h-5 inline" /></button>}
-                  {review.status !== 'rejected' && <button onClick={() => updateReview(review._id, 'rejected')} className="text-red-600 dark:text-red-400 hover:text-red-900 transition-colors"><HiX className="w-5 h-5 inline" /></button>}
-                  <button onClick={() => deleteReview(review._id)} className="text-gray-500 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"><HiTrash className="w-5 h-5 inline" /></button>
-                </td>
-              </tr>
-            ))}
-            {reviews.length === 0 && <tr><td colSpan={5} className="text-center py-12 dark:text-slate-400">No reviews found</td></tr>}
-          </tbody>
-        </table>
-      </div>
-
       {/* Response Modal */}
       {selectedReview && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 transition-all" onClick={() => setSelectedReview(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl max-w-2xl w-full p-6 shadow-2xl animate-in zoom-in duration-200 transition-colors" onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Review Details & Response</h2>
-            <div className="space-y-3 dark:text-slate-300">
-              <div className="flex gap-2"><strong>Customer:</strong> <span className="text-slate-600 dark:text-slate-400">{selectedReview.customerName} ({selectedReview.customerEmail})</span></div>
-              <div className="flex gap-2"><strong>Rating:</strong> <span className="text-slate-600 dark:text-slate-400">{selectedReview.rating} stars</span></div>
-              <div className="flex gap-2"><strong>Title:</strong> <span className="text-slate-600 dark:text-slate-400">{selectedReview.title}</span></div>
-              <div className="flex gap-2"><strong>Comment:</strong> <p className="text-slate-600 dark:text-slate-400">{selectedReview.comment}</p></div>
-              <div className="flex gap-2"><strong>Status:</strong> <span className="capitalize text-slate-600 dark:text-slate-400">{selectedReview.status}</span></div>
-              <div className="pt-2"><strong>Admin Response:</strong></div>
-              <textarea 
-                value={responseText} 
-                onChange={e => setResponseText(e.target.value)} 
-                rows={4} 
-                className="w-full bg-white dark:bg-slate-800 border dark:border-slate-700 rounded p-3 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all" 
-                placeholder="Write your response here..."
-              ></textarea>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedReview(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-10">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">Review Feedback</h2>
+              <button onClick={() => setSelectedReview(null)} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"><HiX className="w-6 h-6" /></button>
             </div>
-            <div className="flex justify-end gap-3 mt-6 border-t dark:border-slate-800 pt-4">
+            <div className="p-6 space-y-6">
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 space-y-4 border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Customer info</span>
+                    <p className="font-bold text-slate-800 dark:text-white">{selectedReview.customerName}</p>
+                    <p className="text-sm text-slate-500">{selectedReview.customerEmail}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1 text-right">Rating</span>
+                    <div className="flex items-center gap-0.5 justify-end">
+                      {[...Array(5)].map((_, i) => (
+                        <HiStar key={i} className={`w-4 h-4 ${i < selectedReview.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">{selectedReview.title || 'Review comment'}</span>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">"{selectedReview.comment}"</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Respond to customer</label>
+                <textarea 
+                  value={responseText} 
+                  onChange={e => setResponseText(e.target.value)} 
+                  rows={4} 
+                  className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm" 
+                  placeholder="Thank you for your feedback! We're glad you enjoyed your ride..."
+                ></textarea>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 p-6 border-t border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setSelectedReview(null)} 
-                className="px-6 py-2 border dark:border-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                className="px-6 py-2.5 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={submitResponse} 
-                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all shadow-md active:scale-95"
+                className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 dark:shadow-none transition-all duration-200 active:scale-95"
               >
-                Save Response
+                Submit Response
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
+
   );
 }
