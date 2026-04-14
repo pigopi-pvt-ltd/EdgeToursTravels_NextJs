@@ -17,15 +17,15 @@ export default function SearchForm() {
     const [activeTab, setActiveTab] = useState('cabs');
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4">
+        <div className="w-full max-w-6xl mx-auto px-0">
             <div className="relative group">
                 {/* Advanced Background Glows */}
                 <div className="absolute -top-32 -left-32 w-64 h-64 bg-[#EB664E]/10 rounded-full blur-[100px] animate-pulse"></div>
                 <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-                <div className="bg-white dark:bg-[#0F172A] border border-gray-100 dark:border-slate-800 rounded-[3rem] p-3 md:p-6 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] overflow-hidden transition-colors duration-300">
+                <div className="bg-white dark:bg-[#0F172A] rounded-[3rem] p-3 md:p-6 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)] overflow-hidden no-scrollbar transition-colors duration-300">
                     {/* Floating Tab Navigation - Scrollable on Mobile */}
-                    <div className="flex items-center w-full overflow-x-auto no-scrollbar mb-6 md:mb-8 px-2">
+                    <div className="flex items-center w-full overflow-x-auto no-scrollbar mb-6 md:mb-8 px-0">
                         <div className="flex items-center gap-2 md:gap-4 shrink-0 pb-2">
                             {TABS.map((tab) => (
                                 <button
@@ -50,7 +50,7 @@ export default function SearchForm() {
                         
                         {/* Field 1: Locations (Changes based on tab) */}
                         <div className="lg:col-span-2">
-                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:border-[#EB664E]/30 focus-within:ring-4 focus-within:ring-[#EB664E]/5">
+                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:ring-4 focus-within:ring-[#EB664E]/5">
                                 <p className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-500 font-black uppercase tracking-[0.25em] mb-3">
                                     <HiMapPin className="text-[#EB664E] text-base" />
                                     Pick-up
@@ -66,7 +66,7 @@ export default function SearchForm() {
 
                         {/* Field 2: Destination/Package (Changes based on tab) */}
                         <div className="lg:col-span-2">
-                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:border-[#EB664E]/30 focus-within:ring-4 focus-within:ring-[#EB664E]/5">
+                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:ring-4 focus-within:ring-[#EB664E]/5">
                                 <p className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-500 font-black uppercase tracking-[0.25em] mb-3">
                                     <HiMapPin className="text-blue-500 text-base" />
                                     Drop-off
@@ -82,7 +82,7 @@ export default function SearchForm() {
 
                         {/* Field 3: Date (Changes based on tab) */}
                         <div className="lg:col-span-2">
-                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:border-[#EB664E]/30 focus-within:ring-4 focus-within:ring-[#EB664E]/5">
+                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:ring-4 focus-within:ring-[#EB664E]/5">
                                 <p className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-500 font-black uppercase tracking-[0.25em] mb-3">
                                     <HiCalendarDays className="text-[#EB664E] text-base" />
                                     When
@@ -97,7 +97,7 @@ export default function SearchForm() {
 
                         {/* Field 4: Selection (Changes based on tab) */}
                         <div className="lg:col-span-2">
-                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:border-[#EB664E]/30 focus-within:ring-4 focus-within:ring-[#EB664E]/5">
+                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:ring-4 focus-within:ring-[#EB664E]/5">
                                 <p className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-500 font-black uppercase tracking-[0.25em] mb-3">
                                     <HiUsers className="text-[#EB664E] text-base" />
                                     {activeTab === 'luxury-cars' || activeTab === 'luxury-buses' ? 'Service' : 'Travelers'}
@@ -122,7 +122,7 @@ export default function SearchForm() {
                         
                         {/* Field 5: Price */}
                         <div className="lg:col-span-2">
-                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:border-[#EB664E]/30 focus-within:ring-4 focus-within:ring-[#EB664E]/5">
+                            <div className="relative h-full bg-gray-50 dark:bg-slate-800 hover:bg-gray-100/50 dark:hover:bg-slate-700/50 rounded-3xl p-5 transition-all duration-500 group/field cursor-pointer focus-within:ring-4 focus-within:ring-[#EB664E]/5">
                                 <p className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-500 font-black uppercase tracking-[0.25em] mb-3">
                                     <HiBanknotes className="text-[#EB664E] text-base" />
                                     Est. Price

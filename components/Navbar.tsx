@@ -236,7 +236,7 @@ export default function Navbar() {
       {isBookingOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" onClick={() => setIsBookingOpen(false)}></div>
-          <div className="relative w-full max-w-6xl transform transition-all duration-500 scale-100 opacity-100 max-h-[90vh] overflow-y-auto rounded-2xl">
+          <div className="relative w-full max-w-6xl transform transition-all duration-500 scale-100 opacity-100 max-h-[90vh] overflow-y-auto no-scrollbar rounded-2xl">
             <button 
               onClick={() => setIsBookingOpen(false)}
               className="fixed top-4 right-4 sm:-top-16 sm:right-0 text-white/90 hover:text-white transition-colors flex items-center gap-2 uppercase tracking-[0.3em] text-[10px] sm:text-[12px] font-black group z-10 bg-black/20 p-2 rounded-full sm:bg-transparent"
