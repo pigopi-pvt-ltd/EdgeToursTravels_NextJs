@@ -11,18 +11,18 @@ const FAQS = [
 
 export default function FAQ() {
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-black text-[#0A1128] uppercase tracking-tight">Frequently asked questions</h2>
+          <h2 className="text-4xl font-black text-[#0A1128] dark:text-white uppercase tracking-tight">Frequently asked questions</h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <div className="space-y-4">
             {FAQS.map((faq, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-2xl flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-                <p className="text-sm font-bold text-gray-700 leading-snug pr-8 whitespace-normal">{faq}</p>
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+              <div key={idx} className="bg-white dark:bg-slate-800 p-6 rounded-2xl flex items-center justify-between border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 leading-snug pr-8 whitespace-normal">{faq}</p>
+                <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-800 transition-colors">
                   <HiPlus />
                 </div>
               </div>

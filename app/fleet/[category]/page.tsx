@@ -30,7 +30,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
     const title = categoryTitles[category] || 'Our Fleet';
 
     return (
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50 dark:bg-[#0A1128] transition-colors duration-300">
             <Navbar />
 
             {/* Hero Section */}
@@ -56,7 +56,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                             <Link 
                                 href={`/fleet/${category}/${vehicle.slug}`} 
                                 key={vehicle.slug}
-                                className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col"
+                                className="group bg-white dark:bg-slate-800/50 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col"
                             >
                                 <div className="relative aspect-[16/10] overflow-hidden">
                                     <img 
@@ -64,7 +64,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                                         alt={vehicle.name}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
-                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-[#0A1128] shadow-sm">
+                                    <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-[#0A1128] dark:text-white shadow-sm transition-colors">
                                         {vehicle.type}
                                     </div>
                                 </div>
@@ -75,16 +75,16 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                                         <span className="text-gray-400 text-[10px] font-bold ml-1 uppercase">Top Rated</span>
                                     </div>
                                     
-                                    <h3 className="text-2xl font-black text-[#0A1128] uppercase tracking-tight mb-2 group-hover:text-[#EB664E] transition-colors">{vehicle.name}</h3>
-                                    <p className="text-gray-500 text-sm font-medium mb-6 line-clamp-2">{vehicle.tagline}</p>
+                                    <h3 className="text-2xl font-black text-[#0A1128] dark:text-white uppercase tracking-tight mb-2 group-hover:text-[#EB664E] transition-colors">{vehicle.name}</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-6 line-clamp-2 transition-colors">{vehicle.tagline}</p>
                                     
-                                    <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between">
+                                    <div className="mt-auto pt-6 border-t border-gray-50 dark:border-slate-800 transition-colors flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rate Starts</span>
-                                            <span className="text-[#0A1128] font-black text-lg">{vehicle.price}</span>
+                                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Rate Starts</span>
+                                            <span className="text-[#0A1128] dark:text-orange-400 font-black text-lg transition-colors">{vehicle.price}</span>
                                         </div>
                                         
-                                        <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-[#0A1128] group-hover:bg-[#EB664E] group-hover:text-white transition-all transform group-hover:rotate-45">
+                                        <div className="w-12 h-12 bg-gray-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-[#0A1128] dark:text-white group-hover:bg-[#EB664E] group-hover:text-white transition-all transform group-hover:rotate-45">
                                             <HiChevronRight className="text-xl" />
                                         </div>
                                     </div>

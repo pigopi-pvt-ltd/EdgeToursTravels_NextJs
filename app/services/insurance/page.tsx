@@ -37,11 +37,11 @@ const coverage = [
 
 export default function InsurancePage() {
   return (
-    <main className="min-h-screen bg-white flex flex-col pt-24 font-sans antialiased text-[#0A1128]">
+    <main className="min-h-screen bg-white dark:bg-[#0A1128] flex flex-col pt-24 font-sans antialiased text-[#0A1128] dark:text-white transition-colors duration-300">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gray-50 py-24 relative overflow-hidden">
+      <section className="bg-gray-50 dark:bg-slate-900/50 py-24 relative overflow-hidden transition-colors">
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
              <path d="M0 100 L100 0 L100 100 Z" fill="currentColor" />
@@ -51,26 +51,26 @@ export default function InsurancePage() {
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
           <h4 className="text-xs font-bold text-[#FFB800] uppercase tracking-widest mb-4">Ultimate Protection</h4>
           <h1 className="text-5xl lg:text-7xl font-black mb-8 tracking-tighter leading-tight text-[#0A1128]">
-            Comprehensive <br /><span className="text-blue-600">Travel Shield.</span>
+            Comprehensive <br /><span className="text-blue-600 dark:text-blue-400">Travel Shield.</span>
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed transition-colors">
             Travel the world with absolute confidence. Our insurance plans are tailored for the global elite, offering coverage that goes beyond standard policies.
           </p>
         </div>
       </section>
 
       {/* Coverage Grid */}
-      <section className="py-24 bg-white relative">
+      <section className="py-24 bg-white dark:bg-[#0A1128] relative transition-colors">
         <div className="max-w-7xl mx-auto px-6">
            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
              {coverage.map((item, idx) => (
-               <div key={idx} className="group bg-gray-50 p-12 rounded-[3.5rem] border border-gray-100 hover:bg-[#0A1128] hover:scale-105 transition-all duration-500">
-                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-[#FFB800] mb-10 shadow-sm transition-transform duration-500 group-hover:rotate-12">
+               <div key={idx} className="group bg-gray-50 dark:bg-slate-800/50 p-12 rounded-[3.5rem] border border-gray-100 dark:border-slate-800 hover:bg-[#0A1128] dark:hover:bg-slate-800 hover:scale-105 transition-all duration-500">
+                  <div className="w-16 h-16 bg-white dark:bg-slate-700 rounded-2xl flex items-center justify-center text-[#FFB800] mb-10 shadow-sm transition-transform duration-500 group-hover:rotate-12">
                      {item.icon}
                   </div>
                   <h3 className="text-sm font-bold text-[#FFB800] uppercase tracking-widest mb-2">Limit: {item.limit}</h3>
-                  <h2 className="text-2xl font-bold mb-6 group-hover:text-white transition-colors">{item.title}</h2>
-                  <p className="text-gray-500 group-hover:text-gray-400 transition-colors leading-relaxed">
+                  <h2 className="text-2xl font-bold mb-6 group-hover:text-white transition-colors dark:text-white">{item.title}</h2>
+                  <p className="text-gray-500 dark:text-gray-400 group-hover:text-gray-400 transition-colors leading-relaxed">
                      {item.description}
                   </p>
                </div>

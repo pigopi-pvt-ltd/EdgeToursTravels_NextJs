@@ -6,6 +6,7 @@ export interface BookingFormData {
   dateTime: string;
   name: string;
   contact: string;
+  price?: string;
 }
 
 export interface BookingResponse {

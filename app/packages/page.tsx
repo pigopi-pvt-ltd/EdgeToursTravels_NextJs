@@ -31,7 +31,7 @@ const travelPackages = [
 
 export default function PackagesPage() {
   return (
-    <main className="min-h-screen bg-white flex flex-col pt-24 font-sans antialiased text-[#0A1128]">
+    <main className="min-h-screen bg-white dark:bg-[#0A1128] flex flex-col pt-24 font-sans antialiased text-[#0A1128] dark:text-white transition-colors duration-300">
       <Navbar />
 
       {/* Hero Section */}
@@ -52,12 +52,12 @@ export default function PackagesPage() {
       </section>
 
       {/* Experience Grid */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-slate-900/50 transition-colors">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className="max-w-xl">
-              <h2 className="text-4xl font-bold mb-4">Select Your Experience</h2>
-              <p className="text-gray-500">
+              <h2 className="text-4xl font-bold mb-4 dark:text-white transition-colors">Select Your Experience</h2>
+              <p className="text-gray-500 dark:text-gray-400 transition-colors">
                 Choose from our pre-designed elite travel solutions or contact us for a bespoke journey tailored to your specific requirements.
               </p>
             </div>
@@ -65,7 +65,7 @@ export default function PackagesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {travelPackages.map((pkg, idx) => (
-              <div key={idx} className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-[#0A1128]/10 transition-all duration-500 flex flex-col">
+              <div key={idx} className="group bg-white dark:bg-slate-800 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-[#0A1128]/10 dark:hover:shadow-none transition-all duration-500 flex flex-col">
                 <div className="relative h-64 overflow-hidden">
                   <img src={pkg.image} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   <div className="absolute top-6 left-6">
@@ -77,15 +77,15 @@ export default function PackagesPage() {
                 
                 <div className="p-10 flex-1 flex flex-col">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{pkg.duration}</span>
-                    <span className="text-lg font-extrabold text-[#0A1128]">{pkg.price}</span>
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest transition-colors">{pkg.duration}</span>
+                    <span className="text-lg font-extrabold text-[#0A1128] dark:text-[#FFB800] transition-colors">{pkg.price}</span>
                   </div>
                   
-                  <h3 className="text-2xl font-bold mb-6 group-hover:text-[#0A1128] leading-tight">{pkg.title}</h3>
+                  <h3 className="text-2xl font-bold mb-6 group-hover:text-[#0A1128] dark:group-hover:text-[#FFB800] dark:text-white leading-tight transition-colors">{pkg.title}</h3>
                   
                   <ul className="space-y-4 mb-10 flex-1">
                     {pkg.features.map((feature, fIdx) => (
-                      <li key={fIdx} className="flex items-center text-sm text-gray-600 gap-3">
+                      <li key={fIdx} className="flex items-center text-sm text-gray-600 dark:text-gray-400 gap-3 transition-colors">
                         <svg className="w-5 h-5 text-[#FFB800]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
@@ -94,7 +94,7 @@ export default function PackagesPage() {
                     ))}
                   </ul>
 
-                  <button className="w-full bg-gray-50 text-[#0A1128] group-hover:bg-[#0A1128] group-hover:text-white py-5 rounded-2xl font-bold transition-all duration-300">
+                  <button className="w-full bg-gray-50 dark:bg-slate-900 text-[#0A1128] dark:text-white group-hover:bg-[#0A1128] dark:group-hover:bg-[#FFB800] group-hover:text-white dark:group-hover:text-[#0A1128] py-5 rounded-2xl font-bold transition-all duration-300">
                     Discover More
                   </button>
                 </div>
@@ -105,7 +105,7 @@ export default function PackagesPage() {
       </section>
 
       {/* Feature Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-[#0A1128] transition-colors">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-[#0A1128] rounded-[4rem] p-12 lg:p-20 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
@@ -149,10 +149,10 @@ export default function PackagesPage() {
       </section>
 
       {/* FAQ / Simple Text Section */}
-      <section className="py-24 border-b border-gray-100">
+      <section className="py-24 border-b border-gray-100 dark:border-slate-800 transition-colors">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-8 italic">"Experience the world without compromise."</h2>
-          <p className="text-gray-500 italic">
+          <h2 className="text-3xl font-bold mb-8 italic dark:text-white transition-colors">"Experience the world without compromise."</h2>
+          <p className="text-gray-500 dark:text-gray-400 italic transition-colors">
             Each Edge Tours & Travels package is more than just a trip; it is an orchestrated sequence of events aimed at providing absolute comfort and security. Our fleet of luxury vehicles, private jets, and elite concierge services are at your disposal, globally.
           </p>
         </div>
