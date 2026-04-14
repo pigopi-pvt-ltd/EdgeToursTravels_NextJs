@@ -377,9 +377,9 @@ export default function DriversPage() {
               <HiPlus className="text-lg" /> Add Driver
             </button>
           </div>
-          <button onClick={openCreateModal} className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-105 active:scale-95">
+          {/* <button onClick={openCreateModal} className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-105 active:scale-95">
             <HiPlus className="text-lg" /> Add Driver
-          </button>
+          </button> */}
         </div>
 
         {/* Search */}

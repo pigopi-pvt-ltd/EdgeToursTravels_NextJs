@@ -13,12 +13,11 @@ export default function EmployeeLayout({
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userName, setUserName] = useState('');
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const user = getStoredUser();
-    if (!user || user.role !== 'driver') {
+    if (!user || user.role !== 'employee') {
       router.push('/login');
     } else {
       setIsAuthorized(true);
@@ -33,6 +32,7 @@ export default function EmployeeLayout({
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
