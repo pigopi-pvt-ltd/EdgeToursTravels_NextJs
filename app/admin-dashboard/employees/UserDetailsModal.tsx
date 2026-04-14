@@ -93,11 +93,29 @@ export default function UserDetailsModal({ userId, onClose, onUpdate }: Props) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-colors" onClick={onClose}>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl p-8 m-4 text-center shadow-2xl transition-colors">
-          <div className="animate-pulse flex flex-col items-center gap-3">
-            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full"></div>
-            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-colors">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-pulse">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            <div className="h-8 w-8 bg-slate-100 dark:bg-slate-800 rounded"></div>
+          </div>
+          <div className="p-6 space-y-6">
+            <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-100 dark:border-slate-800 space-y-4">
+              <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-4 w-3/4 bg-slate-100 dark:bg-slate-700/50 rounded"></div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-xl p-5 space-y-4">
+              <div className="h-5 w-48 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-4 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

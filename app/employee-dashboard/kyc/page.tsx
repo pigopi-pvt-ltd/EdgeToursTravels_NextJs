@@ -17,6 +17,7 @@ export default function KycPage() {
   }, []);
 
   const fetchDriverDetails = async () => {
+    setLoading(true);
     const token = getAuthToken();
     try {
       const res = await fetch('/api/user/driver-details', {
@@ -31,6 +32,8 @@ export default function KycPage() {
       }
     } catch (error) {
       console.error('Error fetching driver details:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,9 +94,40 @@ export default function KycPage() {
     }
   };
 
+  if (loading && !driverDetails.fullName) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded-lg mb-2"></div>
+          <div className="h-4 w-96 bg-slate-100 dark:bg-slate-800/50 rounded mb-8"></div>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 w-32 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                  <div className="h-10 w-full bg-slate-50 dark:bg-slate-800/30 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <div className="h-10 w-40 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-48 bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Allow employees (drivers) to access KYC
-  if ( user?.role !== 'driver') {
-    return <div className="p-8 text-center">KYC is only for employees/drivers.</div>;
+  if (user?.role !== 'driver') {
+    return <div className="p-8 text-center text-slate-500 dark:text-slate-400">KYC is only for employees/drivers.</div>;
   }
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { HiOutlineCalendar, HiOutlineMapPin, HiOutlineUser, HiOutlinePhone, HiOutlineClock, HiOutlineCheckCircle, HiOutlineXCircle, HiEllipsisVertical, HiChevronLeft, HiChevronRight, HiChevronDown } from 'react-icons/hi2';
+import { HiOutlineCalendar, HiOutlineMapPin, HiOutlineUser, HiOutlinePhone, HiOutlineClock, HiOutlineCheckCircle, HiOutlineXCircle, HiEllipsisVertical, HiChevronLeft, HiChevronRight, HiChevronDown, HiArrowPath } from 'react-icons/hi2';
 import apiClient from '@/lib/apiClient';
 
 interface Booking {
@@ -76,8 +76,67 @@ export default function BookingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+      <div className="-mt-8 -mx-8 animate-pulse">
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-screen">
+          {/* Header Skeleton */}
+          <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
+            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <th key={i} className="px-6 py-4">
+                      <div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+                  <tr key={row}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                          <div className="h-2 w-16 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        <div className="h-2.5 w-32 bg-slate-50 dark:bg-slate-700/50 rounded"></div>
+                        <div className="h-2.5 w-28 bg-slate-50 dark:bg-slate-700/50 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        <div className="h-2.5 w-24 bg-slate-50 dark:bg-slate-700/50 rounded"></div>
+                        <div className="h-2.5 w-16 bg-slate-50 dark:bg-slate-700/50 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="h-3 w-20 bg-slate-50 dark:bg-slate-700/50 rounded mx-auto"></div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="h-6 w-24 bg-slate-50 dark:bg-slate-700/50 rounded-full mx-auto"></div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700/50"></div>
+                        <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700/50"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   }
@@ -86,15 +145,15 @@ export default function BookingsPage() {
     <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 overflow-hidden min-h-[calc(100vh-64px)] transition-colors duration-300">
         {/* Header Toolbar matched to Employees Page */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2 px-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-            Ride Bookings <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredBookings.length})</span>
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-slate-800 dark:text-white flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
+            RIDE BOOKINGS <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredBookings.length})</span>
           </h2>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center">
             <button
               onClick={fetchBookings}
-              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center gap-2 shadow-sm whitespace-nowrap"
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[11px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm whitespace-nowrap active:scale-95"
             >
               Refresh Data
             </button>
@@ -106,14 +165,6 @@ export default function BookingsPage() {
             <HiOutlineXCircle className="text-xl" />
             {error}
           </div>
-        ) : filteredBookings.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 p-24 text-center transition-colors">
-            <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
-              <HiOutlineCalendar className="text-2xl text-slate-400 dark:text-slate-500" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">No {statusFilter !== 'all' ? statusFilter : ''} bookings found</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Try changing the status filter or refreshing data</p>
-          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -121,13 +172,13 @@ export default function BookingsPage() {
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Customer</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Route</th>
-                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Schedule</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Schedule</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Price Estimate</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
-                      <span>Status</span>
+                      <span className="uppercase">{statusFilter === 'all' ? 'Status' : statusFilter}</span>
                       <HiChevronDown className="text-slate-400 text-xs" />
-                      <select 
+                      <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
@@ -144,7 +195,18 @@ export default function BookingsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredBookings.map((booking) => (
+                {filteredBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-20 text-center">
+                      <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                        <HiOutlineCalendar className="text-2xl text-slate-400 dark:text-slate-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white italic">No {statusFilter !== 'all' ? statusFilter : ''} bookings found</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Try changing the status filter or refreshing data</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredBookings.map((booking) => (
                   <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
                       <div className="flex items-center gap-3">
@@ -183,10 +245,10 @@ export default function BookingsPage() {
                     <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
                       <span className={`
                         px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
-                        ${booking.status === 'pending' ? 'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30' : 
+                        ${booking.status === 'pending' ? 'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30' :
                           booking.status === 'cancelled' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
-                          booking.status === 'confirmed' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
-                          'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30'}
+                            booking.status === 'confirmed' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
+                              'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30'}
                       `}>
                         {booking.status}
                       </span>
@@ -194,7 +256,7 @@ export default function BookingsPage() {
                     <td className="px-6 py-1.5 text-center">
                       <div className="flex items-center justify-center gap-2">
                         {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                          <button 
+                          <button
                             onClick={() => updateStatus(booking._id, booking.status === 'pending' ? 'confirmed' : 'completed')}
                             className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-all shadow-sm"
                             title="Update Status"
@@ -203,7 +265,7 @@ export default function BookingsPage() {
                           </button>
                         )}
                         {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                          <button 
+                          <button
                             onClick={() => updateStatus(booking._id, 'cancelled')}
                             className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400 rounded-full hover:bg-red-600 dark:hover:bg-red-500 hover:text-white transition-all shadow-sm"
                             title="Cancel Booking"
@@ -214,7 +276,8 @@ export default function BookingsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
 
@@ -227,7 +290,7 @@ export default function BookingsPage() {
                   <HiChevronDown className="text-sm text-slate-400 dark:text-slate-600" />
                 </div>
               </div>
-              
+
               <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
                 1-{filteredBookings.length} of {filteredBookings.length}
               </span>

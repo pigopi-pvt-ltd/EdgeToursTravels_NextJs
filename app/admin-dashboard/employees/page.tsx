@@ -132,19 +132,40 @@ export default function EmployeesPage() {
     u.mobileNumber.includes(searchTerm)
   );
 
-  // Loading skeleton
   if (loading) {
     return (
-      <div className="p-6 space-y-6 animate-pulse transition-colors">
-        <div className="flex justify-between items-center">
-          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-          <div className="flex gap-3">
-            <div className="h-10 w-64 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 -mt-8 -mx-8 animate-pulse transition-colors">
+        <div className="p-6 lg:p-8 space-y-8">
+          <div className="flex justify-between items-center">
+            <div className="space-y-3">
+              <div className="h-9 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-4 w-48 bg-slate-100 dark:bg-slate-800/50 rounded-lg"></div>
+            </div>
+            <div className="h-11 w-40 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
           </div>
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-          <div className="h-96 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900"></div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700">
+              <div className="h-10 w-full max-w-sm bg-slate-100 dark:bg-slate-900 rounded-xl"></div>
+            </div>
+            <div className="divide-y divide-slate-50 dark:divide-slate-700">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="px-6 py-5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 w-36 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                      <div className="h-3 w-28 bg-slate-50 dark:bg-slate-800 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-4 w-32 bg-slate-50 dark:bg-slate-800 rounded hidden md:block"></div>
+                  <div className="h-6 w-20 bg-slate-100 dark:bg-slate-900 rounded-full"></div>
+                  <div className="h-6 w-24 bg-slate-100 dark:bg-slate-900 rounded-full hidden md:block"></div>
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -152,9 +173,9 @@ export default function EmployeesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 -mt-8 -mx-8 animate-in fade-in duration-500 transition-colors">
-      <div className="p-6 lg:p-8">
+      <div className="py-6 lg:py-8 space-y-8">
         {/* Header Section */}
-        <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="px-6 lg:px-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent transition-colors">
               Team Management
@@ -169,10 +190,10 @@ export default function EmployeesPage() {
           </button>
         </div>
 
-        {/* Main Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-100 dark:shadow-black/20 border border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-300">
+        {/* Main Card - Chipka Hua (Full Width) */}
+        <div className="bg-white dark:bg-slate-800 shadow-xl shadow-slate-100 dark:shadow-black/20 border-y border-slate-100 dark:border-slate-700 overflow-hidden transition-all duration-300">
           {/* Search Bar */}
-          <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm sticky top-0 z-10 transition-colors">
+          <div className="p-4 px-6 lg:px-8 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm sticky top-0 z-10 transition-colors">
             <div className="relative max-w-md">
               <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg transition-colors" />
               <input
@@ -190,11 +211,11 @@ export default function EmployeesPage() {
             <table className="w-full">
               <thead>
                 <tr className="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700 transition-colors">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-8 lg:pl-10">User</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">KYC Status</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider pr-8 lg:pr-10">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700 transition-colors">
@@ -204,7 +225,7 @@ export default function EmployeesPage() {
                     className="group hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors duration-150"
                     style={{ animationDelay: `${idx * 30}ms` }}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 pl-8 lg:pl-10">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50 text-indigo-700 dark:text-indigo-300 font-bold text-sm flex items-center justify-center shadow-sm">
                           {getInitials(user.name)}
@@ -243,7 +264,7 @@ export default function EmployeesPage() {
                         <span className="text-xs text-slate-400 dark:text-slate-500 transition-colors">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right pr-8 lg:pr-10">
                       <button 
                         onClick={() => setSelectedUserId(user._id)} 
                         className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all duration-200 group-hover:scale-105"
@@ -265,7 +286,7 @@ export default function EmployeesPage() {
             )}
           </div>
           {/* Footer Stats */}
-          <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between transition-colors">
+          <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between transition-colors px-8 lg:px-10">
             <span>Total users: {users.length}</span>
             <span>Showing {filteredUsers.length} of {users.length}</span>
           </div>
