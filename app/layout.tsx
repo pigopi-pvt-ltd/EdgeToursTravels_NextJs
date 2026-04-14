@@ -17,6 +17,8 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/context/ThemeContext";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
+
 
 export default function RootLayout({
   children,
@@ -27,7 +29,11 @@ export default function RootLayout({
     <html lang="en" className={`${outfit.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-outfit">
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <WhatsAppWidget />
+          </AuthProvider>
+
         </ThemeProvider>
       </body>
     </html>
