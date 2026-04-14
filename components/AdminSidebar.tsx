@@ -14,12 +14,14 @@ import {
   HiOutlineUser,
   HiOutlineIdentification,
   HiOutlineCog,
-  HiOutlineX
+  HiOutlineX,
+  HiOutlineDatabase, 
 } from 'react-icons/hi';
 import { clearAuthData, getStoredUser } from '@/lib/auth';
 
 const adminItems = [
   { name: 'Dashboard', icon: HiOutlineViewGrid, href: '/admin-dashboard' },
+  { name: 'Master Data', icon: HiOutlineDatabase, href: '/admin-dashboard/master-data' }, 
   { name: 'Drivers', icon: HiOutlineUsers, href: '/admin-dashboard/drivers' },
   { name: 'Availability', icon: HiOutlineCalendar, href: '/admin-dashboard/availability' },
   { name: 'Manage Employee', icon: HiOutlineUserGroup, href: '/admin-dashboard/employees' },
@@ -110,8 +112,6 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </ul>
         </nav>
-
-
       </aside>
     </>
   );

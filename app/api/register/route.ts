@@ -6,8 +6,15 @@ import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, mobileNumber, name } = await request.json();
+    const body = await request.json();
+    const { 
+      email, password, mobileNumber, name, 
+      role = 'customer', 
+      driverDetails, 
+      employeeDetails 
+    } = body;
 
+    // Validate required fields
     if (!email || !password || !mobileNumber) {
       return NextResponse.json(
         { error: 'Email, password, and mobile number are required' },
@@ -30,6 +37,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Role must be valid
+    const validRoles = ['admin', 'driver', 'employee', 'customer'];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    }
+
+    // If role is driver, driverDetails must be provided
+    if (role === 'driver' && !driverDetails) {
+      return NextResponse.json({ error: 'Driver details are required' }, { status: 400 });
+    }
+    // If role is employee, employeeDetails must be provided
+    if (role === 'employee' && !employeeDetails) {
+      return NextResponse.json({ error: 'Employee details are required' }, { status: 400 });
+    }
+
     await connectToDatabase();
 
     const existingUser = await User.findOne({
@@ -44,20 +66,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await User.create({
+    // Prepare user data
+    const userData: any = {
       email: email.toLowerCase(),
       mobileNumber,
       password,
       name,
-      role: 'driver',
-    });
+      role,
+      profileCompleted: true, // since we're providing all details
+    };
+
+    if (role === 'driver') {
+      userData.driverDetails = driverDetails;
+    } else if (role === 'employee') {
+      userData.employeeDetails = employeeDetails;
+    }
+
+    const user = await User.create(userData);
 
     // Send welcome email with credentials
     await sendEmail({
       to: email,
       subject: 'Welcome to Edge Tours – Your Account Details',
       html: `
-        <h2>Welcome ${name || 'Employee'}!</h2>
+        <h2>Welcome ${name || (role === 'driver' ? 'Driver' : 'Employee')}!</h2>
         <p>Your account has been created successfully.</p>
         <p><strong>Login Credentials:</strong></p>
         <ul>
@@ -75,6 +107,9 @@ export async function POST(request: NextRequest) {
       role: user.role,
     });
 
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user.toObject();
+
     return NextResponse.json(
       {
         user: {
@@ -83,6 +118,7 @@ export async function POST(request: NextRequest) {
           mobileNumber: user.mobileNumber,
           name: user.name,
           role: user.role,
+          profileCompleted: user.profileCompleted,
           createdAt: user.createdAt,
         },
         token,

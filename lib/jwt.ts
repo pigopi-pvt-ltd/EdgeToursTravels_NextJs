@@ -1,3 +1,4 @@
+
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -5,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'admin' | 'driver';
+  role: 'admin' | 'driver' | 'employee' | 'customer';
 }
 
 export function signToken(payload: JWTPayload): string {

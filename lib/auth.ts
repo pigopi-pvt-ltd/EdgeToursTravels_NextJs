@@ -10,7 +10,9 @@ export interface RegisterData {
   password: string;
   mobileNumber: string;
   name?: string;
-  role?: 'admin' | 'driver';
+  role?: 'admin' | 'driver' | 'employee' | 'customer';
+  driverDetails?: any;
+  employeeDetails?: any;
 }
 
 export interface AuthResponse {
@@ -19,7 +21,8 @@ export interface AuthResponse {
     email: string;
     mobileNumber: string;
     name?: string;
-    role: 'admin' | 'driver';
+    role: 'admin' | 'driver' | 'employee' | 'customer';
+    profileCompleted: boolean;
     createdAt: string;
   };
   token: string;
@@ -96,6 +99,7 @@ export async function updateProfile(name: string) {
   return res.json();
 }
 
+// Driver-specific (if user is driver)
 export async function getDriverDetails() {
   const token = getAuthToken();
   const res = await fetch('/api/user/driver-details', { headers: { Authorization: `Bearer ${token}` } });

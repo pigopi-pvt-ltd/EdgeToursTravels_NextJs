@@ -11,9 +11,8 @@ export async function GET(req: NextRequest) {
   const payload = verifyToken(token);
   if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  // Return all employees (role = 'employee')
-  const employees = await User.find({ role: 'employee' }).select('-password');
-  return NextResponse.json(employees);
+  const drivers = await User.find({ role: 'driver' }).select('-password');
+  return NextResponse.json(drivers);
 }
 
 export async function POST(req: NextRequest) {
@@ -25,27 +24,29 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const { fullName, mobile, gender, presentAddress, permanentAddress, alternateMobile,
-          aadhar, dob, pan, email, yearsOfExperience, highestQualification, previousExperience,
-          profilePhoto, aadharFront, aadharBack, panImage } = body;
+          aadhar, dob, pan, email, drivingLicense, yearsOfExperience, highestQualification,
+          profilePhoto, aadharFront, aadharBack, panImage, licenseImage } = body;
 
+  // Check existing
   const existing = await User.findOne({ $or: [{ email }, { mobileNumber: mobile }] });
   if (existing) return NextResponse.json({ error: 'Email or mobile already exists' }, { status: 400 });
 
-  const hashedPassword = await bcrypt.hash('Employee@123', 10);
-  const employee = await User.create({
+  const hashedPassword = await bcrypt.hash('Driver@123', 10);
+  const driver = await User.create({
     email,
     mobileNumber: mobile,
     password: hashedPassword,
     name: fullName,
-    role: 'employee',
+    role: 'driver',
     profileCompleted: true,
-    employeeDetails: {
+    driverDetails: {
       fullName, mobile, gender, presentAddress, permanentAddress, alternateMobile,
-      aadhar, dob: new Date(dob), pan, email,
-      yearsOfExperience: Number(yearsOfExperience), highestQualification, previousExperience,
-      profilePhoto, aadharFront, aadharBack, panImage
+      aadhar, dob: new Date(dob), pan, email, drivingLicense,
+      yearsOfExperience: Number(yearsOfExperience), highestQualification,
+      profilePhoto, aadharFront, aadharBack, panImage, licenseImage,
+      kycStatus: 'pending'
     }
   });
 
-  return NextResponse.json(employee, { status: 201 });
+  return NextResponse.json(driver, { status: 201 });
 }

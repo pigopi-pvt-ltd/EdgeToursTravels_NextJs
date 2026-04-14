@@ -5,21 +5,35 @@ import { signToken } from '@/lib/jwt';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { email, mobileNumber, password } = await request.json();
 
-    if (!email || !password) {
+    if (!password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Password is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!email && !mobileNumber) {
+      return NextResponse.json(
+        { error: 'Email or mobile number is required' },
         { status: 400 }
       );
     }
 
     await connectToDatabase();
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user by either email or mobile number
+    let user;
+    if (email) {
+      user = await User.findOne({ email: email.toLowerCase() });
+    } else if (mobileNumber) {
+      user = await User.findOne({ mobileNumber });
+    }
+
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -27,7 +41,7 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -46,6 +60,7 @@ export async function POST(request: NextRequest) {
           mobileNumber: user.mobileNumber,
           name: user.name,
           role: user.role,
+          profileCompleted: user.profileCompleted,
           createdAt: user.createdAt,
         },
         token,
