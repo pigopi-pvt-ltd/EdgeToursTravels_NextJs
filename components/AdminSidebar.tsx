@@ -11,10 +11,10 @@ import {
   HiOutlineStar,
   HiOutlineCurrencyDollar,
   HiOutlineBriefcase,
-  HiOutlineLogout,
   HiOutlineUser,
   HiOutlineIdentification,
-  HiOutlineCog
+  HiOutlineCog,
+  HiOutlineX
 } from 'react-icons/hi';
 import { clearAuthData, getStoredUser } from '@/lib/auth';
 
@@ -64,7 +64,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
     <>
       {/* Backdrop for mobile */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity"
           onClick={onClose}
         />
@@ -82,7 +82,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </Link>
           <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
-            <HiOutlineLogout className="text-xl rotate-180" />
+            <HiOutlineX className="text-xl" />
           </button>
         </div>
 
@@ -97,11 +97,10 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={() => {
                       if (window.innerWidth < 1024) onClose();
                     }}
-                    className={`flex items-center gap-3 px-6 py-3 transition-all duration-200 group ${
-                      isActive
+                    className={`flex items-center gap-3 px-6 py-3 transition-all duration-200 group ${isActive
                         ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500'
                         : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
-                    }`}
+                      }`}
                   >
                     <item.icon className={`text-xl ${isActive ? 'text-orange-600 dark:text-orange-400' : 'group-hover:text-slate-900 dark:group-hover:text-white'}`} />
                     <span className="font-semibold text-sm tracking-tight">{item.name}</span>
@@ -112,15 +111,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800/50">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-6 py-3 w-full text-slate-500 dark:text-slate-400 hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400 transition-all rounded-lg group"
-          >
-            <HiOutlineLogout className="text-xl group-hover:scale-110 transition-transform" />
-            <span className="font-semibold text-sm tracking-tight">Logout</span>
-          </button>
-        </div>
+
       </aside>
     </>
   );

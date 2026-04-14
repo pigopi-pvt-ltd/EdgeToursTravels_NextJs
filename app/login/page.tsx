@@ -152,9 +152,16 @@ export default function AuthPage() {
             <button 
               type="submit" 
               disabled={loading} 
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-50 mt-4"
+              className="w-full bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-[11px] py-4.5 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] dark:shadow-none transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_20px_35px_-10px_rgba(79,70,229,0.5)] active:scale-95 disabled:opacity-50 mt-6 border border-white/10 flex items-center justify-center gap-3"
             >
-              {loading ? 'Authenticating...' : 'Sign In To Panel'}
+              {loading ? 'Authenticating...' : (
+                <>
+                  Enter Dashboard
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </>
+              )}
             </button>
           </form>
         )}

@@ -28,7 +28,7 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   const toggleExpanded = (item: string) => {
-    setExpandedItems(prev => 
+    setExpandedItems(prev =>
       prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
   };
@@ -75,13 +75,13 @@ export default function Navbar() {
       <nav className="w-full flex items-center justify-between px-4 md:px-10 py-4 md:py-5 text-[#0A1128] dark:text-white bg-white dark:bg-[#0A1128] shadow-sm dark:shadow-slate-900/50 transition-all duration-300">
         <div className="flex items-center gap-4">
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-[#EB664E] transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <HiBars3 className="text-2xl" />
           </button>
-          
+
           <Link href="/">
             <img src="/images/logo.png" alt="Edge Tours & Travels" className="h-8 md:h-10 w-auto object-contain cursor-pointer" />
           </Link>
@@ -91,7 +91,7 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-6 lg:space-x-8 text-[11px] lg:text-[12px] font-black items-center tracking-widest">
           <Link href="/" className={linkClass('/')}>HOME</Link>
           <Link href="/about" className={linkClass('/about')}>ABOUT</Link>
-          
+
           <div className="relative group cursor-pointer h-full flex items-center">
             <span className={`transition flex items-center gap-1 py-1 ${pathname.includes('/fleet') ? 'text-[#EB664E] border-b-2 border-[#EB664E]' : 'text-gray-600 dark:text-gray-400 hover:text-[#EB664E] hover:border-b-2 hover:border-[#EB664E]'}`}>
               OUR FLEET
@@ -146,7 +146,7 @@ export default function Navbar() {
           </div>
 
           <Link href="/contact" className={linkClass('/contact')}>CONTACT US</Link>
-          
+
           <button onClick={() => setIsBookingOpen(true)} className="group cursor-pointer ml-4">
             <div className="bg-[#EB664E] text-white px-6 py-2.5 rounded-full font-black uppercase tracking-[0.2em] text-[9px] hover:shadow-[0_10px_25px_-5px_rgba(235,102,78,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 border border-white/20">
               Book Now <HiMagnifyingGlass className="w-3.5 h-3.5" />
@@ -155,14 +155,14 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center space-x-2 md:space-x-4">
-          <button 
+          <button
             onClick={toggleTheme}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-all text-gray-600 dark:text-gray-300"
           >
             {theme === 'light' ? <HiOutlineMoon className="text-xl" /> : <HiOutlineSun className="text-xl text-yellow-500" />}
           </button>
           <Link href="/login" className="hidden sm:block">
-            <button className="bg-[#EB664E] text-white px-5 py-2 rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-[#d55a45] transition shadow-lg">
+            <button className="bg-[#EB664E] text-white px-6 py-2.5 rounded-full font-black uppercase tracking-[0.2em] text-[10px] hover:shadow-[0_10px_25px_-5px_rgba(235,102,78,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 border border-white/20 cursor-pointer">
               Sign In
             </button>
           </Link>
@@ -183,11 +183,11 @@ export default function Navbar() {
                 <HiXMark className="text-2xl" />
               </button>
             </div>
-            
+
             <nav className="flex-1 overflow-y-auto space-y-4">
               <Link href="/" className="block text-sm font-bold text-gray-800 dark:text-gray-200">HOME</Link>
               <Link href="/about" className="block text-sm font-bold text-gray-800 dark:text-gray-200">ABOUT</Link>
-              
+
               <div className="space-y-2">
                 <button onClick={() => toggleExpanded('fleet')} className="w-full flex items-center justify-between text-sm font-bold text-gray-800 dark:text-gray-200">
                   OUR FLEET <HiChevronDown className={`transition-transform ${expandedItems.includes('fleet') ? 'rotate-180' : ''}`} />
@@ -224,7 +224,7 @@ export default function Navbar() {
             </nav>
 
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-              <Link href="/login" className="block w-full bg-[#EB664E] text-white py-3 rounded-lg font-bold text-center text-xs tracking-widest uppercase">
+              <Link href="/login" className="block w-full bg-[#EB664E] text-white py-3.5 rounded-xl font-black text-center text-[10px] tracking-[0.2em] uppercase hover:shadow-[0_10px_25px_-5px_rgba(235,102,78,0.5)] transition-all duration-300 transform active:scale-95">
                 Sign In
               </Link>
             </div>
@@ -237,7 +237,7 @@ export default function Navbar() {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" onClick={() => setIsBookingOpen(false)}></div>
           <div className="relative w-full max-w-6xl transform transition-all duration-500 scale-100 opacity-100 max-h-[90vh] overflow-y-auto no-scrollbar rounded-2xl">
-            <button 
+            <button
               onClick={() => setIsBookingOpen(false)}
               className="fixed top-4 right-4 sm:-top-16 sm:right-0 text-white/90 hover:text-white transition-colors flex items-center gap-2 uppercase tracking-[0.3em] text-[10px] sm:text-[12px] font-black group z-10 bg-black/20 p-2 rounded-full sm:bg-transparent"
             >
