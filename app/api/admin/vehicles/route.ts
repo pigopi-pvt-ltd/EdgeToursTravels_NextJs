@@ -1,40 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import Vehicle from '@/models/Vehicle';
-import { verifyToken } from '@/lib/jwt';
+import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
+  
+  await connectToDatabase();
   const vehicles = await Vehicle.find().sort({ createdAt: -1 });
   return NextResponse.json(vehicles);
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
+  
+  await connectToDatabase();
   const body = await req.json();
-  const { cabNumber, tacNo, licenseNo, pollutionNo, gstNo, insuranceNo, modelName,
-          expiryDate, yearOfMaking, status, vendor } = body;
-
-  const existing = await Vehicle.findOne({ $or: [{ cabNumber }, { licenseNo }] });
-  if (existing) return NextResponse.json({ error: 'Cab number or license already exists' }, { status: 400 });
-
-  const vehicle = await Vehicle.create({
-    cabNumber, tacNo, licenseNo, pollutionNo, gstNo, insuranceNo, modelName,
-    expiryDate: new Date(expiryDate), yearOfMaking: Number(yearOfMaking), status,
-    vendor: {
-      ...vendor,
-      dob: new Date(vendor.dob)
-    }
-  });
+  
+  // Required fields from frontend
+  const required = ['vendorName', 'mobile', 'cabNumber', 'licenceNumber', 'insuranceNo', 'modelName'];
+  for (const field of required) {
+    if (!body[field]) return NextResponse.json({ error: `${field} is required` }, { status: 400 });
+  }
+  
+  // Check uniqueness
+  const existing = await Vehicle.findOne({ $or: [{ cabNumber: body.cabNumber }, { licenceNumber: body.licenceNumber }] });
+  if (existing) return NextResponse.json({ error: 'Cab number or licence number already exists' }, { status: 400 });
+  
+  // Convert dates
+  const vehicleData = {
+    ...body,
+    dob: body.dob ? new Date(body.dob) : undefined,
+    expiryDate: new Date(body.expiryDate),
+    yearMaking: Number(body.yearMaking),
+  };
+  
+  const vehicle = await Vehicle.create(vehicleData);
   return NextResponse.json(vehicle, { status: 201 });
 }

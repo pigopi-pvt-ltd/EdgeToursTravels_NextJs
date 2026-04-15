@@ -1,37 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
-import { verifyToken } from '@/lib/jwt';
+import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
 
-export async function PUT(request: NextRequest) {
-  try {
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const payload = verifyToken(token);
-    if (!payload || payload.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const { userId, driverDetails } = await request.json();
-    if (!userId || !driverDetails) {
-      return NextResponse.json({ error: 'Missing userId or driverDetails' }, { status: 400 });
-    }
-
-    await connectToDatabase();
-    const user = await User.findById(userId);
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    if (user.role !== 'driver') {
-      return NextResponse.json({ error: 'User is not a driver' }, { status: 400 });
-    }
-
-    // Merge updated fields
-    user.driverDetails = { ...(user.driverDetails || {}), ...driverDetails };
-    await user.save();
-
-    return NextResponse.json({ success: true, driverDetails: user.driverDetails });
-  } catch (error) {
-    console.error('Update driver error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+export async function PUT(req: NextRequest) {
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
+  
+  await connectToDatabase();
+  const body = await req.json();
+  const { userId, driverDetails } = body;
+  
+  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
+  
+  const user = await User.findById(userId);
+  if (!user || user.role !== 'driver') return NextResponse.json({ error: 'Driver not found' }, { status: 404 });
+  
+  // Merge driverDetails
+  user.driverDetails = { ...user.driverDetails, ...driverDetails };
+  await user.save();
+  
+  return NextResponse.json({ message: 'Driver updated' });
 }

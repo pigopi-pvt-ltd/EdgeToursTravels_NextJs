@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { verifyToken } from '@/lib/jwt';
+import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
 import bcrypt from 'bcryptjs';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET(req: NextRequest) {
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
+  
   await dbConnect();
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  // Return all employees (role = 'employee')
-  const employees = await User.find({ role: 'employee' }).select('-password');
+  const employees = await User.find({ role: { $in: ['driver', 'employee'] } }).sort({ createdAt: -1 });
   return NextResponse.json(employees);
 }
 
