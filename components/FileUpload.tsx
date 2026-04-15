@@ -10,6 +10,7 @@ interface FileUploadProps {
   folder?: string;
   label?: string;
   accept?: string;
+  buttonClassName?: string;
 }
 
 export default function FileUpload({ 
@@ -17,7 +18,8 @@ export default function FileUpload({
   existingUrl = '', 
   folder = 'general', 
   label = 'Upload', 
-  accept = 'image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+  accept = 'image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  buttonClassName,
 }: FileUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(existingUrl);
@@ -84,7 +86,7 @@ export default function FileUpload({
             )}
           </div>
         )}
-        <label className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <label className={`cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-medium transition ${buttonClassName ?? 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600'}`}>
           {uploading ? 'Uploading...' : 'Choose File'}
           <input 
             type="file" 

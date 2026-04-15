@@ -337,7 +337,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Aadhar Card (Front)</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload clear photo</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, aadharFront: url})} existingUrl={formData.aadharFront} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, aadharFront: url})} existingUrl={formData.aadharFront} />
                     </div>
                     {/* Aadhar Back */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition-colors">
@@ -346,7 +346,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Aadhar Card (Back)</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload clear photo</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, aadharBack: url})} existingUrl={formData.aadharBack} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, aadharBack: url})} existingUrl={formData.aadharBack} />
                     </div>
                     {/* PAN Card */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition-colors">
@@ -355,7 +355,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">PAN Card</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload PAN image</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, panImage: url})} existingUrl={formData.panImage} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, panImage: url})} existingUrl={formData.panImage} />
                     </div>
                     {/* RC Document */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition-colors">
@@ -364,7 +364,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">RC Document</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Registration Certificate</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, rcImage: url})} existingUrl={formData.rcImage} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, rcImage: url})} existingUrl={formData.rcImage} />
                     </div>
                     {/* Insurance Document */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition-colors">
@@ -373,7 +373,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Insurance Certificate</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Valid insurance document</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, insuranceImage: url})} existingUrl={formData.insuranceImage} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, insuranceImage: url})} existingUrl={formData.insuranceImage} />
                     </div>
                     {/* Pollution Certificate */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition-colors">
@@ -382,7 +382,7 @@ export default function VehiclesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Pollution Certificate</h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">PUC document</p>
-                      <FileUpload folder="vehicles" label="Upload" onUpload={(url) => setFormData({...formData, pollutionImage: url})} existingUrl={formData.pollutionImage} />
+                      <FileUpload folder="vehicles" label="Upload" buttonClassName="bg-orange-600 hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700" onUpload={(url) => setFormData({...formData, pollutionImage: url})} existingUrl={formData.pollutionImage} />
                     </div>
                   </div>
                 </div>
