@@ -1,10 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBooking extends Document {
+  userId: mongoose.Types.ObjectId;      // customer who booked
+  driverId?: mongoose.Types.ObjectId;   // assigned driver (optional)
   from: string;
   destination: string;
   dateTime: Date;
-  name: string;
+  name: string;                         // customer name (redundant, but for quick view)
   contact: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: Date;
@@ -13,39 +15,20 @@ export interface IBooking extends Document {
 
 const BookingSchema = new Schema<IBooking>(
   {
-    from: {
-      type: String,
-      required: [true, 'Pick-up location is required'],
-      trim: true,
-    },
-    destination: {
-      type: String,
-      required: [true, 'Destination is required'],
-      trim: true,
-    },
-    dateTime: {
-      type: Date,
-      required: [true, 'Date and time are required'],
-    },
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-    },
-    contact: {
-      type: String,
-      required: [true, 'Contact number is required'],
-      trim: true,
-    },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    driverId: { type: Schema.Types.ObjectId, ref: 'User' },
+    from: { type: String, required: true, trim: true },
+    destination: { type: String, required: true, trim: true },
+    dateTime: { type: Date, required: true },
+    name: { type: String, required: true, trim: true },
+    contact: { type: String, required: true, trim: true },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'completed', 'cancelled'],
       default: 'pending',
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export default mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema);
