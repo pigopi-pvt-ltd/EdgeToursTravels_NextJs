@@ -15,10 +15,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const vehicle = await Vehicle.findById(id);
   if (!vehicle) return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 });
   
-  // Convert dates if present
+  // Convert dates and year values if present
   if (body.dob) body.dob = new Date(body.dob);
+  if (body.vendor?.dob) body.vendor.dob = new Date(body.vendor.dob);
   if (body.expiryDate) body.expiryDate = new Date(body.expiryDate);
   if (body.yearMaking) body.yearMaking = Number(body.yearMaking);
+  if (body.yearOfMaking) body.yearOfMaking = Number(body.yearOfMaking);
   
   Object.assign(vehicle, body);
   await vehicle.save();

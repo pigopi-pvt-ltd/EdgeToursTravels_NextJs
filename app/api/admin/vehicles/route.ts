@@ -22,21 +22,56 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   
   // Required fields from frontend
-  const required = ['vendorName', 'mobile', 'cabNumber', 'licenceNumber', 'insuranceNo', 'modelName'];
-  for (const field of required) {
-    if (!body[field]) return NextResponse.json({ error: `${field} is required` }, { status: 400 });
+  const requiredVendor = ['vendorName', 'mobile', 'gender', 'address', 'aadhar', 'dob', 'pan', 'email'];
+  const requiredVehicle = ['cabNumber', 'licenseNo', 'insuranceNo', 'modelName', 'expiryDate', 'yearOfMaking'];
+  for (const field of requiredVendor) {
+    const value = body.vendor?.[field] ?? body[field];
+    if (!value) return NextResponse.json({ error: `${field} is required` }, { status: 400 });
+  }
+  for (const field of requiredVehicle) {
+    const aliasKey = field === 'licenseNo' ? 'licenceNumber' : field === 'yearOfMaking' ? 'yearMaking' : field;
+    const value = body[field] ?? body[aliasKey];
+    if (!value) return NextResponse.json({ error: `${field} is required` }, { status: 400 });
   }
   
+  const licenseNo = body.licenseNo || body.licenceNumber;
+  const tacNo = body.tacNo || body.racNo;
+  
   // Check uniqueness
-  const existing = await Vehicle.findOne({ $or: [{ cabNumber: body.cabNumber }, { licenceNumber: body.licenceNumber }] });
+  const existing = await Vehicle.findOne({ $or: [{ cabNumber: body.cabNumber }, { licenseNo }] });
   if (existing) return NextResponse.json({ error: 'Cab number or licence number already exists' }, { status: 400 });
   
-  // Convert dates
   const vehicleData = {
-    ...body,
-    dob: body.dob ? new Date(body.dob) : undefined,
+    cabNumber: body.cabNumber,
+    tacNo,
+    licenseNo,
+    pollutionNo: body.pollutionNo,
+    gstNo: body.gstNo,
+    insuranceNo: body.insuranceNo,
+    modelName: body.modelName,
     expiryDate: new Date(body.expiryDate),
-    yearMaking: Number(body.yearMaking),
+    yearOfMaking: Number(body.yearOfMaking ?? body.yearMaking),
+    status: body.status || 'active',
+    vendor: {
+      vendorName: body.vendor?.vendorName || body.vendorName,
+      mobile: body.vendor?.mobile || body.mobile,
+      gender: body.vendor?.gender || body.gender,
+      address: body.vendor?.address || body.address,
+      aadhar: body.vendor?.aadhar || body.aadhar,
+      dob: body.vendor?.dob ? new Date(body.vendor.dob) : new Date(body.dob),
+      pan: body.vendor?.pan || body.pan,
+      email: body.vendor?.email || body.email,
+      vendorProfilePhoto: body.vendor?.vendorProfilePhoto,
+      vendorAadharFront: body.vendor?.vendorAadharFront,
+      vendorAadharBack: body.vendor?.vendorAadharBack,
+      vendorPanImage: body.vendor?.vendorPanImage,
+    },
+    aadharFront: body.aadharFront,
+    aadharBack: body.aadharBack,
+    panImage: body.panImage,
+    rcImage: body.rcImage,
+    insuranceImage: body.insuranceImage,
+    pollutionImage: body.pollutionImage,
   };
   
   const vehicle = await Vehicle.create(vehicleData);
