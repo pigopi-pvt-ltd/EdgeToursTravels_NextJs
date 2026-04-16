@@ -3,12 +3,13 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
+import { sendEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin') return forbiddenResponse();
-  
+
   await connectToDatabase();
   const body = await req.json();
   const { 

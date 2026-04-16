@@ -1,33 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
-import { verifyToken } from '@/lib/jwt';
+import Booking from '@/models/Booking';
+import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
+
+  await connectToDatabase();
+  const { id } = await params;
+  const user = await User.findById(id).select('-password');
+  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+  let bookings = [];
+  if (user.role === 'customer') {
+    bookings = await Booking.find({ userId: id }).sort({ dateTime: -1 });
+  } else if (user.role === 'driver') {
+    bookings = await Booking.find({ driverId: id }).sort({ dateTime: -1 });
+  }
+
+  return NextResponse.json({ user, bookings });
+}
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await dbConnect();
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
 
+  await connectToDatabase();
   const { id } = await params;
   const body = await req.json();
-  const employee = await User.findById(id);
-  if (!employee || employee.role !== 'employee') return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+  const allowedUpdates = ['name', 'mobileNumber', 'role', 'driverDetails', 'employeeDetails', 'profileCompleted'];
+  const updateFields: any = {};
+  for (const key of allowedUpdates) {
+    if (body[key] !== undefined) updateFields[key] = body[key];
+  }
+  // Prevent changing role to invalid
+  if (updateFields.role && !['admin', 'driver', 'employee', 'customer'].includes(updateFields.role)) {
+    return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+  }
 
-  employee.employeeDetails = { ...employee.employeeDetails, ...body };
-  await employee.save();
-  return NextResponse.json(employee);
+  const user = await User.findByIdAndUpdate(id, updateFields, { new: true }).select('-password');
+  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  return NextResponse.json(user);
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await dbConnect();
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin') return forbiddenResponse();
 
+  await connectToDatabase();
   const { id } = await params;
-  await User.findByIdAndDelete(id);
-  return NextResponse.json({ success: true });
+  const user = await User.findByIdAndDelete(id);
+  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  return NextResponse.json({ message: 'User deleted successfully' });
 }

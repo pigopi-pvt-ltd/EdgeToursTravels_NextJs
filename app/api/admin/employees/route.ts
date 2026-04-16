@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
 import bcrypt from 'bcryptjs';
@@ -9,14 +9,19 @@ export async function GET(req: NextRequest) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin') return forbiddenResponse();
-  
-  await dbConnect();
-  const employees = await User.find({ role: { $in: ['driver', 'employee'] } }).sort({ createdAt: -1 });
-  return NextResponse.json(employees);
+
+  await connectToDatabase();
+  const { searchParams } = new URL(req.url);
+  const role = searchParams.get('role'); 
+  const filter: any = {};
+  if (role && ['admin', 'driver', 'employee', 'customer'].includes(role)) filter.role = role;
+
+  const users = await User.find(filter).select('-password').sort({ createdAt: -1 });
+  return NextResponse.json(users);
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
+  await connectToDatabase();
   const token = req.headers.get('authorization')?.split(' ')[1];
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const payload = verifyToken(token);
