@@ -46,14 +46,6 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDriver, setIsDriver] = useState(false);
-  // Driver fields
-  const [newDriver, setNewDriver] = useState({
-    email: '', mobileNumber: '', name: '',
-    fullName: '', dateOfBirth: '', drivingLicenseNumber: '', dlExpiryDate: '',
-    vehicleRegNumber: '', vehicleType: 'car', vehicleMake: '', vehicleModel: '', vehicleYear: '',
-    accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '',
-  });
   // Employee fields (all required by spec)
   const [newEmployee, setNewEmployee] = useState({
     email: '',
@@ -125,50 +117,25 @@ export default function EmployeesPage() {
       payload = { userId: editingUser._id };
     }
 
-    if (isDriver) {
-      payload = {
-        ...payload,
-        email: newDriver.email,
-        mobileNumber: newDriver.mobileNumber,
-        name: newDriver.name,
-        role: 'driver',
-        driverDetails: {
-          fullName: newDriver.fullName,
-          dateOfBirth: newDriver.dateOfBirth,
-          drivingLicenseNumber: newDriver.drivingLicenseNumber,
-          dlExpiryDate: newDriver.dlExpiryDate,
-          vehicleRegNumber: newDriver.vehicleRegNumber,
-          vehicleType: newDriver.vehicleType,
-          vehicleMake: newDriver.vehicleMake,
-          vehicleModel: newDriver.vehicleModel,
-          vehicleYear: newDriver.vehicleYear ? parseInt(newDriver.vehicleYear) : undefined,
-          accountHolderName: newDriver.accountHolderName,
-          bankName: newDriver.bankName,
-          accountNumber: newDriver.accountNumber,
-          ifscCode: newDriver.ifscCode,
-        },
-      };
-    } else {
-      // Employee payload with all required fields
-      payload = {
-        ...payload,
-        email: newEmployee.email,
-        mobileNumber: newEmployee.mobileNumber,
-        name: newEmployee.name,
-        role: 'employee',
-        fullName: newEmployee.fullName,
-        gender: newEmployee.gender,
-        presentAddress: newEmployee.presentAddress,
-        permanentAddress: newEmployee.permanentAddress,
-        alternateMobile: newEmployee.alternateMobile,
-        aadhar: newEmployee.aadhar,
-        dob: newEmployee.dob,
-        pan: newEmployee.pan,
-        yearsOfExperience: newEmployee.yearsOfExperience,
-        highestQualification: newEmployee.highestQualification,
-        previousExperience: newEmployee.previousExperience,
-      };
-    }
+    // Employee payload with all required fields
+    payload = {
+      ...payload,
+      email: newEmployee.email,
+      mobileNumber: newEmployee.mobileNumber,
+      name: newEmployee.name,
+      role: 'employee',
+      fullName: newEmployee.fullName,
+      gender: newEmployee.gender,
+      presentAddress: newEmployee.presentAddress,
+      permanentAddress: newEmployee.permanentAddress,
+      alternateMobile: newEmployee.alternateMobile,
+      aadhar: newEmployee.aadhar,
+      dob: newEmployee.dob,
+      pan: newEmployee.pan,
+      yearsOfExperience: newEmployee.yearsOfExperience,
+      highestQualification: newEmployee.highestQualification,
+      previousExperience: newEmployee.previousExperience,
+    };
 
     try {
       const res = await fetch(apiUrl, {
@@ -238,62 +205,32 @@ export default function EmployeesPage() {
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setIsModalOpen(true);
-    // Pre-populate the form based on role
-    if (user.role === 'driver') {
-      setIsDriver(true);
-      setNewDriver({
-        email: user.email,
-        mobileNumber: user.mobileNumber,
-        name: user.name,
-        fullName: user.driverDetails?.fullName || '',
-        dateOfBirth: user.driverDetails?.dateOfBirth ? new Date(user.driverDetails.dateOfBirth).toISOString().split('T')[0] : '',
-        drivingLicenseNumber: user.driverDetails?.drivingLicenseNumber || '',
-        dlExpiryDate: user.driverDetails?.dlExpiryDate ? new Date(user.driverDetails.dlExpiryDate).toISOString().split('T')[0] : '',
-        vehicleRegNumber: user.driverDetails?.vehicleRegNumber || '',
-        vehicleType: user.driverDetails?.vehicleType || 'car',
-        vehicleMake: user.driverDetails?.vehicleMake || '',
-        vehicleModel: user.driverDetails?.vehicleModel || '',
-        vehicleYear: user.driverDetails?.vehicleYear?.toString() || '',
-        accountHolderName: user.driverDetails?.accountHolderName || '',
-        bankName: user.driverDetails?.bankName || '',
-        accountNumber: user.driverDetails?.accountNumber || '',
-        ifscCode: user.driverDetails?.ifscCode || '',
-      });
-    } else {
-      setIsDriver(false);
-      setNewEmployee({
-        email: user.email,
-        mobileNumber: user.mobileNumber,
-        name: user.name,
-        fullName: user.employeeDetails?.fullName || '',
-        gender: user.employeeDetails?.gender || '',
-        presentAddress: user.employeeDetails?.presentAddress || '',
-        permanentAddress: user.employeeDetails?.permanentAddress || '',
-        alternateMobile: user.employeeDetails?.alternateMobile || '',
-        aadhar: user.employeeDetails?.aadhar || '',
-        dob: user.employeeDetails?.dob ? new Date(user.employeeDetails.dob).toISOString().split('T')[0] : '',
-        pan: user.employeeDetails?.pan || '',
-        yearsOfExperience: user.employeeDetails?.yearsOfExperience?.toString() || '',
-        highestQualification: user.employeeDetails?.highestQualification || '',
-        previousExperience: user.employeeDetails?.previousExperience || '',
-      });
-    }
+    // Pre-populate the form
+    setNewEmployee({
+      email: user.email,
+      mobileNumber: user.mobileNumber,
+      name: user.name,
+      fullName: user.employeeDetails?.fullName || '',
+      gender: user.employeeDetails?.gender || '',
+      presentAddress: user.employeeDetails?.presentAddress || '',
+      permanentAddress: user.employeeDetails?.permanentAddress || '',
+      alternateMobile: user.employeeDetails?.alternateMobile || '',
+      aadhar: user.employeeDetails?.aadhar || '',
+      dob: user.employeeDetails?.dob ? new Date(user.employeeDetails.dob).toISOString().split('T')[0] : '',
+      pan: user.employeeDetails?.pan || '',
+      yearsOfExperience: user.employeeDetails?.yearsOfExperience?.toString() || '',
+      highestQualification: user.employeeDetails?.highestQualification || '',
+      previousExperience: user.employeeDetails?.previousExperience || '',
+    });
   };
 
   const resetForm = () => {
-    setNewDriver({
-      email: '', mobileNumber: '', name: '',
-      fullName: '', dateOfBirth: '', drivingLicenseNumber: '', dlExpiryDate: '',
-      vehicleRegNumber: '', vehicleType: 'car', vehicleMake: '', vehicleModel: '', vehicleYear: '',
-      accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '',
-    });
     setNewEmployee({
       email: '', mobileNumber: '', name: '',
       fullName: '', gender: '', presentAddress: '', permanentAddress: '',
       alternateMobile: '', aadhar: '', dob: '', pan: '',
       yearsOfExperience: '', highestQualification: '', previousExperience: '',
     });
-    setIsDriver(false);
     setEditingUser(null);
     setMessage('');
     setTempPassword(null);
@@ -489,7 +426,7 @@ export default function EmployeesPage() {
       {/* Add User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl animate-in slide-in-from-bottom-10 duration-300 scrollbar-hide" style={{ borderRadius: '0.5rem 0.5rem 0.5rem 0.5rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }} onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl animate-in slide-in-from-bottom-10 duration-300 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={e => e.stopPropagation()}>
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
               <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
                 {editingUser ? 'Edit User' : 'Create Employee'}
@@ -503,84 +440,48 @@ export default function EmployeesPage() {
             </div>
             
             <form onSubmit={handleCreateUser} className="p-6 space-y-6">
-              {/* Basic Info - common for both */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name {isDriver ? '(as per DL)' : '*'}</label>
-                  <input type="text" required={!isDriver} value={isDriver ? newDriver.name : newEmployee.name} onChange={e => isDriver ? setNewDriver({...newDriver, name: e.target.value}) : setNewEmployee({...newEmployee, name: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name <span className="text-red-500 ml-1">*</span></label>
+                  <input type="text" required value={newEmployee.name} onChange={e => setNewEmployee({...newEmployee, name: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address *</label>
-                  <input type="email" required value={isDriver ? newDriver.email : newEmployee.email} onChange={e => isDriver ? setNewDriver({...newDriver, email: e.target.value}) : setNewEmployee({...newEmployee, email: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address </label>
+                  <input type="email" value={newEmployee.email} onChange={e => setNewEmployee({...newEmployee, email: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Mobile Number *</label>
-                  <input type="tel" required value={isDriver ? newDriver.mobileNumber : newEmployee.mobileNumber} onChange={e => isDriver ? setNewDriver({...newDriver, mobileNumber: e.target.value}) : setNewEmployee({...newEmployee, mobileNumber: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Gender <span className="text-red-500 ml-1">*</span></label>
+                  <select required value={newEmployee.gender} onChange={e => setNewEmployee({...newEmployee, gender: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none mt-1"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Mobile Number <span className="text-red-500 ml-1">*</span></label>
+                  <input type="tel" required value={newEmployee.mobileNumber} onChange={e => setNewEmployee({...newEmployee, mobileNumber: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none" />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Date of Birth <span className="text-red-500 ml-1">*</span></label>
+                  <input type="text" placeholder="DD-MM-YYYY" required value={newEmployee.dob} onChange={e => setNewEmployee({...newEmployee, dob: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none uppercase mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Years of Experience <span className="text-red-500 ml-1">*</span></label>
+                  <input type="number" required value={newEmployee.yearsOfExperience} onChange={e => setNewEmployee({...newEmployee, yearsOfExperience: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none mt-1" />
                 </div>
               </div>
 
-              {/* Driver Toggle */}
-              <div className="flex items-center justify-between p-5 bg-gradient-to-r from-slate-50 to-indigo-50/30 dark:from-slate-800 dark:to-indigo-900/20 rounded-xl border border-slate-100 dark:border-slate-800">
-                <div>
-                  <p className="font-semibold text-slate-800 dark:text-white">Driver Account</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Enable to add driver details, bank info, and KYC</p>
+              {/* Employee Form – Address & Docs */}
+              <div className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6 animate-in slide-in-from-top-3 duration-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Aadhar Number <span className="text-red-500 ml-1">*</span></label><input type="text" required value={newEmployee.aadhar} onChange={e => setNewEmployee({...newEmployee, aadhar: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">PAN Number <span className="text-red-500 ml-1">*</span></label><input type="text" required value={newEmployee.pan} onChange={e => setNewEmployee({...newEmployee, pan: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Highest Qualification <span className="text-red-500 ml-1">*</span></label><input type="text" required value={newEmployee.highestQualification} onChange={e => setNewEmployee({...newEmployee, highestQualification: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Alternate Mobile</label><input type="tel" value={newEmployee.alternateMobile} onChange={e => setNewEmployee({...newEmployee, alternateMobile: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div className="md:col-span-2"><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Present Address <span className="text-red-500 ml-1">*</span></label><input type="text" required value={newEmployee.presentAddress} onChange={e => setNewEmployee({...newEmployee, presentAddress: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div className="md:col-span-2"><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Permanent Address <span className="text-red-500 ml-1">*</span></label><input type="text" required value={newEmployee.permanentAddress} onChange={e => setNewEmployee({...newEmployee, permanentAddress: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
+                  <div className="md:col-span-2"><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Previous Experience (optional)</label><input type="text" value={newEmployee.previousExperience} onChange={e => setNewEmployee({...newEmployee, previousExperience: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
                 </div>
-                <button type="button" onClick={() => setIsDriver(!isDriver)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${isDriver ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`}>
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${isDriver ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
               </div>
 
-              {isDriver ? (
-                /* Driver Form */
-                <div className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6 animate-in slide-in-from-top-3 duration-300">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                    Driver Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name (as per DL) *</label><input type="text" required value={newDriver.fullName} onChange={e => setNewDriver({...newDriver, fullName: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Date of Birth *</label><input type="date" required value={newDriver.dateOfBirth} onChange={e => setNewDriver({...newDriver, dateOfBirth: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Driving License Number *</label><input type="text" required value={newDriver.drivingLicenseNumber} onChange={e => setNewDriver({...newDriver, drivingLicenseNumber: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">DL Expiry Date *</label><input type="date" required value={newDriver.dlExpiryDate} onChange={e => setNewDriver({...newDriver, dlExpiryDate: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Vehicle Registration Number *</label><input type="text" required value={newDriver.vehicleRegNumber} onChange={e => setNewDriver({...newDriver, vehicleRegNumber: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Vehicle Type *</label><select value={newDriver.vehicleType} onChange={e => setNewDriver({...newDriver, vehicleType: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none"><option value="auto">Auto</option><option value="bike">Bike</option><option value="car">Car</option></select></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Vehicle Make</label><input type="text" value={newDriver.vehicleMake} onChange={e => setNewDriver({...newDriver, vehicleMake: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Vehicle Model</label><input type="text" value={newDriver.vehicleModel} onChange={e => setNewDriver({...newDriver, vehicleModel: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Year of Manufacture</label><input type="number" value={newDriver.vehicleYear} onChange={e => setNewDriver({...newDriver, vehicleYear: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 mt-4">
-                    <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                    Bank Details
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Account Holder Name *</label><input type="text" required value={newDriver.accountHolderName} onChange={e => setNewDriver({...newDriver, accountHolderName: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Bank Name *</label><input type="text" required value={newDriver.bankName} onChange={e => setNewDriver({...newDriver, bankName: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Account Number *</label><input type="text" required value={newDriver.accountNumber} onChange={e => setNewDriver({...newDriver, accountNumber: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">IFSC Code *</label><input type="text" required value={newDriver.ifscCode} onChange={e => setNewDriver({...newDriver, ifscCode: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2.5 outline-none uppercase" /></div>
-                  </div>
-                </div>
-              ) : (
-                /* Employee Form – all required fields */
-                <div className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6 animate-in slide-in-from-top-3 duration-300">
-                  {/* <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
-                    Employee Details
-                  </h3> */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Gender *</label><select required={!isDriver} value={newEmployee.gender} onChange={e => setNewEmployee({...newEmployee, gender: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Present Address *</label><input type="text" required={!isDriver} value={newEmployee.presentAddress} onChange={e => setNewEmployee({...newEmployee, presentAddress: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Permanent Address *</label><input type="text" required={!isDriver} value={newEmployee.permanentAddress} onChange={e => setNewEmployee({...newEmployee, permanentAddress: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Alternate Mobile</label><input type="tel" value={newEmployee.alternateMobile} onChange={e => setNewEmployee({...newEmployee, alternateMobile: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Aadhar Number *</label><input type="text" required={!isDriver} value={newEmployee.aadhar} onChange={e => setNewEmployee({...newEmployee, aadhar: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Date of Birth *</label><input type="date" required={!isDriver} value={newEmployee.dob} onChange={e => setNewEmployee({...newEmployee, dob: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">PAN Number *</label><input type="text" required={!isDriver} value={newEmployee.pan} onChange={e => setNewEmployee({...newEmployee, pan: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Years of Experience *</label><input type="number" required={!isDriver} value={newEmployee.yearsOfExperience} onChange={e => setNewEmployee({...newEmployee, yearsOfExperience: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Highest Qualification *</label><input type="text" required={!isDriver} value={newEmployee.highestQualification} onChange={e => setNewEmployee({...newEmployee, highestQualification: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                    <div className="md:col-span-2"><label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Previous Experience (optional)</label><input type="text" value={newEmployee.previousExperience} onChange={e => setNewEmployee({...newEmployee, previousExperience: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white rounded-lg px-4 py-2.5 outline-none" /></div>
-                  </div>
-                </div>
-              )}
+
 
               {/* Message Display */}
               {message && (
