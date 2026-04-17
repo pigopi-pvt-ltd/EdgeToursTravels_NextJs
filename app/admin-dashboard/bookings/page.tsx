@@ -158,46 +158,32 @@ export default function BookingsPage() {
   // --- Loading & Error States -------------------------------
   if (isLoading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse bg-white dark:bg-slate-800 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
-        </div>
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-          <div className="h-10 w-full max-w-md bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded mx-auto"></div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-                <tr key={row} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
-                      <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                    </div>
-                  </td>
-                  {[1, 2, 3, 4, 5, 6].map((col) => (
-                    <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                    </td>
+      <div className="-mt-8 -mx-8 animate-pulse">
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-screen">
+          <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
+            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => (
+                    <th key={i} className="px-6 py-4"><div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded mx-auto"></div></th>
                   ))}
-                  <td className="px-6 py-3">
-                    <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {[1, 2, 3, 4, 5].map(row => (
+                  <tr key={row}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(cell => (
+                      <td key={cell} className="px-6 py-4"><div className="h-3 w-20 bg-slate-100 dark:bg-slate-700 rounded"></div></td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -239,13 +225,16 @@ export default function BookingsPage() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Customer</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact</th>
-                  <th className="px-6 py-4 text-left text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Pick-up</th>
-                  <th className="px-6 py-4 text-left text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Drop-off</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Schedule</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Price Estimate</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Customer Name</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Contact Number</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Pickup</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Drop Off</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Time</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Price</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Assign Driver/Vehicles</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Vehicle</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
                       <span className="uppercase">{statusFilter === 'all' ? 'Status' : statusFilter}</span>
                       <HiChevronDown className="text-slate-400 text-xs" />
@@ -268,8 +257,8 @@ export default function BookingsPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {filteredBookings.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-20 text-center">
-                      <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
+                    <td colSpan={11} className="py-20 text-center">
+                      <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <HiOutlineCalendar className="text-2xl text-slate-400 dark:text-slate-500" />
                       </div>
                       <h3 className="text-lg font-bold text-slate-800 dark:text-white italic">No {statusFilter !== 'all' ? statusFilter : ''} bookings found</h3>
@@ -293,47 +282,39 @@ export default function BookingsPage() {
                           <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
                           {booking.from}
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{booking.name}</p>
+                      </td>
+                      {/* Dropoff */}
+                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                          {booking.destination}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center">
-                      {booking.contact}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-tighter text-left">
-                      {booking.from}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-tighter text-left">
-                      {booking.destination}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight flex items-center gap-1.5 whitespace-nowrap">
-                        <HiOutlineCalendar className="text-slate-300 dark:text-slate-600" /> {new Date(booking.dateTime).toLocaleDateString('en-GB')}
-                      </p>
-                      <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1.5">
-                        <HiOutlineClock className="text-slate-300 dark:text-slate-600" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-                      </p>
-                    </td>
-                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
-                      <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
-                        {booking.price || 'Not Specified'}
-                      </p>
-                    </td>
-                    <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
-                      <span className={`
-                        px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
-                        ${booking.status === 'pending' ? 'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30' :
-                          booking.status === 'cancelled' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
-                            booking.status === 'confirmed' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
-                              'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30'}
-                      `}>
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-1.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          <HiOutlineCalendar className="text-slate-300 dark:text-slate-600" />
+                          {new Date(booking.dateTime).toLocaleDateString('en-GB')}
+                        </div>
+                      </td>
+                      {/* Time */}
+                     <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+  <div className="flex items-center gap-1.5">
+    <HiOutlineClock className="text-slate-300 dark:text-slate-600" />
+    {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+  </div>
+</td>
+                      {/* Price */}
+                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
+                        <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
+                          {booking.price || 'Not Specified'}
+                        </p>
+                      </td>
+                      {/* Driver */}
+                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
+                        {booking.driverId ? (
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{booking.driverId.name}</span>
+                        ) : (
                           <button
                             onClick={() => {
                               setAssignModal({ isOpen: true, bookingId: booking._id });
