@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const WhatsAppWidget = () => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     // Show tooltip after 3 seconds
@@ -13,6 +15,11 @@ const WhatsAppWidget = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Hide for admin and employee roles
+  if (user?.role === 'admin' || user?.role === 'employee') {
+    return null;
+  }
 
   const phoneNumber = "917631758838"; // Updated with user's phone number
   const message = "Hello Edge Tours & Travels! I'm interested in your services.";
