@@ -303,7 +303,7 @@ export default function DriversPage() {
         </div>
         <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-1.5 leading-tight">{title}</h3>
         <p className="text-sm text-[#64748b] dark:text-slate-400 mb-6 font-medium">{description}</p>
-        
+
         {existingUrl ? (
           <div className="mb-4 relative group/img">
             <img src={existingUrl} alt={title} className="max-h-32 mx-auto rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all group-hover/img:brightness-75" />
@@ -319,7 +319,7 @@ export default function DriversPage() {
           const file = e.target.files?.[0];
           if (file) handleFileUpload(field, file);
         }} />
-        
+
         <div className="flex justify-start">
           <button
             type="button"
@@ -353,7 +353,7 @@ export default function DriversPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
+                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                   <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
                     <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
                   </th>
@@ -369,7 +369,7 @@ export default function DriversPage() {
                       <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
                     </div>
                   </td>
-                  {[1, 2, 3, 4].map((col) => (
+                  {[1, 2, 3, 4, 5].map((col) => (
                     <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
                       <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
                     </td>
@@ -445,6 +445,7 @@ export default function DriversPage() {
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">License info</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Experience</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">KYC Status</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
                 </tr>
@@ -466,11 +467,11 @@ export default function DriversPage() {
                     <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
                       {driver.email || '-'}
                     </td>
-                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
-                      <div className="text-xs">
-                        <div className="font-black text-slate-800 dark:text-slate-200 uppercase tracking-tighter">{driver.driverDetails?.drivingLicenseNumber || '-'}</div>
-                        <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Exp: {driver.driverDetails?.yearsOfExperience || 0} yrs</div>
-                      </div>
+                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center font-black uppercase tracking-tighter">
+                      {driver.driverDetails?.drivingLicenseNumber || '-'}
+                    </td>
+                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center font-bold">
+                      {driver.driverDetails?.yearsOfExperience || 0} YRS
                     </td>
                     <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
                       <span className={`
