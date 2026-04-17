@@ -14,6 +14,7 @@ export default function EmployeeLayout({
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userName, setUserName] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const user = getStoredUser();
@@ -35,8 +36,13 @@ export default function EmployeeLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <main className="flex-1 lg:ml-64 min-h-screen">
+      <AdminSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
+      <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} min-h-screen`}>
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <button 
