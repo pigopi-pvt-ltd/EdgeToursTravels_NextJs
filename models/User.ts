@@ -1,5 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 interface IAddress {
   presentAddress: string;
@@ -12,7 +12,7 @@ export interface IDriverDetails extends IAddress {
   drivingLicenseNumber: string;
   dlExpiryDate: Date;
   vehicleRegNumber: string;
-  vehicleType: 'auto' | 'bike' | 'car';
+  vehicleType: "auto" | "bike" | "car";
   vehicleMake?: string;
   vehicleModel?: string;
   vehicleYear?: number;
@@ -20,7 +20,7 @@ export interface IDriverDetails extends IAddress {
   bankName: string;
   accountNumber: string;
   ifscCode: string;
-  kycStatus?: 'pending' | 'approved' | 'rejected';
+  kycStatus?: "pending" | "approved" | "rejected";
   rejectionReason?: string;
   kycDocuments?: Record<string, string>;
 }
@@ -28,7 +28,7 @@ export interface IDriverDetails extends IAddress {
 export interface IEmployeeDetails extends IAddress {
   fullName: string;
   mobile: string;
-  gender: 'male' | 'female' | 'other';
+  gender: "male" | "female" | "other";
   alternateMobile?: string;
   aadhar: string;
   dob: Date;
@@ -48,7 +48,7 @@ export interface IUser extends mongoose.Document {
   password: string;
   mobileNumber: string;
   name?: string;
-  role: 'admin' | 'driver' | 'employee' | 'customer';
+  role: "admin" | "driver" | "employee" | "customer";
   profileCompleted: boolean;
   driverDetails?: IDriverDetails;
   employeeDetails?: IEmployeeDetails;
@@ -69,7 +69,7 @@ const DriverDetailsSchema = new Schema<IDriverDetails>({
   drivingLicenseNumber: { type: String, required: true },
   dlExpiryDate: { type: Date, required: true },
   vehicleRegNumber: { type: String, required: true },
-  vehicleType: { type: String, enum: ['auto', 'bike', 'car'], required: true },
+  vehicleType: { type: String, enum: ["auto", "bike", "car"], required: true },
   vehicleMake: String,
   vehicleModel: String,
   vehicleYear: Number,
@@ -77,7 +77,11 @@ const DriverDetailsSchema = new Schema<IDriverDetails>({
   bankName: { type: String, required: true },
   accountNumber: { type: String, required: true },
   ifscCode: { type: String, required: true },
-  kycStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  kycStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
   rejectionReason: String,
   kycDocuments: { type: Map, of: String },
 });
@@ -86,7 +90,7 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
   ...AddressSchema.obj,
   fullName: { type: String, required: true },
   mobile: { type: String, required: true },
-  gender: { type: String, enum: ['male', 'female', 'other'], required: true },
+  gender: { type: String, enum: ["male", "female", "other"], required: true },
   alternateMobile: String,
   aadhar: { type: String, required: true, unique: true },
   dob: { type: Date, required: true },
@@ -101,25 +105,36 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
   panImage: String,
 });
 
-const UserSchema = new Schema<IUser>({
-  email: { type: String, required: true, unique: true, lowercase: true },
-  mobileNumber: { type: String, required: true, unique: true },
-  password: { type: String, required: true, minlength: 6 },
-  name: String,
-  role: { type: String, enum: ['admin', 'driver', 'employee', 'customer'], default: 'customer' },
-  profileCompleted: { type: Boolean, default: false },
-  driverDetails: DriverDetailsSchema,
-  employeeDetails: EmployeeDetailsSchema,
-}, { timestamps: true });
+const UserSchema = new Schema<IUser>(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true },
+    mobileNumber: { type: String, required: true, unique: true },
+    password: { type: String, required: true, minlength: 6 },
+    name: String,
+    role: {
+      type: String,
+      enum: ["admin", "driver", "employee"],
+      default: "employee",
+    },
+    profileCompleted: { type: Boolean, default: false },
+    driverDetails: DriverDetailsSchema,
+    employeeDetails: EmployeeDetailsSchema,
+  },
+  { timestamps: true },
+);
 
-UserSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword: string) {
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string,
+) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+export default mongoose.models.User ||
+  mongoose.model<IUser>("User", UserSchema);
+
