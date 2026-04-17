@@ -6,6 +6,7 @@ export interface BookingFormData {
   dateTime: string;
   name: string;
   contact: string;
+  userId?: string;        // optional, if user is logged in
   price?: string;
 }
 
@@ -17,11 +18,12 @@ export interface BookingResponse {
 }
 
 /**
- * Submits the booking form data to the API
+ * Submits the booking form data to the existing API
+ * ✅ Uses /api/bookings (not /api/admin/book-form)
  */
 export async function submitBooking(formData: BookingFormData): Promise<BookingResponse> {
   try {
-    const data = await publicApiClient('/api/admin/book-form', {
+    const data = await publicApiClient('/api/bookings', {   // ← correct endpoint
       method: 'POST',
       body: JSON.stringify(formData),
     });
@@ -39,4 +41,3 @@ export async function submitBooking(formData: BookingFormData): Promise<BookingR
     };
   }
 }
-
