@@ -16,6 +16,7 @@ import {
   HiCheckCircle,
   HiArrowRight,
 } from "react-icons/hi";
+import { getAuthToken } from "@/lib/auth";
 
 // Static stats for a "fuller" look
 const STATS = [
@@ -39,13 +40,17 @@ const STATS = [
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const token = getAuthToken();
 
   useEffect(() => {
     async function fetchProfile() {
       try {
         // Mocking the fetch for demonstration - replace with your actual fetch logic
-        const res = await fetch("/api/user/profile");
+        const res = await fetch("/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
+        console.log(data);
         if (res.ok) setUser(data);
       } catch (err) {
         console.error("Failed to load profile", err);

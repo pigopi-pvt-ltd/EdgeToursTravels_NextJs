@@ -111,20 +111,18 @@ export default function AdminLayout({
                     </p>
                   </div>
 
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button
+                    onClick={() => router.push("/admin-dashboard/profile")}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group cursor-pointer"
+                  >
                     <HiOutlineUser className="text-lg text-slate-400 group-hover:text-orange-500" />
-                    <Link
-                      href="/admin-dashboard/profile"
-                      className="font-semibold"
-                    >
-                      About
-                    </Link>
+                    <span className="font-semibold">About</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group cursor-pointer">
                     <HiOutlineCog6Tooth className="text-lg text-slate-400 group-hover:text-orange-500" />
                     <span className="font-semibold">Settings</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group cursor-pointer">
                     <HiOutlineLockClosed className="text-lg text-slate-400 group-hover:text-orange-500" />
                     <span className="font-semibold">Change Password</span>
                   </button>
@@ -155,7 +153,7 @@ export default function AdminLayout({
                   <div className="h-px bg-slate-50 dark:bg-slate-700/50 my-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group cursor-pointer"
                   >
                     <HiOutlineArrowRightOnRectangle className="text-lg group-hover:scale-110 transition-transform" />
                     <span className="font-black uppercase tracking-wider text-[11px]">
