@@ -243,94 +243,118 @@ export default function DocumentConfigPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md border border-slate-200 dark:border-slate-700 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
-            <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-8 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-              <h3 className="font-black text-slate-800 dark:text-white uppercase tracking-tighter text-lg">{editingDoc ? 'Edit' : 'Create'} Document Type</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors"><HiX className="text-xl" /></button>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-lg border border-slate-100 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md py-4 px-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center sticky top-0 z-10">
+              <h3 className="font-bold text-slate-800 dark:text-white uppercase tracking-tighter text-xl">{editingDoc ? 'Edit' : 'Create'} Document Type</h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-10 h-10 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              >
+                <HiX className="text-xl" />
+              </button>
             </div>
+
             <form onSubmit={handleSubmit} className="p-8 space-y-5">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Category</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 transition-all font-bold text-sm appearance-none cursor-pointer"
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1 text-center sm:text-left">Category</label>
+                  <div className="relative group">
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm appearance-none cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm"
+                    >
+                      <option value="driver">🚘 Driver Management</option>
+                      <option value="vehicle">🚕 Vehicle Fleet</option>
+                      <option value="employee">👥 Staff & Employees</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Label</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.label}
+                      onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                      placeholder="e.g. Aadhar Card"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Unique Key</label>
+                    <input
+                      type="text"
+                      required
+                      disabled={!!editingDoc}
+                      value={formData.key}
+                      onChange={(e) => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                      placeholder="e.g. aadhar_card"
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 disabled:opacity-50 shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 ml-1">Description</label>
+                  <textarea
+                    required
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Provide clear instructions for users..."
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 h-20 resize-none shadow-sm leading-relaxed"
+                  />
+                </div>
+
+                <div className="flex flex-wrap justify-between items-center gap-4 py-1 px-1">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={formData.isRequired}
+                        onChange={(e) => setFormData({ ...formData, isRequired: e.target.checked })}
+                        className="sr-only"
+                      />
+                      <div className={`w-11 h-5 rounded-lg shadow-inner transition-all duration-300 ${formData.isRequired ? 'bg-orange-600' : 'bg-slate-200 dark:bg-slate-800'}`}></div>
+                      <div className={`absolute top-1 w-3 h-3 bg-white rounded-lg shadow-md transition-all duration-300 ${formData.isRequired ? 'left-7' : 'left-1'}`}></div>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-slate-800 dark:group-hover:text-white transition-colors">Required</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                        className="sr-only"
+                      />
+                      <div className={`w-11 h-5 rounded-lg shadow-inner transition-all duration-300 ${formData.isActive ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'}`}></div>
+                      <div className={`absolute top-1 w-3 h-3 bg-white rounded-lg shadow-md transition-all duration-300 ${formData.isActive ? 'left-7' : 'left-1'}`}></div>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-slate-800 dark:group-hover:text-white transition-colors">Active Status</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100 dark:border-slate-800/60">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-3 px-6 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all uppercase tracking-widest text-[10px] shadow-sm"
                 >
-                  <option value="driver">🚘 Driver Management</option>
-                  <option value="vehicle">🚕 Vehicle Fleet</option>
-                  <option value="employee">👥 Staff & Employees</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Label</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.label}
-                    onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                    placeholder="e.g. Aadhar Card"
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 transition-all font-bold text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Unique Key</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={!!editingDoc}
-                    value={formData.key}
-                    onChange={(e) => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                    placeholder="e.g. aadhar_card"
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 transition-all font-bold text-sm disabled:opacity-50"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Description</label>
-                <textarea
-                  required
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Detailed instructions for the user..."
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500/20 transition-all font-bold text-sm h-24 resize-none"
-                />
-              </div>
-              <div className="flex gap-8 pt-2">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.isRequired}
-                      onChange={(e) => setFormData({ ...formData, isRequired: e.target.checked })}
-                      className="sr-only"
-                    />
-                    <div className={`w-10 h-5 rounded-full transition-colors ${formData.isRequired ? 'bg-orange-500' : 'bg-slate-200 dark:bg-slate-700'}`}></div>
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${formData.isRequired ? 'left-6' : 'left-1'}`}></div>
-                  </div>
-                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-orange-500 transition-colors">Required</span>
-                </label>
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="sr-only"
-                    />
-                    <div className={`w-10 h-5 rounded-full transition-colors ${formData.isActive ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}></div>
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${formData.isActive ? 'left-6' : 'left-1'}`}></div>
-                  </div>
-                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-emerald-500 transition-colors">Active</span>
-                </label>
-              </div>
-              <div className="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 px-6 rounded-2xl border border-slate-200 dark:border-slate-700 font-black text-slate-500 hover:bg-slate-50 transition-all uppercase tracking-widest text-[10px]">Back</button>
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-[2] py-3 px-6 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-black transition-all uppercase tracking-widest text-[10px] shadow-lg shadow-orange-200 dark:shadow-none disabled:opacity-50"
+                  className="flex-[2] py-3 px-6 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white rounded-lg font-black transition-all uppercase tracking-widest text-[10px] shadow-[0_10px_25px_-5px_rgba(234,88,12,0.4)] dark:shadow-none disabled:opacity-50 disabled:scale-100 hover:scale-[1.02] active:scale-95"
                 >
                   {submitting ? 'Applying Changes...' : 'Save Configuration'}
                 </button>
