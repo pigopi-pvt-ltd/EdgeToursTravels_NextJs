@@ -343,13 +343,13 @@ export default function VehiclesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={fetchVehicles}
-              className="hidden md:inline-flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all active:scale-95"
+              className="hidden md:inline-flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               Refresh
             </button>
             <button
               onClick={openCreateModal}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all active:scale-95"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               Add Vendor / Cab
             </button>
@@ -372,7 +372,7 @@ export default function VehiclesPage() {
             </div>
           </div>
 
-        {/* Table */}
+          {/* Table */}
           <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700">
             <table className="w-full border-collapse">
               <thead>
@@ -393,53 +393,53 @@ export default function VehiclesPage() {
                   </tr>
                 ) : (
                   filteredVehicles.map((vehicle) => (
-                  <tr key={vehicle._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                    <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
-                          {getInitials(vehicle.vendor?.vendorName || 'V')}
+                    <tr key={vehicle._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
+                      <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
+                            {getInitials(vehicle.vendor?.vendorName || 'V')}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{vehicle.vendor?.vendorName || '-'}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{vehicle.vendor?.vendorName || '-'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
-                      {vehicle.vendor?.mobile || '-'}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
-                      {vehicle.vendor?.email || '-'}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-widest font-mono">
-                      {vehicle.cabNumber}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center">
-                      <p className="uppercase tracking-tighter">{vehicle.modelName}</p>
-                      <p className="text-[10px] text-slate-400">YOM: {vehicle.yearOfMaking}</p>
-                    </td>
-                    <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
-                      <span className={`
+                      </td>
+                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
+                        {vehicle.vendor?.mobile || '-'}
+                      </td>
+                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
+                        {vehicle.vendor?.email || '-'}
+                      </td>
+                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-widest font-mono">
+                        {vehicle.cabNumber}
+                      </td>
+                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center">
+                        <p className="uppercase tracking-tighter">{vehicle.modelName}</p>
+                        <p className="text-[10px] text-slate-400">YOM: {vehicle.yearOfMaking}</p>
+                      </td>
+                      <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
+                        <span className={`
                         px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
-                        ${vehicle.status === 'active' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' : 
-                          'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30'}
+                        ${vehicle.status === 'active' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
+                            'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30'}
                       `}>
-                        {vehicle.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-1.5 text-center">
-                      <div className="flex justify-center gap-2">
-                        <button onClick={() => openEditModal(vehicle)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all active:scale-95">
-                          <HiPencil className="w-5 h-5" />
-                        </button>
-                        <button onClick={() => handleDelete(vehicle._id, vehicle.cabNumber)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all active:scale-95">
-                          <HiTrash className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+                          {vehicle.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-1.5 text-center">
+                        <div className="flex justify-center gap-2">
+                          <button onClick={() => openEditModal(vehicle)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all active:scale-95">
+                            <HiPencil className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => handleDelete(vehicle._id, vehicle.cabNumber)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all active:scale-95">
+                            <HiTrash className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
             </table>
           </div>
           <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 text-xs text-slate-500 flex justify-between">
@@ -575,15 +575,15 @@ export default function VehiclesPage() {
                         </div>
                         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{doc.label}</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{doc.description || 'Upload document'}</p>
-                        <FileUpload 
-                          folder="vehicles" 
-                          label="Upload" 
+                        <FileUpload
+                          folder="vehicles"
+                          label="Upload"
                           buttonClassName="bg-orange-600 hover:bg-orange-700 font-bold uppercase text-[10px]"
-                          onUpload={(url) => setFormData(prev => ({ 
-                            ...prev, 
-                            kycDocuments: { ...(prev.kycDocuments || {}), [doc.key]: url } 
-                          }))} 
-                          existingUrl={formData.kycDocuments?.[doc.key]} 
+                          onUpload={(url) => setFormData(prev => ({
+                            ...prev,
+                            kycDocuments: { ...(prev.kycDocuments || {}), [doc.key]: url }
+                          }))}
+                          existingUrl={formData.kycDocuments?.[doc.key]}
                         />
                       </div>
                     ))}
@@ -594,13 +594,13 @@ export default function VehiclesPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50"
+                    className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-all"
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-all cursor-pointer"
                   >
                     {editingVehicle ? "Update" : "Create"}
                   </button>

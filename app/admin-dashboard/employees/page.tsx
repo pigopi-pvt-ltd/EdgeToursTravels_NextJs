@@ -45,7 +45,7 @@ export default function EmployeesPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('employee');
   const [kycFilter, setKycFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +88,8 @@ export default function EmployeesPage() {
       if (res.ok) {
         // API returns direct array
         const usersArray = Array.isArray(data) ? data : data.employees || [];
-        setUsers(usersArray);
+        // Only show users with role 'employee' as per request
+        setUsers(usersArray.filter((u: any) => u.role === 'employee'));
       } else {
         setError(data.error || 'Failed to fetch users');
         setUsers([]);
@@ -366,20 +367,7 @@ export default function EmployeesPage() {
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
-                    <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
-                      <span className="uppercase">{roleFilter === 'all' ? 'Role' : roleFilter}</span>
-                      <HiChevronDown className="text-slate-400 text-xs" />
-                      <select
-                        value={roleFilter}
-                        onChange={(e) => setRoleFilter(e.target.value)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                      >
-                        <option value="all">ALL ROLES</option>
-                        <option value="admin">ADMIN</option>
-                        <option value="employee">EMPLOYEE</option>
-                        <option value="driver">DRIVER</option>
-                      </select>
-                    </div>
+                      <span className="uppercase text-slate-700 dark:text-slate-300">Role</span>
                   </th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">

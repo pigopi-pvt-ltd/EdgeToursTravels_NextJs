@@ -6,7 +6,7 @@ import { verifyToken } from '@/lib/jwt';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { from, destination, dateTime, name, contact, userId } = body;
+    const { from, destination, dateTime, name, contact, userId, price } = body;
 
     if (!from || !destination || !dateTime || !name || !contact) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       dateTime: new Date(dateTime),
       name,
       contact,
+      price,
       status: 'pending',
       userId: userId || null,
     });

@@ -11,6 +11,7 @@ export interface IBooking extends Document {
   contact: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   driverResponse?: 'accepted' | 'rejected' | null;
+  price?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,7 @@ const BookingSchema = new Schema<IBooking>(
     dateTime: { type: Date, required: true },
     name: { type: String, required: true },
     contact: { type: String, required: true },
+    price: { type: String },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'completed', 'cancelled'],

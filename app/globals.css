@@ -20,6 +20,14 @@
   body {
     @apply bg-bg-light text-brand-primary font-outfit antialiased;
   }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
 }
 
 @layer components {

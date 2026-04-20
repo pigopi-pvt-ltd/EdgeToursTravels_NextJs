@@ -144,8 +144,8 @@ export default function DriversPage() {
     setUploading(true);
     try {
       const url = await uploadFile(file, 'drivers');
-      setFormData((prev: any) => ({ 
-        ...prev, 
+      setFormData((prev: any) => ({
+        ...prev,
         [field]: url,
         kycDocuments: {
           ...(prev.kycDocuments || {}),
@@ -441,7 +441,7 @@ export default function DriversPage() {
           </div>
           <button
             onClick={() => { resetForm(); setIsModalOpen(true); }}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95"
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
           >
             <HiPlus className="text-lg" /> Add New Driver
           </button>
@@ -622,11 +622,11 @@ export default function DriversPage() {
 
                   {/* Dynamic Master Documents (excluding defaults if already configured) */}
                   {masterDocs.filter(doc => !['profilePhoto', 'aadharFront', 'aadharBack', 'panImage', 'licenseImage'].includes(doc.key)).map((doc) => (
-                    <DocumentUploadCard 
+                    <DocumentUploadCard
                       key={doc.key}
-                      title={doc.label} 
-                      description={doc.description} 
-                      field={doc.key} 
+                      title={doc.label}
+                      description={doc.description}
+                      field={doc.key}
                       existingUrl={formData[doc.key] || formData.kycDocuments?.[doc.key]}
                     />
                   ))}
@@ -651,7 +651,7 @@ export default function DriversPage() {
               {/* Submitting Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
-                <button type="submit" disabled={submitting || uploading} className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px]">
+                <button type="submit" disabled={submitting || uploading} className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px] cursor-pointer">
                   {submitting ? (
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

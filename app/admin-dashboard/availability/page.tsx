@@ -252,13 +252,13 @@ export default function AvailabilityPage() {
               </h1>
               <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm transition-colors">Monitor and manage your fleet schedule in real-time</p>
             </div>
-            <button 
+            <button
               onClick={() => {
                 setEditingEvent(null);
                 setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
                 setIsModalOpen(true);
               }}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
             >
               <HiPlus className="text-lg" /> New Slot
             </button>
@@ -379,7 +379,7 @@ export default function AvailabilityPage() {
                 )}
                 <div className="flex gap-3 ml-auto">
                   <button type="button" onClick={closeModal} className="px-5 py-2.5 text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
-                  <button type="submit" className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200">
+                  <button type="submit" className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 cursor-pointer">
                     {editingEvent ? 'Save Changes' : 'Create Assignment'}
                   </button>
                 </div>
