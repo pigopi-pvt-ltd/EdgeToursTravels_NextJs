@@ -19,6 +19,25 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Driver not found' }, { status: 404 });
   }
 
+  // Ensure driverDetails exists
+  if (!user.driverDetails) {
+    user.driverDetails = {
+      fullName: user.name || '',
+      dateOfBirth: new Date(),
+      drivingLicenseNumber: '',
+      dlExpiryDate: new Date(),
+      vehicleRegNumber: '',
+      vehicleType: 'car',
+      presentAddress: '',
+      permanentAddress: '',
+      accountHolderName: '',
+      bankName: '',
+      accountNumber: '',
+      ifscCode: '',
+      kycStatus: 'pending'
+    };
+  }
+
   user.driverDetails.kycStatus = kycStatus;
   if (kycStatus === 'rejected' && rejectionReason) {
     user.driverDetails.rejectionReason = rejectionReason;

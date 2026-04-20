@@ -168,7 +168,7 @@ export default function BookingsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
                     <th key={i} className="px-6 py-4"><div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded mx-auto"></div></th>
                   ))}
                 </tr>
@@ -176,7 +176,7 @@ export default function BookingsPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {[1, 2, 3, 4, 5].map(row => (
                   <tr key={row}>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(cell => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(cell => (
                       <td key={cell} className="px-6 py-4"><div className="h-3 w-20 bg-slate-100 dark:bg-slate-700 rounded"></div></td>
                     ))}
                   </tr>
@@ -232,7 +232,7 @@ export default function BookingsPage() {
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Date</th>
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Time</th>
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Price</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Assign Driver/Vehicles</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Driver</th>
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Vehicle</th>
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -251,13 +251,14 @@ export default function BookingsPage() {
                       </select>
                     </div>
                   </th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Driver Resp.</th>
                   <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {filteredBookings.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-20 text-center">
+                    <td colSpan={12} className="py-20 text-center">
                       <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         <HiOutlineCalendar className="text-2xl text-slate-400 dark:text-slate-500" />
                       </div>
@@ -338,6 +339,17 @@ export default function BookingsPage() {
                         <span className={`px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px] ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
+                      </td>
+                      {/* Driver Response */}
+                      <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-700 text-center">
+                        {booking.driverResponse ? (
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold uppercase
+                            ${booking.driverResponse === 'accepted' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {booking.driverResponse}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
                       </td>
                       {/* Actions */}
                       <td className="px-4 py-2 text-center">

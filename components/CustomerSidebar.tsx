@@ -5,51 +5,23 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   HiOutlineViewGrid,
-  HiOutlineUsers,
   HiOutlineCalendar,
-  HiOutlineUserGroup,
-  HiOutlineStar,
-  HiOutlineCurrencyDollar,
-  HiOutlineBriefcase,
-  HiOutlineUser,
-  HiOutlineIdentification,
-  HiOutlineCog,
-  HiOutlineX,
   HiOutlineTruck,
-  HiOutlineDatabase,
-  HiOutlineChevronLeft,
-  HiOutlineChevronRight,
+  HiOutlineUser,
+  HiOutlineCog,
   HiOutlineLogout,
+  HiOutlineX,
+  HiOutlineChevronLeft,
+  HiOutlinePlusCircle,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
-// Admin menu items
-const adminItems = [
-  { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
-  { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
-  { name: "Drivers", icon: HiOutlineUsers, href: "/admin-dashboard/drivers" },
-  { name: "Vehicles", icon: HiOutlineTruck, href: "/admin-dashboard/vehicles" },
-  { name: "Availability", icon: HiOutlineCalendar, href: "/admin-dashboard/availability" },
-  { name: "Manage Employee", icon: HiOutlineUserGroup, href: "/admin-dashboard/employees" },
-  { name: "Review", icon: HiOutlineStar, href: "/admin-dashboard/reviews" },
-  { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
-  { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
-  { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
-];
-
-// Driver menu items
-const driverItems = [
- { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
-  { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
-  { name: "Profile", icon: HiOutlineUser, href: "/driver-dashboard/profile" },
-  { name: "Settings", icon: HiOutlineCog, href: "/driver-dashboard/settings" },
-];
-
-// Employee menu items 
-const employeeItems = [
-  { name: "Dashboard", icon: HiOutlineViewGrid, href: "/employee-dashboard" },
-  { name: "Profile", icon: HiOutlineUser, href: "/employee-dashboard/profile" },
-  { name: "Settings", icon: HiOutlineCog, href: "/employee-dashboard/settings" },
+const customerItems = [
+  { name: "Dashboard", icon: HiOutlineViewGrid, href: "/customer-dashboard" },
+  { name: "My Bookings", icon: HiOutlineCalendar, href: "/customer-dashboard/bookings" },
+  { name: "Available Vehicles", icon: HiOutlineTruck, href: "/customer-dashboard/vehicles" },
+  { name: "Profile", icon: HiOutlineUser, href: "/customer-dashboard/profile" },
+  { name: "Settings", icon: HiOutlineCog, href: "/customer-dashboard/settings" },
 ];
 
 interface SidebarProps {
@@ -59,36 +31,20 @@ interface SidebarProps {
   setIsCollapsed: (v: boolean) => void;
 }
 
-export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
+export default function CustomerSidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [items, setItems] = React.useState(adminItems);
-  const [userRole, setUserRole] = React.useState<string>("");
+  const [user, setUser] = React.useState<any>(null);
 
   React.useEffect(() => {
-    const user = getStoredUser();
-    if (user) {
-      setUserRole(user.role);
-      if (user.role === "admin") {
-        setItems(adminItems);
-      } else if (user.role === "driver") {
-        setItems(driverItems);
-      } else if (user.role === "employee") {
-        setItems(employeeItems);
-      } else {
-        // customer or others – sidebar should not be used, but fallback to empty
-        setItems([]);
-      }
-    }
+    const stored = getStoredUser();
+    setUser(stored);
   }, []);
 
   const handleLogout = () => {
     clearAuthData();
     router.push("/login");
   };
-
-  // If no items (e.g., customer), don't render sidebar
-  if (items.length === 0) return null;
 
   return (
     <>
@@ -110,7 +66,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
       >
         <div className={`h-16 px-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isCollapsed ? (
-            <Link href="/">
+            <Link href="/customer-dashboard">
               <div className="flex items-center justify-center p-2 rounded-xl bg-slate-50 dark:bg-slate-900/50">
                 <img
                   src="/images/logo.png"
@@ -133,28 +89,24 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
         </div>
 
         {/* Role Badge */}
-        {/* {!isCollapsed && userRole && (
+        {/* {!isCollapsed && user && (
           <div className="mx-4 mt-4 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-center">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Role: <span className="text-orange-600 dark:text-orange-400">{userRole}</span>
+              Role: <span className="text-orange-600 dark:text-orange-400">Customer</span>
             </span>
           </div>
         )} */}
 
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1">
-            {items.map((item) => {
+            {customerItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    onClick={(e) => {
+                    onClick={() => {
                       if (window.innerWidth < 1024) onClose();
-                      if (isCollapsed && item.name === "Dashboard") {
-                        setIsCollapsed(false);
-                        e.preventDefault();
-                      }
                     }}
                     className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${
                       isActive
@@ -168,23 +120,9 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                       }`}
                     />
                     {!isCollapsed && (
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-bold text-[13px] tracking-tight whitespace-nowrap overflow-hidden">
-                          {item.name}
-                        </span>
-                        {item.name === "Dashboard" && (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setIsCollapsed(true);
-                            }}
-                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-md transition-all active:scale-95"
-                          >
-                            <HiOutlineChevronLeft className="text-slate-400 hover:text-orange-500" />
-                          </button>
-                        )}
-                      </div>
+                      <span className="font-bold text-[13px] tracking-tight whitespace-nowrap overflow-hidden">
+                        {item.name}
+                      </span>
                     )}
                     {isCollapsed && (
                       <div className="absolute left-16 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-1 group-hover:translate-x-0 z-50 whitespace-nowrap shadow-xl">
@@ -198,7 +136,18 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           </ul>
         </nav>
 
-        {/* Logout Button at bottom */}
+        {/* Collapse toggle button */}
+        {/* <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <HiOutlineChevronLeft className={`text-xl transition-transform ${isCollapsed ? "rotate-180" : ""}`} />
+            {!isCollapsed && <span className="font-bold text-sm">Collapse</span>}
+          </button>
+        </div> */}
+
+        {/* Logout Button */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-800">
           <button
             onClick={handleLogout}

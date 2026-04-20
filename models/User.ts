@@ -44,7 +44,7 @@ export interface IEmployeeDetails extends IAddress {
 }
 
 export interface IUser extends mongoose.Document {
-  email: string;
+  email?: string;
   password: string;
   mobileNumber: string;
   name?: string;
@@ -107,14 +107,20 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
 
 const UserSchema = new Schema<IUser>(
   {
-    email: { type: String, required: true, unique: true, lowercase: true },
+    email: { 
+      type: String, 
+      required: false,
+      unique: true, 
+      sparse: true,
+      lowercase: true 
+    },
     mobileNumber: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     name: String,
     role: {
       type: String,
-      enum: ["admin", "driver", "employee"],
-      default: "employee",
+      enum: ["admin", "driver", "employee", "customer"],  // added "customer"
+      default: "customer",   // changed default to customer
     },
     profileCompleted: { type: Boolean, default: false },
     driverDetails: DriverDetailsSchema,
@@ -137,4 +143,3 @@ UserSchema.methods.comparePassword = async function (
 
 export default mongoose.models.User ||
   mongoose.model<IUser>("User", UserSchema);
-
