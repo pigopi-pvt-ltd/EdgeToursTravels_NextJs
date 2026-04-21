@@ -239,56 +239,63 @@ export default function CustomersPage() {
 
   if (loading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse bg-white dark:bg-slate-800 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-          <div className="h-10 w-full max-w-md bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-                <tr key={row} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
-                      <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                    </div>
-                  </td>
-                  {[1, 2, 3, 4].map((col) => (
-                    <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                    </td>
+
+        <div className="flex flex-col">
+          {/* Skeleton Search Area (approx 72px) */}
+          <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
+            <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
                   ))}
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center gap-2">
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                    </div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                  <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[72px]">
+                    <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700"></div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                        </div>
+                      </div>
+                    </td>
+                    {[1, 2, 3, 4].map((col) => (
+                      <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                      </td>
+                    ))}
+                    <td className="px-6 py-3">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
         {/* Messages */}
         {message && (
@@ -304,17 +311,17 @@ export default function CustomersPage() {
         )}
 
         {/* Header toolbar */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-4">
-            <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-slate-800 dark:text-white uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
-              CUSTOMER DIRECTORY <span className="text-slate-400 dark:text-slate-500 font-normal">({filtered.length})</span>
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+              Customer Directory <span className="text-black dark:text-white font-normal hidden sm:inline">({filtered.length})</span>
             </h2>
           </div>
           <button
             onClick={() => { resetForm(); setIsModalOpen(true); }}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95"
+            className="flex-shrink-0 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"
           >
-            <HiPlus className="text-lg" /> Add New Customer
+            <HiPlus className="text-lg" /> Add Customer
           </button>
         </div>
 
@@ -336,10 +343,10 @@ export default function CustomersPage() {
 
           {/* Stats Bar (Optional, but kept for context if needed, though removed for closer driver page match) */}
           <div className="px-6 py-2 bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4 text-xs">
-             <div className="flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-               <HiStar className="text-lg" />
-               REGULAR CLIENTS: {customers.filter((c) => c.isRegular).length}
-             </div>
+            <div className="flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+              <HiStar className="text-lg" />
+              REGULAR CLIENTS: {customers.filter((c) => c.isRegular).length}
+            </div>
           </div>
 
           {/* Table */}
@@ -424,8 +431,8 @@ export default function CustomersPage() {
 
       {/* Modal / Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-5 duration-200 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-10 overflow-y-auto subtle-scrollbar" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-4xl animate-in slide-in-from-top-10 duration-200" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
               <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
                 {editingCustomer
@@ -453,7 +460,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
                       value={formData.fullName}
                       onChange={(e) =>
                         setFormData({ ...formData, fullName: e.target.value })
@@ -468,7 +475,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
                       value={formData.mobileNumber}
                       onChange={(e) =>
                         setFormData({ ...formData, mobileNumber: e.target.value })
@@ -484,7 +491,7 @@ export default function CustomersPage() {
                     <input
                       required
                       type="email"
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
@@ -499,7 +506,7 @@ export default function CustomersPage() {
                     </label>
                     <select
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none text-sm dark:text-white"
+                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none text-sm dark:text-white"
                       value={formData.gender}
                       onChange={(e) =>
                         setFormData({ ...formData, gender: e.target.value })
@@ -521,7 +528,7 @@ export default function CustomersPage() {
                       <input
                         type="number"
                         placeholder="HH"
-                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none dark:text-white"
+                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none dark:text-white"
                         value={formData.pickupHour}
                         onChange={(e) =>
                           setFormData({ ...formData, pickupHour: e.target.value })
@@ -530,7 +537,7 @@ export default function CustomersPage() {
                       <input
                         type="number"
                         placeholder="MM"
-                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none dark:text-white"
+                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none dark:text-white"
                         value={formData.pickupMinute}
                         onChange={(e) =>
                           setFormData({
@@ -547,7 +554,7 @@ export default function CustomersPage() {
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 opacity-0 select-none">
                       Regular Status
                     </label>
-                    <div className="mt-1 flex items-center gap-3 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30 h-[46px]">
+                    <div className="mt-1 flex items-center gap-3 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30 h-[46px]">
                       <input
                         type="checkbox"
                         id="regular"
@@ -584,7 +591,7 @@ export default function CustomersPage() {
                     </label>
                     <textarea
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none focus:ring-2 focus:ring-indigo-200"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none focus:ring-2 focus:ring-indigo-200"
                       value={formData.presentAddress}
                       onChange={(e) =>
                         setFormData({ ...formData, presentAddress: e.target.value })
@@ -613,7 +620,7 @@ export default function CustomersPage() {
                     </div>
                     <textarea
                       required
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none focus:ring-2 focus:ring-indigo-200"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none focus:ring-2 focus:ring-indigo-200"
                       value={formData.dropOffAddress}
                       onChange={(e) =>
                         setFormData({
@@ -637,14 +644,14 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px]"
+                  className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px]"
                 >
                   {creating
                     ? "Saving..."
@@ -659,15 +666,8 @@ export default function CustomersPage() {
       )}
       {/* Delete Confirmation Dialog */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z- flex items-center justify-center p-4 z-50">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
-            onClick={() => setIsDeleteModalOpen(false)}
-          />
-
-          {/* Dialog Card */}
-          <div className="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-10 overflow-y-auto subtle-scrollbar" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md shadow-2xl p-8 animate-in zoom-in-95 duration-200" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col items-center text-center space-y-4">
               {/* Warning Icon */}
               <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center text-rose-600 dark:text-rose-400">

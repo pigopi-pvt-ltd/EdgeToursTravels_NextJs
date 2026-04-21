@@ -262,82 +262,91 @@ export default function EmployeesPage() {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = 
+    const matchesSearch =
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.mobileNumber?.includes(searchTerm);
-    
+
     const matchesRole = roleFilter === 'all' ? true : user.role === roleFilter;
     const matchesKyc = kycFilter === 'all' ? true : (user.driverDetails?.kycStatus || 'pending') === kycFilter;
-    
+
     return matchesSearch && matchesRole && matchesKyc;
   });
 
   if (loading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse bg-white dark:bg-slate-800 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-          <div className="h-10 w-full max-w-md bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-                <tr key={row} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
-                      <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                    </div>
-                  </td>
-                  {[1, 2, 3, 4].map((col) => (
-                    <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                    </td>
+
+        <div className="flex flex-col">
+          {/* Skeleton Search Area (approx 72px) */}
+          <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
+            <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
+            <div className="h-10 w-32 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 hidden md:block"></div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
                   ))}
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center gap-2">
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                    </div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                  <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[64px]">
+                    <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
+                        <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                      </div>
+                    </td>
+                    {[1, 2, 3, 4].map((col) => (
+                      <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                      </td>
+                    ))}
+                    <td className="px-6 py-3">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
         {/* Header Toolbar matched to Bookings Page */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-slate-800 dark:text-white flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
-            EMPLOYEES MANAGEMENT <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredUsers.length})</span>
-          </h2>
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Employees <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredUsers.length})</span>
+            </h2>
+          </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[11px] md:text-sm shadow-sm transition-all active:scale-95"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm shadow-sm transition-all active:scale-95 whitespace-nowrap"
             >
-              Add New User
+              Add Employee
             </button>
           </div>
         </div>
@@ -359,15 +368,15 @@ export default function EmployeesPage() {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 custom-scrollbar shadow-inner">
+            <table className="w-full border-collapse min-w-[1000px] md:min-w-full">
               <thead>
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">User</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
-                      <span className="uppercase text-slate-700 dark:text-slate-300">Role</span>
+                    <span className="uppercase text-slate-700 dark:text-slate-300">Role</span>
                   </th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -392,7 +401,7 @@ export default function EmployeesPage() {
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
                 {filteredUsers.map((user, idx) => (
                   <tr key={user._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                    <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
+                    <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
                           {getInitials(user.name)}
@@ -402,16 +411,16 @@ export default function EmployeesPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
+                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter whitespace-nowrap">
                       {user.mobileNumber || '-'}
                     </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
+                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                       {user.email || '-'}
                     </td>
                     <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
                       <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border min-w-[100px] ${user.role === 'admin' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 border-purple-100' :
-                          user.role === 'employee' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-emerald-100' :
-                            'bg-blue-50 dark:bg-blue-900/20 text-blue-600 border-blue-100'
+                        user.role === 'employee' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-emerald-100' :
+                          'bg-blue-50 dark:bg-blue-900/20 text-blue-600 border-blue-100'
                         }`}>
                         {user.role}
                       </span>

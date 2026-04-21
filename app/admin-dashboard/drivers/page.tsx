@@ -442,56 +442,62 @@ export default function DriversPage() {
 
   if (loading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse bg-white dark:bg-slate-800 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-          <div className="h-10 w-full max-w-md bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                  <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-                <tr key={row} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
-                      <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                    </div>
-                  </td>
-                  {[1, 2, 3, 4, 5].map((col) => (
-                    <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                    </td>
+
+        <div className="flex flex-col">
+          {/* Skeleton Search Area (approx 72px) */}
+          <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6">
+            <div className="h-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                    <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
                   ))}
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center gap-2">
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                    </div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                  <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[64px]">
+                    <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
+                        <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                      </div>
+                    </td>
+                    {[1, 2, 3, 4, 5].map((col) => (
+                      <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                      </td>
+                    ))}
+                    <td className="px-6 py-3">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
         {message && (
           <div className={`mb-6 p-4 rounded-xl text-sm flex items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300 ${message.includes('successfully') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-400 border border-rose-100 dark:border-rose-800'
@@ -505,15 +511,15 @@ export default function DriversPage() {
           </div>
         )}
 
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-4">
-            <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-slate-800 dark:text-white uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
-              DRIVERS MANAGEMENT <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredDrivers.length})</span>
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+              Drivers Management <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredDrivers.length})</span>
             </h2>
           </div>
           <button
             onClick={() => { resetForm(); setIsModalOpen(true); }}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
+            className="flex-shrink-0 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap"
           >
             <HiPlus className="text-lg" /> Add New Driver
           </button>
@@ -546,49 +552,48 @@ export default function DriversPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700">
-            <table className="w-full border-collapse">
+          {/* Table */}
+          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 custom-scrollbar shadow-inner">
+            <table className="w-full border-collapse min-w-[1100px] md:min-w-full">
               <thead>
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Driver</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">License info</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Experience</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">KYC Status</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Driver</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">License info</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Experience</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">KYC Status</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-                {filteredDrivers
-                  .filter(d => kycFilter === 'all' || d.driverDetails?.kycStatus === kycFilter)
-                  .map((driver, idx) => (
-                    <tr key={driver._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                      <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
-                            {getInitials(driver.name)}
-                          </div>
-                          <div className="font-bold text-slate-800 dark:text-slate-200">{driver.name || '-'}</div>
+                {filteredDrivers.map((driver, idx) => (
+                  <tr key={driver._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
+                    <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
+                          {getInitials(driver.name)}
                         </div>
-                      </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
-                        {driver.mobileNumber || '-'}
-                      </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
-                        {driver.email || '-'}
-                      </td>
-                      <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center font-black uppercase tracking-tighter">
-                        {driver.driverDetails?.drivingLicenseNumber || '-'}
-                      </td>
-                      <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center font-bold">
-                        {driver.driverDetails?.yearsOfExperience || 0} YRS
-                      </td>
-                      <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <span className={`
-                          px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
-                          ${driver.driverDetails?.kycStatus === 'approved' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
-                            driver.driverDetails?.kycStatus === 'rejected' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
+                        <div className="font-bold text-slate-800 dark:text-slate-200">{driver.name || '-'}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
+                      {driver.mobileNumber || '-'}
+                    </td>
+                    <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                      {driver.email || '-'}
+                    </td>
+                    <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
+                      {driver.driverDetails?.drivingLicenseNumber || '-'}
+                    </td>
+                    <td className="px-6 py-1 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center font-bold whitespace-nowrap">
+                      {driver.driverDetails?.yearsOfExperience || 0} YRS
+                    </td>
+                    <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
+                      <span className={`
+                        px-2 py-0.5 rounded text-sm font-bold border inline-block min-w-[100px] text-center uppercase tracking-widest
+                        ${driver.driverDetails?.kycStatus === 'approved' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
+                          driver.driverDetails?.kycStatus === 'rejected' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
                             driver.driverDetails?.kycStatus === 'submitted' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
                             'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}
                         `}>
