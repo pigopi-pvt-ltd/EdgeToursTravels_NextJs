@@ -23,6 +23,7 @@ export interface IVehicle extends mongoose.Document {
   gstNo: string;
   insuranceNo: string;
   modelName: string;
+  manufacturingNo?: string;
   expiryDate: Date;
   yearOfMaking: number;
   status: 'active' | 'inactive' | 'maintenance';
@@ -55,6 +56,7 @@ const VehicleSchema = new Schema<IVehicle>({
   gstNo: { type: String, required: true },
   insuranceNo: { type: String, required: true },
   modelName: { type: String, required: true },
+  manufacturingNo: { type: String },
   expiryDate: { type: Date, required: true },
   yearOfMaking: { type: Number, required: true },
   status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' },

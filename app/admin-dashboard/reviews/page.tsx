@@ -1,47 +1,59 @@
-// app/admin/reviews/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  HiCheck,
+  HiXMark as HiX,
+  HiStar,
+  HiOutlineChatBubbleLeftRight,
+  HiOutlineClock,
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+  HiOutlineChevronRight,
+  HiOutlineChevronLeft,
+  HiOutlineMagnifyingGlass as HiOutlineSearch,
+  HiOutlineFunnel as HiOutlineFilter
+} from 'react-icons/hi2';
 import { getAuthToken } from '@/lib/auth';
-import { HiSearch, HiCheck, HiX, HiTrash, HiEye, HiStar } from 'react-icons/hi';
-import Link from 'next/link';
 
 interface Review {
   _id: string;
   customerName: string;
   customerEmail: string;
   rating: number;
-  title: string;
   comment: string;
   status: 'pending' | 'approved' | 'rejected';
-  adminResponse?: string;
   createdAt: string;
 }
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [responseText, setResponseText] = useState('');
   const [message, setMessage] = useState('');
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [replyText, setReplyText] = useState('');
 
   useEffect(() => {
     fetchReviews();
-  }, [statusFilter, searchTerm]);
+  }, [statusFilter]);
 
   const fetchReviews = async () => {
+    setLoading(true);
     try {
       const token = getAuthToken();
       const params = new URLSearchParams();
       if (statusFilter !== 'all') params.append('status', statusFilter);
-      if (searchTerm) params.append('search', searchTerm);
+
       const res = await fetch(`/api/admin/reviews?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok) setReviews(data.reviews);
+
+      // Artificial delay for professional skeleton feel
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (res.ok) setReviews(data.reviews || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {
@@ -49,246 +61,196 @@ export default function ReviewsPage() {
     }
   };
 
-  const updateReview = async (id: string, status: string, adminResponse?: string) => {
-    const token = getAuthToken();
-    const res = await fetch(`/api/admin/reviews/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ status, adminResponse }),
-    });
-    if (res.ok) {
-      setMessage(`Review ${status} successfully`);
-      fetchReviews();
-      setSelectedReview(null);
-      setResponseText('');
-    } else {
-      setMessage('Update failed');
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`/api/admin/reviews/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        setMessage(`Review ${status} successfully`);
+        fetchReviews();
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error updating review:', error);
     }
-    setTimeout(() => setMessage(''), 3000);
   };
 
-  const deleteReview = async (id: string) => {
-    if (!confirm('Delete this review permanently?')) return;
-    const token = getAuthToken();
-    const res = await fetch(`/api/admin/reviews/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      setMessage('Review deleted');
-      fetchReviews();
-    } else {
-      setMessage('Delete failed');
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'approved': return 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 border-emerald-100 dark:border-emerald-800';
+      case 'rejected': return 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 border-rose-100 dark:border-rose-800';
+      default: return 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 border-amber-100 dark:border-amber-800';
     }
-    setTimeout(() => setMessage(''), 3000);
-  };
-
-  const openResponseModal = (review: Review) => {
-    setSelectedReview(review);
-    setResponseText(review.adminResponse || '');
-  };
-
-  const submitResponse = async () => {
-    if (!selectedReview) return;
-    await updateReview(selectedReview._id, selectedReview.status, responseText);
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="flex justify-between items-center">
-          <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
-          <div className="flex gap-3">
-            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
-            <div className="h-10 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
-          </div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse shadow-inner">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-60 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-40 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-        <div className="bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 overflow-hidden">
-          <div className="h-12 bg-slate-50 dark:bg-slate-900/50 border-b dark:border-slate-700"></div>
-          <div className="divide-y dark:divide-slate-700">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="px-6 py-4 flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                  <div className="h-3 w-40 bg-slate-50 dark:bg-slate-800 rounded"></div>
+
+        {/* Precise Border Grid Skeleton (approx 440px height per item) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-x divide-y divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="p-10 h-[440px] flex flex-col">
+              <div className="flex justify-between items-start mb-8">
+                <div className="space-y-3">
+                  <div className="h-6 w-44 bg-slate-100 dark:bg-slate-800 rounded-md"></div>
+                  <div className="h-3 w-32 bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>
                 </div>
-                <div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                <div className="h-4 w-48 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                <div className="h-6 w-20 bg-slate-50 dark:bg-slate-900 rounded-full"></div>
-                <div className="flex gap-2">
-                  <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded"></div>
-                  <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded"></div>
-                </div>
+                <div className="h-6 w-24 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
               </div>
-            ))}
-          </div>
+              <div className="flex gap-1.5 mb-8">
+                {[1, 2, 3, 4, 5].map(j => <div key={j} className="w-5 h-5 bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>)}
+              </div>
+              <div className="space-y-3 flex-grow">
+                <div className="h-4 w-full bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>
+                <div className="h-4 w-11/12 bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>
+                <div className="h-4 w-4/5 bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>
+              </div>
+              <div className="flex gap-4 pt-10 border-t border-slate-50 dark:border-slate-800 mt-auto">
+                <div className="flex-1 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+                <div className="flex-1 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-[#0A1128] dark:via-[#0A1128] dark:to-[#0A1128] -mt-8 -mx-8 animate-in fade-in duration-500 transition-colors">
-      <div className="py-6 lg:py-8 space-y-6">
-        {message && (
-          <div className="px-6 lg:px-8">
-            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 p-3 rounded-xl border border-blue-100 dark:border-blue-800 transition-colors shadow-sm">{message}</div>
-          </div>
-        )}
-
-        <div className="px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent transition-colors">Customer Reviews</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm transition-colors">Manage and respond to customer feedback</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm">
-              <option value="all">All Reviews</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <div className="relative flex-1 sm:flex-none sm:w-64">
-              <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
-              <input type="text" placeholder="Search customer or comment..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border dark:border-slate-700 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm" />
-            </div>
-          </div>
+    <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 transition-colors">
+      {/* Sticky Header Toolbar - Edge-to-Edge */}
+      <div className="sticky top-0 z-40 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md min-h-[56px]">
+        <div className="flex items-center gap-4">
+          <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-emerald-600 uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
+            CUSTOMER REVIEWS <span className="text-black dark:text-white font-normal">({reviews.length})</span>
+          </h2>
         </div>
-
-        {/* Content Table - Chipka Hua (Full Width) */}
-        <div className="bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700">
-              <thead className="bg-slate-50/50 dark:bg-slate-900/50">
-                <tr>
-                  <th className="px-8 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Rating</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Title & feedback</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Status</th>
-                  <th className="px-8 py-4 text-right text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {reviews.map((review, idx) => (
-                  <tr key={review._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors duration-150" style={{ animationDelay: `${idx * 40}ms` }}>
-                    <td className="px-8 py-5">
-                      <div className="font-bold text-slate-800 dark:text-white transition-colors">{review.customerName}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-500 transition-colors">{review.customerEmail}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <HiStar key={i} className={`w-4 h-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`} />
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 max-w-md">
-                      <div className="font-semibold text-slate-800 dark:text-slate-200 transition-colors text-sm">{review.title}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">{review.comment}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className={`px-3 py-1 text-[10px] rounded-full inline-block font-bold uppercase tracking-wider transition-colors ${
-                        review.status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 
-                        review.status === 'rejected' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' : 
-                        'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                      }`}>
-                        {review.status}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-right space-x-2 whitespace-nowrap">
-                      <button onClick={() => openResponseModal(review)} className="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 rounded-lg transition-all" title="View & Respond">
-                        <HiEye className="w-5 h-5" />
-                      </button>
-                      {review.status !== 'approved' && (
-                        <button onClick={() => updateReview(review._id, 'approved')} className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 rounded-lg transition-all" title="Approve">
-                          <HiCheck className="w-5 h-5" />
-                        </button>
-                      )}
-                      {review.status !== 'rejected' && (
-                        <button onClick={() => updateReview(review._id, 'rejected')} className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/50 rounded-lg transition-all" title="Reject">
-                          <HiX className="w-5 h-5" />
-                        </button>
-                      )}
-                      <button onClick={() => deleteReview(review._id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/50 rounded-lg transition-all" title="Delete">
-                        <HiTrash className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {reviews.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="text-center py-20">
-                      <div className="text-4xl mb-3 opacity-20">💬</div>
-                      <p className="text-slate-400 dark:text-slate-500 font-medium">No reviews found matching your criteria</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex items-center gap-3">
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:text-white rounded-lg px-4 py-2.5 text-[10px] md:text-xs font-black uppercase tracking-widest focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all cursor-pointer shadow-sm border-r-8 border-transparent">
+            <option value="all">System: All Reviews</option>
+            <option value="pending">🟡 Action Required</option>
+            <option value="approved">🟢 Publicly Visible</option>
+            <option value="rejected">🔴 Moderated</option>
+          </select>
         </div>
       </div>
 
-      {/* Response Modal */}
-      {selectedReview && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedReview(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-10">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white">Review Feedback</h2>
-              <button onClick={() => setSelectedReview(null)} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"><HiX className="w-6 h-6" /></button>
+      <div className="flex flex-col min-h-[calc(100vh-120px)] border-t border-slate-100 dark:border-slate-800">
+        {message && (
+          <div className="px-6 py-4 bg-emerald-50/50 dark:bg-emerald-900/10 text-emerald-600 border-b border-emerald-100 dark:border-emerald-800/50 transition-colors flex items-center gap-2 animate-in slide-in-from-top-2">
+            <HiOutlineCheckCircle className="text-xl" />
+            <span className="text-[10px] font-black uppercase tracking-widest">{message}</span>
+          </div>
+        )}
+
+        {reviews.length === 0 ? (
+          <div className="flex-grow flex flex-col items-center justify-center py-32 text-center px-4 bg-slate-50/20 dark:bg-slate-900/20">
+            <div className="w-24 h-24 bg-white dark:bg-slate-800 flex items-center justify-center rounded-3xl mb-8 border border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none animate-in zoom-in duration-500">
+              <HiOutlineChatBubbleLeftRight className="text-5xl text-slate-200 dark:text-slate-600" />
             </div>
-            <div className="p-6 space-y-6">
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 space-y-4 border border-slate-100 dark:border-slate-800">
-                <div className="flex flex-col sm:flex-row justify-between gap-4">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Customer info</span>
-                    <p className="font-bold text-slate-800 dark:text-white">{selectedReview.customerName}</p>
-                    <p className="text-sm text-slate-500">{selectedReview.customerEmail}</p>
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">No Feedback Recorded</h3>
+            <p className="text-slate-400 dark:text-slate-500 text-xs font-bold mt-3 max-w-xs leading-relaxed capitalize">We couldn't find any reviews matching your current modulation status.</p>
+          </div>
+        ) : (
+          /* Grid View - Edge-to-Edge border structure (approx 440px height) */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-x divide-y divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 transition-all duration-500">
+            {reviews.map((review) => (
+              <div key={review._id} className="p-10 h-[440px] bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group flex flex-col relative">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="flex flex-col">
+                    <h3 className="font-black text-slate-800 dark:text-white uppercase tracking-tight text-lg group-hover:text-emerald-600 transition-colors">{review.customerName}</h3>
+                    <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-tighter">{review.customerEmail}</p>
                   </div>
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1 text-right">Rating</span>
-                    <div className="flex items-center gap-0.5 justify-end">
-                      {[...Array(5)].map((_, i) => (
-                        <HiStar key={i} className={`w-4 h-4 ${i < selectedReview.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 dark:text-slate-700'}`} />
-                      ))}
-                    </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${getStatusStyle(review.status)}`}>
+                    {review.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <HiStar key={i} className={`w-4 h-4 transition-all duration-300 ${i < review.rating ? 'text-amber-400 scale-110 drop-shadow-sm' : 'text-slate-100 dark:text-slate-800'}`} />
+                  ))}
+                  <span className="ml-3 text-xs font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700">{review.rating}.0</span>
+                </div>
+
+                <div className="relative mb-8 flex-grow">
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-bold italic quote line-clamp-4 group-hover:line-clamp-none transition-all duration-500">
+                    "{review.comment}"
+                  </p>
+                </div>
+
+                <div className="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800/50 flex flex-col gap-6">
+                  <div className="flex items-center gap-2.5 text-slate-400">
+                    <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg"><HiOutlineClock className="w-4 h-4" /></div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      Timestamp: {new Date(review.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 w-full">
+                    {review.status === 'pending' && (
+                      <>
+                        <button onClick={() => updateStatus(review._id, 'approved')} className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-emerald-200/50 dark:shadow-none">
+                          <HiCheck className="text-xl" /> Approve
+                        </button>
+                        <button onClick={() => updateStatus(review._id, 'rejected')} className="flex-1 inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-rose-600 border border-rose-100 dark:border-rose-900/50 px-5 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all active:scale-95">
+                          <HiX className="text-xl" /> Moderated
+                        </button>
+                      </>
+                    )}
+                    {(review.status === 'approved' || review.status === 'rejected') && (
+                      <button onClick={() => updateStatus(review._id, 'pending')} className="w-full inline-flex items-center justify-center gap-2 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-5 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-transparent hover:border-indigo-100">
+                        <HiOutlineClock className="text-xl" /> Restore to Queue
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">{selectedReview.title || 'Review comment'}</span>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">"{selectedReview.comment}"</p>
-                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {selectedReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setSelectedReview(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-[40px] w-full max-w-xl shadow-3xl animate-in zoom-in-95 duration-300 overflow-hidden border border-white/20" onClick={e => e.stopPropagation()}>
+            <div className="p-10 md:p-12">
+              <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">Modulation Feedback</h3>
+                <button onClick={() => setSelectedReview(null)} className="p-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-all"><HiX className="text-2xl text-slate-400" /></button>
               </div>
 
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Respond to customer</label>
-                <textarea 
-                  value={responseText} 
-                  onChange={e => setResponseText(e.target.value)} 
-                  rows={4} 
-                  className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl p-4 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm" 
-                  placeholder="Thank you for your feedback! We're glad you enjoyed your ride..."
-                ></textarea>
+              <div className="mb-10 p-7 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-700 relative italic text-slate-600 dark:text-slate-300">
+                <p className="text-base font-bold relative z-10 antialiased leading-relaxed">{selectedReview.comment}</p>
               </div>
-            </div>
-            <div className="flex justify-end gap-3 p-6 border-t border-slate-100 dark:border-slate-800">
-              <button 
-                onClick={() => setSelectedReview(null)} 
-                className="px-6 py-2.5 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={submitResponse} 
-                className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 dark:shadow-none transition-all duration-200 active:scale-95"
-              >
-                Submit Response
+
+              <textarea
+                value={replyText}
+                onChange={e => setReplyText(e.target.value)}
+                placeholder="Type your response..."
+                className="w-full p-6 bg-slate-50 dark:bg-slate-800 border-none rounded-[28px] focus:ring-8 focus:ring-emerald-500/5 h-40 text-slate-700 dark:text-white mb-10 transition-all font-bold text-sm outline-none shadow-inner resize-none"
+              />
+
+              <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest py-5 rounded-[28px] transition-all active:scale-95 shadow-3xl shadow-emerald-200 dark:shadow-none tracking-[0.2em] text-[11px]">
+                Dispatch Modulation
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
-
   );
 }

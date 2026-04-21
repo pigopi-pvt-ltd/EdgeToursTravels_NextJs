@@ -37,6 +37,7 @@ interface Vehicle {
   gstNo: string;
   insuranceNo: string;
   modelName: string;
+  manufacturingNo?: string;
   expiryDate: string;
   yearOfMaking: number;
   status: "active" | "inactive" | "maintenance";
@@ -81,6 +82,7 @@ export default function VehiclesPage() {
     gstNo: "",
     insuranceNo: "",
     modelName: "",
+    manufacturingNo: "",
     expiryDate: "",
     yearOfMaking: new Date().getFullYear(),
     status: 'active',
@@ -237,6 +239,7 @@ export default function VehiclesPage() {
       gstNo: "",
       insuranceNo: "",
       modelName: "",
+      manufacturingNo: "",
       expiryDate: "",
       yearOfMaking: new Date().getFullYear(),
       status: "active",
@@ -279,68 +282,73 @@ export default function VehiclesPage() {
 
   if (loading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse bg-white dark:bg-slate-800 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-          <div className="h-10 w-full max-w-md bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                  <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
-                    <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-                <tr key={row} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700"></div>
-                      <div>
-                        <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded mb-1"></div>
-                        <div className="h-2 w-32 bg-slate-50 dark:bg-slate-800 rounded"></div>
-                      </div>
-                    </div>
-                  </td>
-                  {[1, 2, 3, 4, 5].map((col) => (
-                    <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="h-3 w-full bg-slate-50 dark:bg-slate-800 rounded"></div>
-                    </td>
+
+        <div className="flex flex-col">
+          {/* Skeleton Search Area (approx 72px) */}
+          <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
+            <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                    <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
                   ))}
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center gap-2">
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                    </div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                  <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[72px]">
+                    <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700"></div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
+                          <div className="h-2 w-16 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+                        </div>
+                      </div>
+                    </td>
+                    {[1, 2, 3, 4, 5].map((col) => (
+                      <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
+                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                      </td>
+                    ))}
+                    <td className="px-6 py-3">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
-        {/* Header toolbar */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-4">
-            <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-slate-800 dark:text-white uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
-              VEHICLES & VENDORS <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredVehicles.length})</span>
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+              Vehicles & Vendors <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredVehicles.length})</span>
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={fetchVehicles}
               className="hidden md:inline-flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
@@ -349,7 +357,7 @@ export default function VehiclesPage() {
             </button>
             <button
               onClick={openCreateModal}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             >
               Add Vendor / Cab
             </button>
@@ -360,7 +368,7 @@ export default function VehiclesPage() {
         <div>
           {/* Search Area */}
           <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <div className="relative max-w-md">
+            <div className="relative w-full md:max-w-md">
               <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
               <input
                 type="text"
@@ -373,17 +381,17 @@ export default function VehiclesPage() {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 custom-scrollbar shadow-inner">
+            <table className="w-full border-collapse min-w-[1100px] md:min-w-full">
               <thead>
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Vendor</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Cab Number</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Model</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Vendor</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Cab Number</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Model</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -394,32 +402,38 @@ export default function VehiclesPage() {
                 ) : (
                   filteredVehicles.map((vehicle) => (
                     <tr key={vehicle._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                      <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
                             {getInitials(vehicle.vendor?.vendorName || 'V')}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-800 dark:text-slate-200 truncate">{vehicle.vendor?.vendorName || '-'}</p>
+                            <p className="truncate">{vehicle.vendor?.vendorName || '-'}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
+                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
                         {vehicle.vendor?.mobile || '-'}
                       </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
                         {vehicle.vendor?.email || '-'}
                       </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-widest font-mono">
+                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
                         {vehicle.cabNumber}
                       </td>
-                      <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <p className="uppercase tracking-tighter">{vehicle.modelName}</p>
-                        <p className="text-[10px] text-slate-400">YOM: {vehicle.yearOfMaking}</p>
+                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <p className="uppercase tracking-tighter">{vehicle.modelName}</p>
+                          {vehicle.manufacturingNo && (
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 rounded border border-emerald-100 dark:border-emerald-800">
+                              {vehicle.manufacturingNo}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
                         <span className={`
-                        px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
+                        px-2 py-0.5 rounded text-sm font-bold uppercase tracking-widest border inline-block min-w-[95px]
                         ${vehicle.status === 'active' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
                             'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30'}
                       `}>
@@ -500,6 +514,7 @@ export default function VehiclesPage() {
                     <div><label className="block text-sm font-medium">GST No.</label><input type="text" value={formData.gstNo || ''} onChange={e => setFormData({ ...formData, gstNo: e.target.value })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
                     <div><label className="block text-sm font-medium">Insurance No. <span className="text-red-500 ml-1">*</span></label><input type="text" required value={formData.insuranceNo || ''} onChange={e => setFormData({ ...formData, insuranceNo: e.target.value })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
                     <div><label className="block text-sm font-medium">Model Name <span className="text-red-500 ml-1">*</span></label><input type="text" required value={formData.modelName || ''} onChange={e => setFormData({ ...formData, modelName: e.target.value })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
+                    <div><label className="block text-sm font-medium">Manufacturing No.</label><input type="text" value={formData.manufacturingNo || ''} onChange={e => setFormData({ ...formData, manufacturingNo: e.target.value })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
                     <div><label className="block text-sm font-medium">Expiry Date (Insurance/PUC) <span className="text-red-500 ml-1">*</span></label><input type="text" placeholder="DD-MM-YYYY" required value={formData.expiryDate || ''} onChange={e => setFormData({ ...formData, expiryDate: e.target.value })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none uppercase" /></div>
                     <div><label className="block text-sm font-medium">Year of Making <span className="text-red-500 ml-1">*</span></label><input type="number" required value={formData.yearOfMaking || ''} onChange={e => setFormData({ ...formData, yearOfMaking: parseInt(e.target.value) })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
                     <div><label className="block text-sm font-medium">Status <span className="text-red-500 ml-1">*</span></label><select required value={formData.status || 'active'} onChange={e => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'maintenance' })} className="mt-1 w-full border dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none"><option value="active">Active</option><option value="inactive">Inactive</option><option value="maintenance">Maintenance</option></select></div>

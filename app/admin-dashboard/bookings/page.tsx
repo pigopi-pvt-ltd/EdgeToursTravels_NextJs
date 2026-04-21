@@ -41,10 +41,10 @@ interface Vehicle {
 // --- Helper: status badge colours ---------------------------
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'confirmed': return 'bg-blue-100 text-blue-700 border-blue-200';
-    case 'completed': return 'bg-green-100 text-green-700 border-green-200';
-    case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
-    default: return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    case 'confirmed': return 'bg-blue-50 text-blue-600 border-blue-100';
+    case 'completed': return 'bg-green-50 text-green-600 border-green-100';
+    case 'cancelled': return 'bg-red-50 text-red-600 border-red-100';
+    default: return 'bg-yellow-50 text-yellow-600 border-yellow-100';
   }
 };
 
@@ -202,27 +202,42 @@ export default function BookingsPage() {
   // --- Loading & Error States -------------------------------
   if (isLoading) {
     return (
-      <div className="-mt-8 -mx-8 animate-pulse">
-        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-screen">
-          <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-4 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-            <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded ml-4"></div>
-            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded mr-4"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="flex gap-2">
+            <div className="h-9 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+            <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
           </div>
+        </div>
+
+        <div className="flex flex-col">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
-                    <th key={i} className="px-6 py-4"><div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded mx-auto"></div></th>
+                <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                    <th key={i} className="px-4 py-3 border-r border-slate-100 dark:border-slate-800">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {[1, 2, 3, 4, 5].map(row => (
-                  <tr key={row}>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(cell => (
-                      <td key={cell} className="px-6 py-4"><div className="h-3 w-20 bg-slate-100 dark:bg-slate-700 rounded"></div></td>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((row) => (
+                  <tr key={row} className="border-b border-slate-50 dark:border-slate-800 h-[72px]">
+                    <td className="px-4 py-3 border-r border-slate-100 dark:border-slate-800">
+                      <div className="h-4 w-24 bg-slate-100 dark:bg-slate-800 rounded mx-auto"></div>
+                    </td>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((col) => (
+                      <td key={col} className="px-4 py-3 border-r border-slate-100 dark:border-slate-800">
+                        <div className="h-3 w-full max-w-[100px] bg-slate-50 dark:bg-slate-800/40 rounded mx-auto"></div>
+                      </td>
                     ))}
+                    <td className="px-4 py-3">
+                      <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto"></div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -234,7 +249,7 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="-mt-8 -mx-8 animate-in fade-in duration-500">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-lg shadow-2xl text-white text-sm font-bold ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'} animate-in fade-in slide-in-from-top-8 duration-300`}>
@@ -242,24 +257,25 @@ export default function BookingsPage() {
           {toast.message}
         </div>
       )}
-
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 overflow-hidden min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
         {/* Header Toolbar */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-[14px] md:text-xl font-extrabold md:font-bold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight whitespace-nowrap">
-            RIDE BOOKINGS <span className="text-slate-400 dark:text-slate-500 font-normal">({filteredBookings.length})</span>
-          </h2>
-          <div className="flex items-center gap-2">
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Ride Bookings <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredBookings.length})</span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={fetchAllData}
-              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[11px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm whitespace-nowrap active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               <HiArrowPath className="text-sm" />
-              Refresh Data
+              Refresh
             </button>
             <button
               onClick={() => setAddModalOpen(true)}
-              className="bg-indigo-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[11px] md:text-sm hover:bg-indigo-700 transition-all shadow-sm whitespace-nowrap active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              className="bg-indigo-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-indigo-700 transition-all shadow-sm whitespace-nowrap active:scale-95 flex items-center gap-1.5 cursor-pointer"
             >
               Add Booking
             </button>
@@ -272,20 +288,20 @@ export default function BookingsPage() {
             {error}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-auto custom-scrollbar shadow-inner border-t border-slate-100 dark:border-slate-700/50">
+            <table className="w-full border-collapse min-w-[1200px] md:min-w-full">
               <thead>
                 <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Customer Name</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Contact Number</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Pickup</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Drop Off</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Date</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Time</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Price</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Driver</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Vehicle</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Customer Name</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Contact Number</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Pickup</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Drop Off</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Date</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Time</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Price</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Driver</th>
+                  <th className="px-4 py-2 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Vehicle</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
                       <span className="uppercase">{statusFilter === 'all' ? 'Status' : statusFilter}</span>
                       <HiChevronDown className="text-slate-400 text-xs" />
@@ -302,8 +318,8 @@ export default function BookingsPage() {
                       </select>
                     </div>
                   </th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider">Driver Resp.</th>
-                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-wider whitespace-nowrap">Driver Resp.</th>
+                  <th className="px-4 py-3 text-center text-[12px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -321,51 +337,51 @@ export default function BookingsPage() {
                   filteredBookings.map((booking) => (
                     <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                       {/* Customer Name */}
-                      <td className="px-4 py-2 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-4 py-1.5 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         {booking.name}
                       </td>
                       {/* Mobile Number */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         {booking.contact}
                       </td>
                       {/* Pickup */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
                           {booking.from}
                         </div>
                       </td>
                       {/* Dropoff */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                           {booking.destination}
                         </div>
                       </td>
                       {/* Date */}
-                      <td className="px-4 py-2 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                      <td className="px-4 py-1.5 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <HiOutlineCalendar className="text-orange-500 dark:text-orange-400 text-[16px]" />
                           <span className="font-medium">{new Date(booking.dateTime).toLocaleDateString('en-GB')}</span>
                         </div>
                       </td>
                       {/* Time */}
-                      <td className="px-4 py-2 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                      <td className="px-4 py-1.5 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <HiOutlineClock className="text-blue-500 dark:text-blue-400 text-[16px]" />
                           <span className="font-medium">{new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                         </div>
                       </td>
                       {/* Price */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
                         <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
                           {booking.price || 'Not Specified'}
                         </p>
                       </td>
                       {/* Driver */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
                         {booking.driverId ? (
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{booking.driverId.name}</span>
+                          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{booking.driverId.name}</span>
                         ) : (
                           <button
                             onClick={() => {
@@ -373,29 +389,29 @@ export default function BookingsPage() {
                               setSelectedDriver('');
                               setSelectedVehicle('');
                             }}
-                            className="text-indigo-600 dark:text-indigo-400 text-xs font-bold hover:underline"
+                            className="text-indigo-600 dark:text-indigo-400 text-sm font-black hover:underline underline-offset-4"
                           >
                             + Assign
                           </button>
                         )}
                       </td>
                       {/* Vehicle */}
-                      <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <td className="px-4 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
                           {booking.vehicleId?.cabNumber || '—'}
                         </span>
                       </td>
                       {/* Status */}
-                      <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <span className={`px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px] ${getStatusColor(booking.status)}`}>
+                      <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-widest border inline-block min-w-[90px] ${getStatusColor(booking.status)}`}>
                           {booking.status}
                         </span>
                       </td>
                       {/* Driver Response */}
-                      <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-700 text-center">
+                      <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-700 text-center whitespace-nowrap">
                         {booking.driverResponse ? (
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold uppercase
-                            ${booking.driverResponse === 'accepted' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded border text-xs font-bold uppercase
+                            ${booking.driverResponse === 'accepted' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
                             {booking.driverResponse}
                           </span>
                         ) : (
@@ -460,8 +476,8 @@ export default function BookingsPage() {
 
       {/* Assignment Modal */}
       {assignModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={() => setAssignModal({ isOpen: false, bookingId: null })}>
-          <div className="bg-white dark:bg-slate-800 rounded-xl w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 pt-10 overflow-y-auto subtle-scrollbar" onClick={() => setAssignModal({ isOpen: false, bookingId: null })}>
+          <div className="bg-white dark:bg-slate-800 rounded-lg w-full max-w-md shadow-xl" style={{ borderRadius: '0.5rem' }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b dark:border-slate-700">
               <h3 className="text-base font-bold text-gray-800 dark:text-white">Assign Driver & Vehicle</h3>
               <button onClick={() => setAssignModal({ isOpen: false, bookingId: null })} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -502,9 +518,10 @@ export default function BookingsPage() {
 
       {/* Add Booking Modal - Image Inspired Design */}
       {addModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300" onClick={() => setAddModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-10 overflow-y-auto subtle-scrollbar animate-in fade-in duration-300" onClick={() => setAddModalOpen(false)}>
           <div
             className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative mx-auto"
+            style={{ borderRadius: '0.5rem' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}

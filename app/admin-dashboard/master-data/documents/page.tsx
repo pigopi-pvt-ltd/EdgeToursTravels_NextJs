@@ -137,10 +137,74 @@ export default function DocumentConfigPage() {
     setIsModalOpen(true);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-60 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-44 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+        </div>
+
+        <div className="flex flex-col">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                    <th key={i} className="px-6 py-4">
+                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                  <tr key={row} className="border-b border-slate-50 dark:border-slate-800 h-[64px]">
+                    <td className="px-6 py-4">
+                      <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded-md"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded-lg"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+                        <div className="h-3 w-5/6 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-7 w-7 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 justify-center">
+                        <div className="h-2.5 w-2.5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                        <div className="h-3 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
+                        <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg"></div>
+                        <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="-m-4 sm:-m-8">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8">
       <div className="bg-white dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-3.5 px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-40 backdrop-blur-md bg-opacity-90">
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-40 backdrop-blur-md bg-opacity-90 min-h-[56px]">
           <h2 className="text-sm md:text-xl font-extrabold text-slate-800 dark:text-white uppercase tracking-tighter">
             Document Configurations
           </h2>
@@ -180,9 +244,7 @@ export default function DocumentConfigPage() {
               </tr>
             </thead>
             <tbody className="divide-y-0">
-              {loading ? (
-                <tr><td colSpan={7} className="py-20 text-center text-slate-400 font-black italic animate-pulse uppercase tracking-widest text-xs">Loading configurations...</td></tr>
-              ) : documents.length === 0 ? (
+              {documents.length === 0 ? (
                 <tr><td colSpan={7} className="py-20 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">No document types configured</td></tr>
               ) : (
                 documents.map((doc) => (
@@ -393,5 +455,6 @@ export default function DocumentConfigPage() {
         </div>
       )}
     </div>
+    </div >
   );
 }

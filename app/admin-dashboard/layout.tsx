@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       />
-      <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} min-h-screen`}>
+      <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} min-h-screen relative overflow-hidden backdrop-blur-3xl`}>
         <Header user={user} role="admin" onMenuClick={() => setIsSidebarOpen(true)} />
         <div className="p-4 sm:p-8">{children}</div>
       </main>

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin') return forbiddenResponse();
-  
+
   await connectToDatabase();
   const vehicles = await Vehicle.find().sort({ createdAt: -1 });
   return NextResponse.json(vehicles);
@@ -17,51 +17,51 @@ export async function POST(req: NextRequest) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin') return forbiddenResponse();
-  
+
   await connectToDatabase();
   const body = await req.json();
-  
+
   // Required fields validation with better error messages
   const requiredVendor = ['vendorName', 'mobile', 'gender', 'address', 'aadhar', 'dob', 'pan', 'email'];
   const requiredVehicle = ['cabNumber', 'licenseNo', 'insuranceNo', 'modelName', 'expiryDate', 'yearOfMaking'];
-  
+
   const missingVendor = requiredVendor.filter(field => !body.vendor?.[field] && !body[field]);
   const missingVehicle = requiredVehicle.filter(field => {
     const value = body[field] ?? body[field === 'licenseNo' ? 'licenceNumber' : field === 'yearOfMaking' ? 'yearMaking' : field];
     return !value;
   });
-  
+
   if (missingVendor.length > 0 || missingVehicle.length > 0) {
-    return NextResponse.json({ 
-      error: 'Missing required fields', 
+    return NextResponse.json({
+      error: 'Missing required fields',
       missing: { vendor: missingVendor, vehicle: missingVehicle }
     }, { status: 400 });
   }
-  
+
   const licenseNo = body.licenseNo || body.licenceNumber;
   const tacNo = body.tacNo || body.racNo;
-  
+
   // Enhanced uniqueness checks
   const existingCab = await Vehicle.findOne({ cabNumber: body.cabNumber });
   if (existingCab) return NextResponse.json({ error: 'Cab number already exists' }, { status: 400 });
-  
+
   const existingLicense = await Vehicle.findOne({ licenseNo });
   if (existingLicense) return NextResponse.json({ error: 'License number already exists' }, { status: 400 });
-  
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const vendorEmail = body.vendor?.email || body.email;
   if (!emailRegex.test(vendorEmail)) {
     return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
   }
-  
+
   // Validate mobile number (basic check)
   const mobileRegex = /^[6-9]\d{9}$/;
   const vendorMobile = body.vendor?.mobile || body.mobile;
   if (!mobileRegex.test(vendorMobile)) {
     return NextResponse.json({ error: 'Invalid mobile number format' }, { status: 400 });
   }
-  
+
   const vehicleData = {
     cabNumber: body.cabNumber,
     tacNo,
@@ -70,6 +70,7 @@ export async function POST(req: NextRequest) {
     gstNo: body.gstNo,
     insuranceNo: body.insuranceNo,
     modelName: body.modelName,
+    manufacturingNo: body.manufacturingNo,
     expiryDate: new Date(body.expiryDate),
     yearOfMaking: Number(body.yearOfMaking ?? body.yearMaking),
     status: body.status || 'active',
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
     pollutionImage: body.pollutionImage,
     kycDocuments: body.kycDocuments || {}
   };
-  
+
   try {
     const vehicle = await Vehicle.create(vehicleData);
     return NextResponse.json({

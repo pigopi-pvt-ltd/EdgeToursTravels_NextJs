@@ -39,7 +39,7 @@ const adminItems = [
 
 // Driver menu items
 const driverItems = [
- { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
+  { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
   { name: "Profile", icon: HiOutlineUser, href: "/driver-dashboard/profile" },
   { name: "Settings", icon: HiOutlineCog, href: "/driver-dashboard/settings" },
@@ -102,7 +102,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
 
       <aside
         className={`
-        fixed left-0 top-0 h-screen bg-white dark:bg-[#0A1128] text-slate-600 dark:text-white 
+        fixed left-0 top-0 h-screen bg-white dark:bg-[#0A1128] text-black dark:text-white 
         flex flex-col shadow-xl z-50 transition-all duration-300 border-r border-slate-200 dark:border-slate-800
         ${isCollapsed ? "w-20" : "w-64"}
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -141,7 +141,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           </div>
         )} */}
 
-        <nav className="flex-1 overflow-y-auto py-4">
+        <nav className="flex-1 overflow-y-auto py-4 subtle-scrollbar">
           <ul className="space-y-1">
             {items.map((item) => {
               const isActive = pathname === item.href;
@@ -156,20 +156,18 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                         e.preventDefault();
                       }
                     }}
-                    className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${
-                      isActive
+                    className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${isActive
                         ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500"
-                        : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
-                    }`}
+                        : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                      }`}
                   >
                     <item.icon
-                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                        isActive ? "text-orange-600 dark:text-orange-400" : "group-hover:text-slate-900 dark:group-hover:text-white"
-                      }`}
+                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive ? "text-orange-600 dark:text-orange-400" : "text-black dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                        }`}
                     />
                     {!isCollapsed && (
                       <div className="flex items-center justify-between w-full">
-                        <span className="font-bold text-[13px] tracking-tight whitespace-nowrap overflow-hidden">
+                        <span className="font-bold text-[15px] tracking-tight whitespace-nowrap overflow-hidden">
                           {item.name}
                         </span>
                         {item.name === "Dashboard" && (
@@ -202,10 +200,10 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
         <div className="p-4 border-t border-slate-100 dark:border-slate-800">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-black dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <HiOutlineLogout className="text-xl" />
-            {!isCollapsed && <span className="font-bold text-sm">Logout</span>}
+            {!isCollapsed && <span className="font-bold text-[15px]">Logout</span>}
           </button>
         </div>
       </aside>

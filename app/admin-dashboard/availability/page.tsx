@@ -55,12 +55,17 @@ export default function AvailabilityPage() {
   };
 
   const fetchEvents = async () => {
+    setLoading(true);
     try {
       const token = getAuthToken();
       const res = await fetch('/api/availability', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+
+      // Artificial delay for professional skeleton feel
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       if (res.ok) setEvents(data);
       else showToast(data.error || 'Failed to fetch', 'error');
     } catch (error) {
@@ -194,7 +199,7 @@ export default function AvailabilityPage() {
     setEditingEvent(null);
   };
 
-  const stats = {
+  const statsCount = {
     available: events.filter((e) => e.status === 'available').length,
     booked: events.filter((e) => e.status === 'booked').length,
     maintenance: events.filter((e) => e.status === 'maintenance').length,
@@ -202,185 +207,169 @@ export default function AvailabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-[#0A1128] dark:via-[#0A1128] dark:to-[#0A1128] -mt-8 -mx-8 animate-pulse transition-colors p-6 lg:p-8">
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="h-9 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
-              <div className="h-4 w-48 bg-slate-100 dark:bg-slate-800/50 rounded-lg"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors shadow-inner">
+        {/* Precise Header Skeleton (56px) */}
+        <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="h-9 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+        </div>
+
+        {/* Precise Stats Grid Skeleton (214px height) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 bg-slate-50/10 dark:bg-slate-900/10">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="p-10 h-[214px] flex flex-col items-center justify-center">
+              <div className="w-14 h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl mb-5"></div>
+              <div className="h-10 w-24 bg-slate-100 dark:bg-slate-800 rounded-lg mb-3"></div>
+              <div className="h-3 w-36 bg-slate-50 dark:bg-slate-800/40 rounded-md"></div>
             </div>
-            <div className="h-11 w-32 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+          ))}
+        </div>
+
+        {/* Precise Calendar Skeleton */}
+        <div className="p-12 lg:p-20 space-y-10">
+          <div className="flex justify-between items-center px-4">
+            <div className="h-10 w-56 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+            <div className="h-10 w-80 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col gap-4 shadow-sm">
-                <div className="flex justify-between items-center">
-                  <div className="h-4 w-20 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                  <div className="w-10 h-10 bg-slate-50 dark:bg-slate-900 rounded-full"></div>
-                </div>
-                <div className="h-8 w-12 bg-slate-100 dark:bg-slate-700 rounded"></div>
-              </div>
-            ))}
-          </div>
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
-            <div className="h-[600px] bg-slate-50 dark:bg-slate-900 rounded-xl"></div>
-          </div>
+          <div className="h-[700px] w-full bg-slate-50/50 dark:bg-slate-800/20 rounded-[48px] border border-slate-100 dark:border-slate-800 shadow-inner"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-[#0A1128] dark:via-[#0A1128] dark:to-[#0A1128] -mt-8 -mx-8 transition-colors duration-300">
-      <div className="py-6 lg:py-8 space-y-6">
-        {/* Toast */}
+    <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300 animate-in fade-in duration-500">
+      {/* Sticky Header Toolbar - Edge-to-Edge */}
+      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md min-h-[56px]">
+        <div className="min-w-0">
+          <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+            Vehicle Availability <span className="text-black dark:text-white font-normal hidden sm:inline">({events.length})</span>
+          </h2>
+        </div>
+        <button
+          onClick={() => {
+            setEditingEvent(null);
+            setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
+            setIsModalOpen(true);
+          }}
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
+        >
+          <HiPlus className="text-lg" /> New Slot
+        </button>
+      </div>
+
+      <div className="flex flex-col min-h-[calc(100vh-120px)] border-t border-slate-50 dark:border-slate-800">
+        {/* Toast Notification Container */}
         {toast && (
-          <div className="px-6 lg:px-8">
-            <div className={`flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg animate-in slide-in-from-top-5 duration-300 ${toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] animate-in slide-in-from-top-4">
+            <div className={`flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl ${toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
               {toast.type === 'success' ? <HiCheck className="w-5 h-5" /> : <HiX className="w-5 h-5" />}
-              <span className="font-medium text-sm">{toast.message}</span>
+              <span className="font-bold text-sm uppercase tracking-widest">{toast.message}</span>
             </div>
           </div>
         )}
 
-        <div className="px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2 transition-colors">
-                <HiCalendar className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-                Vehicle Availability
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm transition-colors">Monitor and manage your fleet schedule in real-time</p>
-            </div>
-            <button
-              onClick={() => {
-                setEditingEvent(null);
-                setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
-                setIsModalOpen(true);
-              }}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <HiPlus className="text-lg" /> New Slot
-            </button>
+        {/* Stats Section - Flush Edge-to-Edge Grid (Adaptive Height) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 bg-slate-50/10 dark:bg-slate-900/10">
+          <div className="p-10 flex flex-col items-center justify-center group cursor-default hover:bg-white dark:hover:bg-slate-800/40 transition-all">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl mb-5 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 shadow-sm border border-emerald-100 dark:border-emerald-800"><HiCheck className="text-3xl" /></div>
+            <h3 className="text-5xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">{statsCount.available}</h3>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mt-3">Active Logistics</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-md group">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">Available</span>
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform"><HiCheck className="text-xl" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors">{stats.available}</h3>
-            </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-md group">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">Booked</span>
-                <div className="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform"><HiUserGroup className="text-xl" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors">{stats.booked}</h3>
-            </div>
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-md group">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">Maintenance</span>
-                <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform"><HiWrench className="text-xl" /></div>
-              </div>
-              <h3 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors">{stats.maintenance}</h3>
-            </div>
+          <div className="p-10 flex flex-col items-center justify-center group cursor-default hover:bg-white dark:hover:bg-slate-800/40 transition-all">
+            <div className="p-4 bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-2xl mb-5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm border border-rose-100 dark:border-rose-800"><HiUserGroup className="text-3xl" /></div>
+            <h3 className="text-5xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">{statsCount.booked}</h3>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mt-3">Engaged Fleet</p>
+          </div>
+          <div className="p-10 flex flex-col items-center justify-center group cursor-default hover:bg-white dark:hover:bg-slate-800/40 transition-all">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-2xl mb-5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-sm border border-amber-100 dark:border-amber-800"><HiWrench className="text-3xl" /></div>
+            <h3 className="text-5xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">{statsCount.maintenance}</h3>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mt-3">Service Queue</p>
           </div>
         </div>
 
-        {/* Calendar Card - Chipka Hua (Full Width) */}
-        <div className="bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all p-4 lg:p-10 relative">
-          <style jsx global>{`
-            .fc { font-family: inherit; }
-            .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 700; color: #1e293b; }
-            .dark .fc .fc-toolbar-title { color: #f8fafc; }
-            .fc .fc-button-primary { background-color: #ffffff; border-color: #e2e8f0; color: #475569; border-radius: 10px; font-weight: 600; padding: 8px 16px; transition: all 0.2s; }
-            .dark .fc .fc-button-primary { background-color: #1e293b; border-color: #334155; color: #94a3b8; }
-            .fc .fc-button-primary:hover { background-color: #f8fafc; color: #1e293b; }
-            .dark .fc .fc-button-primary:hover { background-color: #334155; color: #ffffff; }
-            .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: #4f46e5; border-color: #4f46e5; color: #ffffff; }
-            .fc table { border-color: #f1f5f9 !important; }
-            .dark .fc table { border-color: #334155 !important; }
-            .fc .fc-daygrid-day-number { color: #64748b; font-weight: 600; padding: 8px !important; }
-            .dark .fc .fc-daygrid-day-number { color: #94a3b8; }
-            .fc .fc-daygrid-day.fc-day-today { background-color: #f5f3ff !important; }
-            .dark .fc .fc-daygrid-day.fc-day-today { background-color: rgba(99, 102, 241, 0.1) !important; }
-            .fc .fc-col-header-cell { background-color: #f8fafc; }
-            .dark .fc .fc-col-header-cell { background-color: #1e293b; }
-            .fc .fc-col-header-cell-cushion { color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; padding: 12px 0 !important; }
-            .dark .fc .fc-col-header-cell-cushion { color: #94a3b8; }
-            .fc .fc-event { border-radius: 6px; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border: none; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-          `}</style>
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-            initialView="dayGridMonth"
-            editable={true}
-            selectable={true}
-            selectMirror={true}
-            dayMaxEvents={true}
-            events={events.map((event) => ({
-              id: event._id,
-              title: `${event.title} (${event.status})`,
-              start: event.start,
-              end: event.end,
-              backgroundColor: event.status === 'available' ? '#10b981' : event.status === 'booked' ? '#ef4444' : '#f59e0b',
-              borderColor: 'transparent',
-              textColor: '#ffffff',
-            }))}
-            select={handleDateSelect}
-            eventClick={handleEventClick}
-            eventDrop={handleEventDrop}
-            eventResize={handleEventDrop}
-            height="auto"
-          />
+        {/* Calendar Section - Wide View Edge-to-Edge Padding */}
+        <div className="p-4 md:p-12 lg:p-16 bg-white dark:bg-slate-900">
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 animate-in zoom-in-95 duration-700">
+            <style jsx global>{`
+              .fc { font-family: inherit; }
+              .fc .fc-toolbar-title { font-size: 1rem !important; md:font-size: 1.5rem !important; }
+              .fc .fc-button-primary { padding: 8px 12px; font-size: 0.55rem; border-radius: 12px; }
+              @media (max-width: 768px) {
+                .fc .fc-toolbar { flex-direction: column; gap: 10px; }
+                .fc .fc-toolbar-chunk { display: flex; justify-content: center; width: 100%; }
+              }
+            `}</style>
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+              initialView="dayGridMonth"
+              editable={true}
+              selectable={true}
+              selectMirror={true}
+              dayMaxEvents={true}
+              events={events.map((event) => ({
+                id: event._id,
+                title: `${event.title}`,
+                start: event.start,
+                end: event.end,
+                backgroundColor: event.status === 'available' ? '#10b981' : event.status === 'booked' ? '#6366f1' : '#f59e0b',
+                borderColor: 'transparent',
+                textColor: '#ffffff',
+              }))}
+              select={handleDateSelect}
+              eventClick={handleEventClick}
+              eventDrop={handleEventDrop}
+              eventResize={handleEventDrop}
+              height="auto"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Standardized Administrative Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={closeModal}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-10">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-white">{editingEvent ? 'Edit Assignment' : 'New Assignment'}</h2>
-              <button onClick={closeModal} className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><HiX className="w-6 h-6" /></button>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={closeModal}>
+          <div className="bg-white dark:bg-slate-900 rounded-[48px] shadow-3xl w-full max-w-3xl max-h-[95vh] overflow-y-auto animate-in zoom-in-95 duration-300 border border-white/10" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-10">
+              <h2 className="text-xl md:text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">Event Parameters</h2>
+              <button onClick={closeModal} className="p-3 md:p-4 bg-slate-50 dark:bg-slate-800 rounded-[20px] md:rounded-[24px] text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all"><HiX className="w-6 h-6 md:w-8 md:h-8" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-8 md:space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Assignment Title *</label>
-                  <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 dark:text-white" placeholder="e.g., Corporate Trip - Swift Dzire" />
+                  <label className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-4 ml-2">Mission Subject *</label>
+                  <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-[28px] px-8 py-5 focus:ring-8 focus:ring-emerald-500/5 dark:text-white font-black text-base shadow-inner outline-none transition-all placeholder:text-slate-200" placeholder="e.g., EXECUTIVE TRANSIT - DL 1PA 1234" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Start Date & Time *</label>
-                  <input type="datetime-local" required value={formData.start} onChange={(e) => setFormData({ ...formData, start: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 dark:text-white" />
+                  <label className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-4 ml-2">Arrival (Start) *</label>
+                  <input type="datetime-local" required value={formData.start} onChange={(e) => setFormData({ ...formData, start: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-[28px] px-8 py-5 focus:ring-8 focus:ring-emerald-500/5 dark:text-white font-black text-sm shadow-inner outline-none transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">End Date & Time *</label>
-                  <input type="datetime-local" required value={formData.end} onChange={(e) => setFormData({ ...formData, end: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 dark:text-white" />
+                  <label className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-4 ml-2">Departure (End) *</label>
+                  <input type="datetime-local" required value={formData.end} onChange={(e) => setFormData({ ...formData, end: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-[28px] px-8 py-5 focus:ring-8 focus:ring-emerald-500/5 dark:text-white font-black text-sm shadow-inner outline-none transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Assignment Status</label>
-                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 dark:text-white">
-                    <option value="available">Available</option>
-                    <option value="booked">Booked</option>
-                    <option value="maintenance">Maintenance</option>
+                  <label className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-4 ml-2">Logistic Status</label>
+                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-[28px] px-8 py-5 focus:ring-8 focus:ring-emerald-500/5 dark:text-white font-black text-sm cursor-pointer shadow-inner outline-none transition-all border-r-[24px] border-transparent">
+                    <option value="available">🟢 Ready for Duty</option>
+                    <option value="booked">🎟️ Mission Assigned</option>
+                    <option value="maintenance">🛠️ Under Service</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Vehicle reference</label>
-                  <input type="text" value={formData.vehicleId} onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 dark:text-white" placeholder="Optional ID" />
+                  <label className="block text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-4 ml-2">Asset Vector ID</label>
+                  <input type="text" value={formData.vehicleId} onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-[28px] px-8 py-5 focus:ring-8 focus:ring-emerald-500/5 dark:text-white font-black text-sm shadow-inner outline-none transition-all" placeholder="OPTIONAL VECTOR ID" />
                 </div>
               </div>
-              <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center pt-12 border-t border-slate-50 dark:border-slate-800/50">
                 {editingEvent && (
-                  <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl font-semibold transition-colors"><HiTrash /> Delete</button>
+                  <button type="button" onClick={handleDelete} className="flex items-center gap-3 px-8 py-4 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-[28px] font-black uppercase tracking-[0.3em] text-[10px] transition-all"><HiTrash className="text-xl" /> Terminate</button>
                 )}
-                <div className="flex gap-3 ml-auto">
-                  <button type="button" onClick={closeModal} className="px-5 py-2.5 text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
-                  <button type="submit" className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 cursor-pointer">
-                    {editingEvent ? 'Save Changes' : 'Create Assignment'}
+                <div className="flex gap-5 ml-auto">
+                  <button type="button" onClick={closeModal} className="px-10 py-4 text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-slate-50 dark:hover:bg-slate-800 rounded-[28px] transition-all">Abort</button>
+                  <button type="submit" className="px-16 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[28px] font-black uppercase tracking-[0.3em] text-[10px] shadow-3xl shadow-emerald-200 dark:shadow-none transition-all active:scale-95 tracking-widest">
+                    {editingEvent ? 'Commit Changes' : 'Execute Mission'}
                   </button>
                 </div>
               </div>
