@@ -455,6 +455,5 @@ export default function DocumentConfigPage() {
         </div>
       )}
     </div>
-    </div >
   );
 }
