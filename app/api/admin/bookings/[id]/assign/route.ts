@@ -6,7 +6,10 @@ import User from '@/models/User';
 import Vehicle from '@/models/Vehicle';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin') return forbiddenResponse();

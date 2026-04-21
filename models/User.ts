@@ -20,7 +20,7 @@ export interface IDriverDetails extends IAddress {
   bankName: string;
   accountNumber: string;
   ifscCode: string;
-  kycStatus?: "pending" | "approved" | "rejected";
+  kycStatus?: "pending" | "submitted" | "approved" | "rejected";
   rejectionReason?: string;
   kycDocuments?: Record<string, string>;
 }
@@ -58,8 +58,8 @@ export interface IUser extends mongoose.Document {
 }
 
 const AddressSchema = new Schema({
-  presentAddress: { type: String, required: true },
-  permanentAddress: { type: String, required: true },
+  presentAddress: { type: String, required: false, default: "" },
+  permanentAddress: { type: String, required: false, default: "" },
 });
 
 const DriverDetailsSchema = new Schema<IDriverDetails>({
@@ -79,7 +79,7 @@ const DriverDetailsSchema = new Schema<IDriverDetails>({
   ifscCode: { type: String, required: true },
   kycStatus: {
     type: String,
-    enum: ["pending", "approved", "rejected"],
+    enum: ["pending", "submitted", "approved", "rejected"],
     default: "pending",
   },
   rejectionReason: String,
@@ -107,26 +107,26 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
 
 const UserSchema = new Schema<IUser>(
   {
-    email: { 
-      type: String, 
+    email: {
+      type: String,
       required: false,
-      unique: true, 
+      unique: true,
       sparse: true,
-      lowercase: true 
+      lowercase: true,
     },
     mobileNumber: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     name: String,
     role: {
       type: String,
-      enum: ["admin", "driver", "employee", "customer"],  // added "customer"
-      default: "customer",   // changed default to customer
+      enum: ["admin", "driver", "employee", "customer"],
+      default: "customer",
     },
     profileCompleted: { type: Boolean, default: false },
     driverDetails: DriverDetailsSchema,
     employeeDetails: EmployeeDetailsSchema,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 UserSchema.pre("save", async function () {
@@ -135,11 +135,13 @@ UserSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-UserSchema.methods.comparePassword = async function (
-  candidatePassword: string,
-) {
+UserSchema.methods.comparePassword = async function (candidatePassword: string) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export default mongoose.models.User ||
-  mongoose.model<IUser>("User", UserSchema);
+// Delete existing model to force recompilation with new schema
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+export default mongoose.model<IUser>("User", UserSchema);

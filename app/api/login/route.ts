@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
 
     const token = signToken({
       userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
+      email: user.email || '',           //  Provide fallback empty string
+      role: user.role,                   // role is always defined (default 'customer')
     });
 
     return NextResponse.json(

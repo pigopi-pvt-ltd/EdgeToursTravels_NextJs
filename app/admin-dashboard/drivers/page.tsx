@@ -11,7 +11,10 @@ import {
   HiCheck,
   HiTrash,
   HiPencil,
-  HiOutlineCloudUpload
+  HiOutlineCloudUpload,
+  HiDocumentText,
+  HiCheckCircle,
+  HiXCircle
 } from 'react-icons/hi';
 import UserDetailsModal from '../employees/UserDetailsModal';
 
@@ -38,6 +41,7 @@ interface Driver {
     kycStatus?: string;
     yearsOfExperience?: number;
     kycDocuments?: Record<string, string>;
+    rejectionReason?: string;
   };
 }
 
@@ -87,6 +91,11 @@ export default function DriversPage() {
   const [submitting, setSubmitting] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  // KYC Review Modal state
+  const [kycModalDriver, setKycModalDriver] = useState<Driver | null>(null);
+  const [kycActionLoading, setKycActionLoading] = useState(false);
+  const [kycRejectionReason, setKycRejectionReason] = useState('');
 
   useEffect(() => {
     fetchDrivers();
@@ -186,7 +195,6 @@ export default function DriversPage() {
       bankName: formData.bankName,
       accountNumber: formData.accountNumber,
       ifscCode: formData.ifscCode,
-      // Add other detail fields if required by API
       gender: formData.gender,
       presentAddress: formData.presentAddress,
       permanentAddress: formData.permanentAddress,
@@ -281,7 +289,6 @@ export default function DriversPage() {
       accountNumber: details.accountNumber || '',
       ifscCode: details.ifscCode || '',
       yearsOfExperience: details.yearsOfExperience?.toString() || '',
-      // Note: add other fields if they exist in driver object
     });
     setIsModalOpen(true);
   };
@@ -312,6 +319,73 @@ export default function DriversPage() {
   const getInitials = (name: string) => {
     if (!name) return '?';
     return name.split(' ').filter(Boolean).map(part => part[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleKycAction = async (status: 'approved' | 'rejected') => {
+    if (!kycModalDriver) return;
+    setKycActionLoading(true);
+    const token = getAuthToken();
+    try {
+      const res = await fetch('/api/admin/update-kyc', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: kycModalDriver._id,
+          kycStatus: status,
+          rejectionReason: status === 'rejected' ? kycRejectionReason : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage(`KYC ${status} successfully`);
+        setKycModalDriver(null);
+        fetchDrivers();
+      } else {
+        setMessage(data.error || 'Action failed');
+      }
+    } catch (err) {
+      setMessage('Something went wrong');
+    } finally {
+      setKycActionLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const renderKycDocuments = (driver: Driver) => {
+    const docs = driver.driverDetails?.kycDocuments || {};
+    const docLabels: Record<string, string> = {
+      aadhaarFront: 'Aadhaar (Front)',
+      aadhaarBack: 'Aadhaar (Back)',
+      drivingLicenseImage: 'Driving License',
+      vehicleRCImage: 'Vehicle RC',
+      insuranceImage: 'Insurance',
+      pucImage: 'PUC Certificate',
+      profilePhoto: 'Profile Photo',
+      panImage: 'PAN Card',
+    };
+    const entries = Object.entries(docs);
+    if (entries.length === 0) {
+      return <p className="text-slate-500 dark:text-slate-400 italic">No documents uploaded yet.</p>;
+    }
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+        {entries.map(([key, url]) => (
+          <div key={key} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <p className="font-semibold text-slate-700 dark:text-slate-300 mb-2">
+              {docLabels[key] || key.replace(/([A-Z])/g, ' $1').trim()}
+            </p>
+            {url ? (
+              <img src={url} alt={key} className="max-h-48 w-auto rounded-lg shadow-md mx-auto object-contain" />
+            ) : (
+              <p className="text-slate-400 text-sm">Not uploaded</p>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const filteredDrivers = drivers.filter(d =>
@@ -425,7 +499,6 @@ export default function DriversPage() {
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
-        {/* Messages */}
         {message && (
           <div className={`mb-6 p-4 rounded-xl text-sm flex items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300 ${message.includes('successfully') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-400 border border-rose-100 dark:border-rose-800'
             }`}>
@@ -452,11 +525,9 @@ export default function DriversPage() {
           </button>
         </div>
 
-        {/* Main Content */}
         <div>
-          {/* Search Area */}
-          <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <div className="relative max-w-md">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm flex flex-wrap items-center justify-between gap-4">
+            <div className="relative max-w-md flex-1">
               <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
               <input
                 type="text"
@@ -465,6 +536,19 @@ export default function DriversPage() {
                 onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-400 dark:focus:border-indigo-700 outline-none text-sm dark:text-white"
               />
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={kycFilter}
+                onChange={e => setKycFilter(e.target.value)}
+                className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white"
+              >
+                <option value="all">All KYC Status</option>
+                <option value="pending">Pending</option>
+                <option value="submitted">Submitted</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </div>
           </div>
 
@@ -511,38 +595,41 @@ export default function DriversPage() {
                         ${driver.driverDetails?.kycStatus === 'approved' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
                           driver.driverDetails?.kycStatus === 'rejected' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
                             driver.driverDetails?.kycStatus === 'submitted' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
-                              'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}
-                      `}>
-                        {driver.driverDetails?.kycStatus || 'pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-1.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => setSelectedUserId(driver._id)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all duration-200 group-hover:scale-105" title="View Details">
-                          <HiOutlineEye className="text-xl" />
-                        </button>
-                        <button onClick={() => openEditModal(driver)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all duration-200 group-hover:scale-105" title="Edit Driver">
-                          <HiPencil className="text-xl" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteDriver(driver._id)}
-                          disabled={deletingUserId === driver._id}
-                          className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all duration-200 group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Delete Driver"
-                        >
-                          {deletingUserId === driver._id ? (
-                            <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <HiTrash className="text-xl" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                            'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}
+                        `}>
+                          {driver.driverDetails?.kycStatus || 'pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-1.5 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button onClick={() => setKycModalDriver(driver)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all duration-200 group-hover:scale-105" title="View & Review KYC">
+                            <HiDocumentText className="text-xl" />
+                          </button>
+                          <button onClick={() => setSelectedUserId(driver._id)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all duration-200 group-hover:scale-105" title="View Details">
+                            <HiOutlineEye className="text-xl" />
+                          </button>
+                          <button onClick={() => openEditModal(driver)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all duration-200 group-hover:scale-105" title="Edit Driver">
+                            <HiPencil className="text-xl" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDriver(driver._id)}
+                            disabled={deletingUserId === driver._id}
+                            className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all duration-200 group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Delete Driver"
+                          >
+                            {deletingUserId === driver._id ? (
+                              <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <HiTrash className="text-xl" />
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
-            {filteredDrivers.length === 0 && (
+            {filteredDrivers.filter(d => kycFilter === 'all' || d.driverDetails?.kycStatus === kycFilter).length === 0 && (
               <div className="text-center py-16">
                 <div className="text-slate-300 dark:text-slate-700 text-5xl mb-3">🚗</div>
                 <p className="text-slate-500 dark:text-slate-400 font-medium italic">No drivers found</p>
@@ -551,12 +638,90 @@ export default function DriversPage() {
           </div>
           <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
             <span>Total drivers: {drivers.length}</span>
-            <span>Showing {filteredDrivers.length} of {drivers.length}</span>
+            <span>Showing {filteredDrivers.filter(d => kycFilter === 'all' || d.driverDetails?.kycStatus === kycFilter).length} of {drivers.length}</span>
           </div>
         </div>
       </div>
 
-      {/* Modal / Form */}
+      {/* KYC Review Modal */}
+      {kycModalDriver && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setKycModalDriver(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                KYC Review – {kycModalDriver.name}
+              </h2>
+              <button onClick={() => setKycModalDriver(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <HiX className="text-2xl" />
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div><span className="font-semibold">Email:</span> {kycModalDriver.email}</div>
+                <div><span className="font-semibold">Mobile:</span> {kycModalDriver.mobileNumber}</div>
+                <div><span className="font-semibold">License No:</span> {kycModalDriver.driverDetails?.drivingLicenseNumber || '-'}</div>
+                <div><span className="font-semibold">Current KYC Status:</span>
+                  <span className={`ml-2 px-2 py-0.5 rounded text-xs font-bold uppercase ${kycModalDriver.driverDetails?.kycStatus === 'approved' ? 'bg-green-100 text-green-700' : kycModalDriver.driverDetails?.kycStatus === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    {kycModalDriver.driverDetails?.kycStatus || 'pending'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Uploaded Documents</h3>
+                {renderKycDocuments(kycModalDriver)}
+              </div>
+{/* 
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Rejection Reason (if rejecting)</label>
+                <textarea
+                  rows={2}
+                  value={kycRejectionReason}
+                  onChange={e => setKycRejectionReason(e.target.value)}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2 dark:bg-slate-800 dark:text-white"
+                  placeholder="Provide reason for rejection..."
+                />
+              </div> */}
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button
+                  onClick={() => setKycModalDriver(null)}
+                  className="px-5 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  Cancel
+                </button>
+                {(kycModalDriver.driverDetails?.kycStatus === 'submitted' || kycModalDriver.driverDetails?.kycStatus === 'pending') && (
+                  <>
+                    <button
+                      onClick={() => handleKycAction('rejected')}
+                      disabled={kycActionLoading}
+                      className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <HiXCircle className="text-lg" /> Reject
+                    </button>
+                    <button
+                      onClick={() => handleKycAction('approved')}
+                      disabled={kycActionLoading}
+                      className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <HiCheckCircle className="text-lg" /> Approve
+                    </button>
+                  </>
+                )}
+                {kycModalDriver.driverDetails?.kycStatus === 'approved' && (
+                  <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">Already Approved</span>
+                )}
+                {kycModalDriver.driverDetails?.kycStatus === 'rejected' && (
+                  <span className="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium">Rejected</span>
+                )}
+              </div>
+              {kycActionLoading && <p className="text-center text-sm text-slate-500">Processing...</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Driver Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-5 duration-200 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
@@ -570,7 +735,6 @@ export default function DriversPage() {
             </div>
 
             <form onSubmit={handleFormSubmit} className="p-6 space-y-8">
-              {/* Personal Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Personal Information
@@ -585,7 +749,6 @@ export default function DriversPage() {
                 </div>
               </div>
 
-              {/* Identity Details */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Identity & Documents
@@ -598,12 +761,10 @@ export default function DriversPage() {
                 </div>
               </div>
 
-              {/* Bank Details */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Bank Information
                 </h3>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   <div className="lg:col-span-2"><label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Account Holder Name <span className="text-red-500 ml-1">*</span></label><input type="text" required value={formData.accountHolderName} onChange={e => setFormData({ ...formData, accountHolderName: e.target.value })} className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
                   <div className="lg:col-span-2"><label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Bank Name <span className="text-red-500 ml-1">*</span></label><input type="text" required value={formData.bankName} onChange={e => setFormData({ ...formData, bankName: e.target.value })} className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 outline-none" /></div>
@@ -612,20 +773,17 @@ export default function DriversPage() {
                 </div>
               </div>
 
-              {/* Documents */}
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Document Uploads
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Default/Core Documents */}
                   <DocumentUploadCard title="Profile Photo" description="Clear face photo" field="profilePhoto" existingUrl={formData.profilePhoto} />
                   <DocumentUploadCard title="Aadhar Card (Front)" description="Front side with photo" field="aadharFront" existingUrl={formData.aadharFront} />
                   <DocumentUploadCard title="Aadhar Card (Back)" description="Back side with address" field="aadharBack" existingUrl={formData.aadharBack} />
                   <DocumentUploadCard title="PAN Card" description="Clear PAN card image" field="panImage" existingUrl={formData.panImage} />
                   <DocumentUploadCard title="Driving License" description="Front side of license" field="licenseImage" existingUrl={formData.licenseImage} />
 
-                  {/* Dynamic Master Documents (excluding defaults if already configured) */}
                   {masterDocs.filter(doc => !['profilePhoto', 'aadharFront', 'aadharBack', 'panImage', 'licenseImage'].includes(doc.key)).map((doc) => (
                     <DocumentUploadCard
                       key={doc.key}
@@ -638,7 +796,6 @@ export default function DriversPage() {
                 </div>
               </div>
 
-              {/* Status Display */}
               {message && (
                 <div className={`p-4 rounded-xl text-sm flex items-center justify-between gap-4 ${message.includes('successfully') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-400 border border-rose-100 dark:border-rose-800'}`}>
                   <span className="flex items-center gap-2">
@@ -653,7 +810,6 @@ export default function DriversPage() {
                 </div>
               )}
 
-              {/* Submitting Buttons */}
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
                 <button type="submit" disabled={submitting || uploading} className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px] cursor-pointer">
@@ -670,7 +826,6 @@ export default function DriversPage() {
         </div>
       )}
 
-      {/* Details Modal */}
       {selectedUserId && (
         <UserDetailsModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} onUpdate={fetchDrivers} />
       )}

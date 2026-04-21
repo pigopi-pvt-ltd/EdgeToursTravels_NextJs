@@ -5,7 +5,10 @@ import Notification from '@/models/Notification';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/jwt';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const token = req.headers.get('authorization')?.split(' ')[1];
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const payload = verifyToken(token);

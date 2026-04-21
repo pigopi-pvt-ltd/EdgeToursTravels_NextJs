@@ -3,6 +3,28 @@ import connectToDatabase from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import { verifyToken } from '@/lib/jwt';
 
+export async function GET(req: NextRequest) {
+  const token = req.headers.get('authorization')?.split(' ')[1];
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const payload = verifyToken(token);
+  if (!payload) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+
+  await connectToDatabase();
+  let filter = {};
+  if (payload.role === 'admin') filter = {};
+  else if (payload.role === 'driver') filter = { driverId: payload.userId };
+  else if (payload.role === 'customer') filter = { userId: payload.userId };
+  else return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const bookings = await Booking.find(filter)
+    .populate('driverId', 'name email mobileNumber')
+    .populate('userId', 'name email')
+    .populate('vehicleId', 'cabNumber modelName')
+    .sort({ dateTime: -1 });
+  return NextResponse.json(bookings);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -28,28 +50,6 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
-
-export async function GET(req: NextRequest) {
-  const token = req.headers.get('authorization')?.split(' ')[1];
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const payload = verifyToken(token);
-  if (!payload) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-
-  await connectToDatabase();
-  let filter = {};
-  if (payload.role === 'admin') filter = {};
-  else if (payload.role === 'driver') filter = { driverId: payload.userId };
-  else if (payload.role === 'customer') filter = { userId: payload.userId };
-  else return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const bookings = await Booking.find(filter)
-    .populate('driverId', 'name email mobileNumber')
-    .populate('userId', 'name email')
-    .populate('vehicleId', 'cabNumber modelName')   // ← ADD THIS LINE
-    .sort({ dateTime: -1 });
-  return NextResponse.json(bookings);
 }
 
 export async function PATCH(req: NextRequest) {

@@ -110,24 +110,23 @@ export async function POST(request: NextRequest) {
 
     const token = signToken({
       userId: user._id.toString(),
-      email: user.email || undefined,
+      email: user.email || '',
       role: user.role,
     });
 
-    // Return user without password
-    const userObject = user.toObject();
-    delete userObject.password;
+    // Return user without password using destructuring (fixes delete operator error)
+    const { password: _, ...userWithoutPassword } = user.toObject();
 
     return NextResponse.json(
       {
         user: {
-          id: user._id,
-          email: user.email || null,
-          mobileNumber: user.mobileNumber,
-          name: user.name,
-          role: user.role,
-          profileCompleted: user.profileCompleted,
-          createdAt: user.createdAt,
+          id: userWithoutPassword._id,
+          email: userWithoutPassword.email || null,
+          mobileNumber: userWithoutPassword.mobileNumber,
+          name: userWithoutPassword.name,
+          role: userWithoutPassword.role,
+          profileCompleted: userWithoutPassword.profileCompleted,
+          createdAt: userWithoutPassword.createdAt,
         },
         token,
       },
@@ -135,7 +134,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('Registration error:', error);
-    // Send detailed error for debugging (remove in production)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

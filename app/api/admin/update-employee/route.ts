@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
+import { IEmployeeDetails } from '@/models/User';
 
 export async function PUT(req: NextRequest) {
   const admin = await verifyAdmin(req);
@@ -39,7 +40,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
   
-  // Check for email/mobile conflicts with other users
+  // Check for email/mobile conflicts
   if (email && email !== user.email) {
     const existingEmail = await User.findOne({ email, _id: { $ne: userId } });
     if (existingEmail) return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
@@ -60,21 +61,43 @@ export async function PUT(req: NextRequest) {
   if (role === 'driver' && driverDetails) {
     user.driverDetails = { ...user.driverDetails, ...driverDetails };
   } else if (role === 'employee') {
-    const employeeDetails = {
-      fullName: fullName || user.employeeDetails?.fullName,
-      mobile: mobileNumber || user.employeeDetails?.mobile,
-      gender: gender || user.employeeDetails?.gender,
-      presentAddress: presentAddress || user.employeeDetails?.presentAddress,
-      permanentAddress: permanentAddress || user.employeeDetails?.permanentAddress,
-      alternateMobile: alternateMobile !== undefined ? alternateMobile : user.employeeDetails?.alternateMobile,
-      aadhar: aadhar || user.employeeDetails?.aadhar,
-      dob: dob ? new Date(dob) : user.employeeDetails?.dob,
-      pan: pan || user.employeeDetails?.pan,
-      email: email || user.employeeDetails?.email,
-      yearsOfExperience: yearsOfExperience !== undefined ? Number(yearsOfExperience) : user.employeeDetails?.yearsOfExperience,
-      highestQualification: highestQualification || user.employeeDetails?.highestQualification,
-      previousExperience: previousExperience !== undefined ? previousExperience : user.employeeDetails?.previousExperience
+    const existing = user.employeeDetails || {} as Partial<IEmployeeDetails>;
+    
+    // Ensure dob is a valid Date (required field)
+    let finalDob: Date;
+    if (dob) {
+      finalDob = new Date(dob);
+      if (isNaN(finalDob.getTime())) {
+        return NextResponse.json({ error: 'Invalid date of birth' }, { status: 400 });
+      }
+    } else if (existing.dob) {
+      finalDob = existing.dob;
+    } else {
+      return NextResponse.json({ error: 'Date of birth is required for employee' }, { status: 400 });
+    }
+    
+    // Build employeeDetails object that matches IEmployeeDetails
+    const employeeDetails: IEmployeeDetails = {
+      fullName: fullName || existing.fullName || '',
+      mobile: mobileNumber || existing.mobile || '',
+      gender: gender || existing.gender || 'male',
+      presentAddress: presentAddress || existing.presentAddress || '',
+      permanentAddress: permanentAddress || existing.permanentAddress || '',
+      alternateMobile: alternateMobile !== undefined ? alternateMobile : existing.alternateMobile,
+      aadhar: aadhar || existing.aadhar || '',
+      dob: finalDob,
+      pan: pan || existing.pan || '',
+      email: email || existing.email || '',
+      yearsOfExperience: yearsOfExperience !== undefined ? Number(yearsOfExperience) : (existing.yearsOfExperience ?? 0),
+      highestQualification: highestQualification || existing.highestQualification || '',
+      previousExperience: previousExperience !== undefined ? previousExperience : existing.previousExperience,
+      // Optional image fields
+      profilePhoto: existing.profilePhoto,
+      aadharFront: existing.aadharFront,
+      aadharBack: existing.aadharBack,
+      panImage: existing.panImage,
     };
+    
     user.employeeDetails = employeeDetails;
     user.profileCompleted = true;
   }

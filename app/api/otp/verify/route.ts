@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     const token = signToken({
       userId: user._id.toString(),
-      email: user.email,
+      email: user.email || '',  //  fallback to empty string if email is undefined
       role: user.role,
     });
 

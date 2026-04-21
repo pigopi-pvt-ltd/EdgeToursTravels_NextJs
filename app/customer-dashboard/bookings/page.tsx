@@ -14,6 +14,8 @@ import {
   HiOutlineCheckCircle,
   HiOutlineXCircle,
   HiOutlineArrowPath,
+  HiXMark,
+  HiOutlinePhone,
 } from 'react-icons/hi2';
 
 interface Booking {
@@ -52,8 +54,6 @@ const sampleBookings: Booking[] = [
     contact: '9988776655',
     price: 450,
     status: 'pending',
-    // driverId: null,
-    // vehicleId: null,
   },
   {
     _id: 'sample3',
@@ -76,8 +76,6 @@ const sampleBookings: Booking[] = [
     contact: '7766554433',
     price: 720,
     status: 'cancelled',
-    // driverId: null,
-    // vehicleId: null,
   },
   {
     _id: 'sample5',
@@ -88,8 +86,6 @@ const sampleBookings: Booking[] = [
     contact: '8262652684',
     price: 1200,
     status: 'pending',
-    // driverId: null,
-    // vehicleId: null,
   },
 ];
 
@@ -98,6 +94,18 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'>('all');
   const [useSampleData, setUseSampleData] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
+  // Add booking modal state
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [newBooking, setNewBooking] = useState({
+    from: '',
+    destination: '',
+    dateTime: '',
+    name: '',
+    contact: '',
+    price: 'Start from ₹12/km'
+  });
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -107,7 +115,6 @@ export default function BookingsPage() {
         setBookings(data);
         setUseSampleData(false);
       } else {
-        // No real data, show sample
         setBookings(sampleBookings);
         setUseSampleData(true);
       }
@@ -123,6 +130,51 @@ export default function BookingsPage() {
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  const handleAddBooking = async () => {
+    // Validation
+    if (!newBooking.from || !newBooking.destination || !newBooking.dateTime || !newBooking.name || !newBooking.contact) {
+      showToast('Please fill all required fields', 'error');
+      return;
+    }
+    const contactRegex = /^\d{10}$/;
+    if (!contactRegex.test(newBooking.contact)) {
+      showToast('Contact number must be exactly 10 digits', 'error');
+      return;
+    }
+
+    try {
+      await apiClient('/api/bookings', {
+        method: 'POST',
+        body: JSON.stringify({
+          from: newBooking.from,
+          destination: newBooking.destination,
+          dateTime: new Date(newBooking.dateTime).toISOString(),
+          name: newBooking.name,
+          contact: newBooking.contact,
+          price: newBooking.price !== 'Start from ₹12/km' ? parseFloat(newBooking.price) : undefined,
+        }),
+      });
+      showToast('Booking added successfully', 'success');
+      setAddModalOpen(false);
+      setNewBooking({
+        from: '',
+        destination: '',
+        dateTime: '',
+        name: '',
+        contact: '',
+        price: 'Start from ₹12/km'
+      });
+      fetchBookings(); // refresh list
+    } catch (err: any) {
+      showToast(err.message || 'Failed to add booking', 'error');
+    }
+  };
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const filteredBookings = bookings.filter(b => filter === 'all' ? true : b.status === filter);
 
@@ -154,27 +206,27 @@ export default function BookingsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-white font-bold ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+          {toast.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">My Bookings</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage and track your ride bookings</p>
         </div>
-        <Link
-          href="/customer-dashboard/bookings/new"
+        <button
+          onClick={() => setAddModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
         >
           <HiOutlinePlus className="w-5 h-5" />
           <span className="font-semibold">New Booking</span>
-        </Link>
+        </button>
       </div>
-
-      {/* Sample data notice */}
-      {/* {useSampleData && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 text-sm text-blue-700 dark:text-blue-300">
-          ℹ️ Showing sample booking data. Your real bookings will appear here once you create them.
-        </div>
-      )} */}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -209,9 +261,9 @@ export default function BookingsPage() {
             <HiOutlineCalendar className="w-8 h-8 text-slate-400" />
           </div>
           <p className="text-slate-500 dark:text-slate-400">No {filter !== 'all' ? filter : ''} bookings found.</p>
-          <Link href="/customer-dashboard/bookings/new" className="inline-block mt-4 text-orange-500 hover:underline">
+          <button onClick={() => setAddModalOpen(true)} className="inline-block mt-4 text-orange-500 hover:underline">
             Book your first ride →
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -315,6 +367,135 @@ export default function BookingsPage() {
           Refresh Bookings
         </button>
       </div>
+
+      {/* Add Booking Modal */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300" onClick={() => setAddModalOpen(false)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative mx-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="pt-8 pb-4 text-center">
+              <h3 className="text-2xl font-black tracking-widest uppercase text-slate-800 dark:text-white">Book Your Ride</h3>
+              <div className="h-0.5 w-16 bg-[#EB664E] mx-auto mt-2 rounded-full"></div>
+            </div>
+
+            <div className="p-8 pt-2 space-y-6">
+              {/* Pickup */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  <HiOutlineMapPin className="text-[#EB664E] text-sm" /> From (City / Airport)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter pick-up location"
+                  value={newBooking.from}
+                  onChange={e => setNewBooking({ ...newBooking, from: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#EB664E]/50 focus:ring-1 focus:ring-[#EB664E]/30 transition-all placeholder:text-slate-400 font-medium text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Destination */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  <HiOutlineMapPin className="text-[#3b82f6] text-sm" /> Destination
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter drop-off location"
+                  value={newBooking.destination}
+                  onChange={e => setNewBooking({ ...newBooking, destination: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#3b82f6]/50 focus:ring-1 focus:ring-[#3b82f6]/30 transition-all placeholder:text-slate-400 font-medium text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Date & Time */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  <HiOutlineCalendar className="text-[#EB664E] text-sm" /> Travel Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newBooking.dateTime}
+                  onChange={e => setNewBooking({ ...newBooking, dateTime: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#EB664E]/50 transition-all placeholder:text-slate-400 font-medium text-slate-800 dark:text-white"
+                />
+              </div>
+
+              {/* Name & Contact Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <HiOutlineUser className="text-[#EB664E] text-sm" /> Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={newBooking.name}
+                    onChange={e => setNewBooking({ ...newBooking, name: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#EB664E]/50 transition-all placeholder:text-slate-400 font-medium text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <HiOutlinePhone className="text-[#3b82f6] text-sm" /> Contact
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    maxLength={10}
+                    value={newBooking.contact}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setNewBooking({ ...newBooking, contact: val });
+                    }}
+                    className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#3b82f6]/50 transition-all placeholder:text-slate-400 font-medium text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Price Estimate */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  <span className="text-[#EB664E] text-sm font-bold">₹</span> Price Estimate
+                </label>
+                <input
+                  type="text"
+                  placeholder="Start from ₹12/km"
+                  value={newBooking.price}
+                  onChange={e => setNewBooking({ ...newBooking, price: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3.5 text-sm focus:outline-none focus:border-[#EB664E]/50 transition-all placeholder:text-slate-400 font-bold text-[#EB664E]"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-4">
+                <button
+                  onClick={() => setAddModalOpen(false)}
+                  className="px-6 py-3 rounded-lg font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all uppercase tracking-widest text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddBooking}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-black uppercase tracking-widest text-sm transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  Add Booking
+                </button>
+              </div>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={() => setAddModalOpen(false)}
+              className="absolute top-6 right-8 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+            >
+              <HiXMark className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { getAuthToken } from '@/lib/auth';
 
 interface FileUploadProps {
   onUpload: (url: string) => void;
@@ -29,7 +29,6 @@ export default function FileUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type (optional but recommended)
     const allowedTypes = [
       'image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp',
       'application/pdf',
@@ -41,7 +40,6 @@ export default function FileUpload({
       return;
     }
 
-    // Validate size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       setError('File size must be less than 10MB');
       return;
@@ -54,10 +52,14 @@ export default function FileUpload({
     formData.append('file', file);
     formData.append('folder', folder);
 
+    const token = getAuthToken();
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
       const data = await res.json();
-      
       if (!res.ok) throw new Error(data.error || 'Upload failed');
       
       setPreview(data.url);
@@ -70,7 +72,6 @@ export default function FileUpload({
     }
   };
 
-  // Helper to determine if file is an image (for preview)
   const isImage = preview && (preview.match(/\.(jpeg|jpg|png|gif|webp)$/i) || preview.includes('image'));
 
   return (
@@ -80,7 +81,13 @@ export default function FileUpload({
         {preview && (
           <div className="relative w-16 h-16 rounded border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
             {isImage ? (
-              <Image src={preview} alt="Preview" fill className="object-cover" />
+              <Image 
+                src={preview} 
+                alt="Preview" 
+                fill 
+                className="object-cover"
+                sizes="64px"   
+              />
             ) : (
               <span className="text-xs text-slate-500 dark:text-slate-400 text-center px-1">DOC</span>
             )}

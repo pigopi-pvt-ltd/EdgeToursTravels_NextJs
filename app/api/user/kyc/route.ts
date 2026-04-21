@@ -4,6 +4,7 @@ import path from 'path';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/jwt';
+import { IDriverDetails } from '@/models/User';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,10 +38,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update user's driverDetails with document paths and set KYC status to 'submitted'
-    if (!user.driverDetails) user.driverDetails = {};
+    // Ensure driverDetails exists before modifying
+    if (!user.driverDetails) {
+      user.driverDetails = {} as IDriverDetails;
+    }
     user.driverDetails.kycStatus = 'submitted';
-    user.driverDetails.kycDocuments = { ...user.driverDetails.kycDocuments, ...savedPaths };
+    user.driverDetails.kycDocuments = { ...(user.driverDetails.kycDocuments || {}), ...savedPaths };
     await user.save();
 
     return NextResponse.json({ success: true, message: 'KYC documents submitted for approval', kycStatus: 'submitted' });

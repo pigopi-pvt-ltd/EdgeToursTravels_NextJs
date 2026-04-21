@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
+import { IDriverDetails } from '@/models/User';
 
 export async function PUT(req: NextRequest) {
   const admin = await verifyAdmin(req);
@@ -28,7 +29,9 @@ export async function PUT(req: NextRequest) {
     bankName,
     accountNumber,
     ifscCode,
-    kycDocuments
+    kycDocuments,
+    presentAddress,
+    permanentAddress
   } = body;
 
   if (!driverId) {
@@ -56,23 +59,48 @@ export async function PUT(req: NextRequest) {
   if (mobileNumber) driver.mobileNumber = mobileNumber;
   if (name) driver.name = name;
 
-  // Update driver details
-  const driverDetails = {
-    fullName: fullName || driver.driverDetails?.fullName,
-    dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : driver.driverDetails?.dateOfBirth,
-    drivingLicenseNumber: drivingLicenseNumber || driver.driverDetails?.drivingLicenseNumber,
-    dlExpiryDate: dlExpiryDate ? new Date(dlExpiryDate) : driver.driverDetails?.dlExpiryDate,
-    vehicleRegNumber: vehicleRegNumber || driver.driverDetails?.vehicleRegNumber,
-    vehicleType: vehicleType || driver.driverDetails?.vehicleType || 'car',
-    vehicleMake: vehicleMake !== undefined ? vehicleMake : driver.driverDetails?.vehicleMake,
-    vehicleModel: vehicleModel !== undefined ? vehicleModel : driver.driverDetails?.vehicleModel,
-    vehicleYear: vehicleYear !== undefined ? parseInt(vehicleYear.toString()) : driver.driverDetails?.vehicleYear,
-    accountHolderName: accountHolderName || driver.driverDetails?.accountHolderName,
-    bankName: bankName || driver.driverDetails?.bankName,
-    accountNumber: accountNumber || driver.driverDetails?.accountNumber,
-    ifscCode: ifscCode || driver.driverDetails?.ifscCode,
-    kycStatus: driver.driverDetails?.kycStatus || 'pending',
-    kycDocuments: kycDocuments || driver.driverDetails?.kycDocuments || {}
+  // Provide a default object with all required fields to satisfy TypeScript
+  const defaultDetails: IDriverDetails = {
+    presentAddress: '',
+    permanentAddress: '',
+    fullName: '',
+    dateOfBirth: new Date(),
+    drivingLicenseNumber: '',
+    dlExpiryDate: new Date(),
+    vehicleRegNumber: '',
+    vehicleType: 'car',
+    vehicleMake: '',
+    vehicleModel: '',
+    vehicleYear: undefined,
+    accountHolderName: '',
+    bankName: '',
+    accountNumber: '',
+    ifscCode: '',
+    kycStatus: 'pending',
+    kycDocuments: {},
+  };
+
+  const existing = driver.driverDetails || defaultDetails;
+
+  // Update driver details including address fields
+  const driverDetails: IDriverDetails = {
+    presentAddress: presentAddress !== undefined ? presentAddress : existing.presentAddress,
+    permanentAddress: permanentAddress !== undefined ? permanentAddress : existing.permanentAddress,
+    fullName: fullName || existing.fullName,
+    dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : existing.dateOfBirth,
+    drivingLicenseNumber: drivingLicenseNumber || existing.drivingLicenseNumber,
+    dlExpiryDate: dlExpiryDate ? new Date(dlExpiryDate) : existing.dlExpiryDate,
+    vehicleRegNumber: vehicleRegNumber || existing.vehicleRegNumber,
+    vehicleType: vehicleType || existing.vehicleType,
+    vehicleMake: vehicleMake !== undefined ? vehicleMake : existing.vehicleMake,
+    vehicleModel: vehicleModel !== undefined ? vehicleModel : existing.vehicleModel,
+    vehicleYear: vehicleYear !== undefined ? parseInt(vehicleYear.toString()) : existing.vehicleYear,
+    accountHolderName: accountHolderName || existing.accountHolderName,
+    bankName: bankName || existing.bankName,
+    accountNumber: accountNumber || existing.accountNumber,
+    ifscCode: ifscCode || existing.ifscCode,
+    kycStatus: existing.kycStatus,
+    kycDocuments: kycDocuments || existing.kycDocuments || {},
   };
 
   driver.driverDetails = driverDetails;
