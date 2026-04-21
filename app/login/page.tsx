@@ -235,7 +235,7 @@ export default function AuthPage() {
                 onClick={() => setRegRole('customer')}
                 className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${regRole === 'customer' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                User (Customer)
+                Customer
               </button>
               <button
                 type="button"
