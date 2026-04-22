@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '@/lib/apiClient';
 import { getStoredUser } from '@/lib/auth';
 import {
@@ -25,72 +25,10 @@ interface Vehicle {
   status?: string;
 }
 
-// Static sample vehicles
-const sampleVehicles: Vehicle[] = [
-  {
-    _id: 'sample1',
-    cabNumber: 'MH01AB1234',
-    modelName: 'Toyota Innova',
-    capacity: 7,
-    type: 'SUV',
-    pricePerKm: 18,
-    ac: true,
-    status: 'available',
-  },
-  {
-    _id: 'sample2',
-    cabNumber: 'MH02CD5678',
-    modelName: 'Hyundai Creta',
-    capacity: 5,
-    type: 'SUV',
-    pricePerKm: 15,
-    ac: true,
-    status: 'available',
-  },
-  {
-    _id: 'sample3',
-    cabNumber: 'MH03EF9012',
-    modelName: 'Mahindra XUV500',
-    capacity: 7,
-    type: 'SUV',
-    pricePerKm: 20,
-    ac: true,
-    status: 'maintenance',
-  },
-  {
-    _id: 'sample4',
-    cabNumber: 'MH04GH3456',
-    modelName: 'Kia Seltos',
-    capacity: 5,
-    type: 'SUV',
-    pricePerKm: 14,
-    ac: true,
-    status: 'available',
-  },
-  {
-    _id: 'sample5',
-    cabNumber: 'MH05IJ7890',
-    modelName: 'Maruti Swift',
-    capacity: 4,
-    type: 'Hatchback',
-    pricePerKm: 12,
-    ac: true,
-    status: 'available',
-  },
-  {
-    _id: 'sample6',
-    cabNumber: 'MH06KL1234',
-    modelName: 'Tata Nexon EV',
-    capacity: 5,
-    type: 'Electric SUV',
-    pricePerKm: 10,
-    ac: true,
-    status: 'available',
-  },
-];
-
 export default function AvailableVehicles() {
-  const [vehicles] = useState<Vehicle[]>(sampleVehicles);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -106,9 +44,27 @@ export default function AvailableVehicles() {
     price: '',
   });
 
+  // Fetch vehicles from API on mount
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        setLoading(true);
+        const data = await apiClient('/api/vehicles'); // adjust endpoint if needed
+        setVehicles(data);
+        setError(null);
+      } catch (err: any) {
+        console.error('Failed to fetch vehicles:', err);
+        setError(err.message || 'Unable to load vehicles. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
   const openBookingModal = (vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
-    // Pre-fill price estimate if vehicle has pricePerKm
     if (vehicle.pricePerKm) {
       setNewBooking(prev => ({ ...prev, price: `Start from ₹${vehicle.pricePerKm}/km` }));
     }
@@ -145,7 +101,6 @@ export default function AvailableVehicles() {
         dateTime: new Date(newBooking.dateTime).toISOString(),
         name: newBooking.name,
         contact: newBooking.contact,
-        // userId: user._id,
       };
       if (newBooking.price && newBooking.price !== `Start from ₹${selectedVehicle?.pricePerKm}/km`) {
         const priceNum = parseFloat(newBooking.price);
@@ -186,6 +141,30 @@ export default function AvailableVehicles() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

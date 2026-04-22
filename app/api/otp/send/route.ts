@@ -16,28 +16,24 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    // Check if user exists (optional – you may allow any mobile)
     const user = await User.findOne({ mobileNumber });
     if (!user) {
       return NextResponse.json({ error: 'No account found with this mobile number' }, { status: 404 });
     }
 
     const otp = generateOTP();
-    // Delete any previous OTP for this mobile
     await OTP.deleteMany({ mobileNumber });
     await OTP.create({ mobileNumber, otp });
 
-    // For production: send SMS via Twilio
-    // For development: log OTP to console
     console.log(`📱 OTP for ${mobileNumber}: ${otp}`);
 
-    // Optional: send SMS (requires Twilio credentials)
-    // const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    // await twilioClient.messages.create({
-    //   body: `Your Edge Tours verification code is: ${otp}`,
-    //   to: mobileNumber,
-    //   from: process.env.TWILIO_PHONE_NUMBER,
-    // });
+    // Optional: send SMS via Twilio (uncomment if you have credentials)
+    const twilioClient = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    await twilioClient.messages.create({
+      body: `Your Edge Tours verification code is: ${otp}`,
+      to: mobileNumber,
+      from: process.env.TWILIO_PHONE_NUMBER,
+    });
 
     return NextResponse.json({ success: true, message: 'OTP sent' });
   } catch (error) {

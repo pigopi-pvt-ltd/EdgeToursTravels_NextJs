@@ -48,20 +48,25 @@ const VendorSchema = new Schema<IVendor>({
   vendorPanImage: String,
 });
 
-const VehicleSchema = new Schema<IVehicle>({
-  cabNumber: { type: String, required: true, unique: true },
-  tacNo: { type: String, required: true },
-  licenseNo: { type: String, required: true, unique: true },
-  pollutionNo: { type: String, required: true },
-  gstNo: { type: String, required: true },
-  insuranceNo: { type: String, required: true },
-  modelName: { type: String, required: true },
-  manufacturingNo: { type: String },
-  expiryDate: { type: Date, required: true },
-  yearOfMaking: { type: Number, required: true },
-  status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' },
-  vendor: { type: VendorSchema, required: true },
-  kycDocuments: { type: Map, of: String },
-}, { timestamps: true });
+const VehicleSchema = new Schema<IVehicle>(
+  {
+    cabNumber: { type: String, required: true, unique: true },
+    tacNo: { type: String, required: true },
+    licenseNo: { type: String, required: true, unique: true },
+    pollutionNo: { type: String, required: true },
+    gstNo: { type: String, required: true },
+    insuranceNo: { type: String, required: true },
+    modelName: { type: String, required: true },
+    manufacturingNo: { type: String },
+    expiryDate: { type: Date, required: true },
+    yearOfMaking: { type: Number, required: true },
+    status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' },
+    vendor: { type: VendorSchema, required: true },
+    kycDocuments: { type: Map, of: String },
+  },
+  { timestamps: true }
+);
 
-export default mongoose.models.Vehicle || mongoose.model<IVehicle>('Vehicle', VehicleSchema);
+// Force model registration
+const Vehicle = mongoose.models.Vehicle || mongoose.model<IVehicle>('Vehicle', VehicleSchema);
+export default Vehicle;

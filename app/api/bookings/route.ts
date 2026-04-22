@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Booking from '@/models/Booking';
+import User from '@/models/User';
 import { verifyToken } from '@/lib/jwt';
 
 export async function GET(req: NextRequest) {
@@ -12,18 +13,43 @@ export async function GET(req: NextRequest) {
 
   await connectToDatabase();
   let filter = {};
-  if (payload.role === 'admin') filter = {};
-  else if (payload.role === 'driver') filter = { driverId: payload.userId };
-  else if (payload.role === 'customer') filter = { userId: payload.userId };
-  else return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+  if (payload.role === 'admin') {
+    filter = {};
+  } 
+  else if (payload.role === 'driver') {
+    filter = { driverId: payload.userId };
+  } 
+  else if (payload.role === 'customer') {
+    const user = await User.findById(payload.userId).select('mobileNumber');
+    if (user && user.mobileNumber) {
+      filter = {
+        $or: [
+          { userId: payload.userId },
+          { contact: user.mobileNumber }
+        ]
+      };
+    } else {
+      filter = { userId: payload.userId };
+    }
+  } 
+  else {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
-  const bookings = await Booking.find(filter)
-    .populate('driverId', 'name email mobileNumber')
-    .populate('userId', 'name email')
-    .populate('vehicleId', 'cabNumber modelName')
-    .sort({ dateTime: -1 });
-  return NextResponse.json(bookings);
+  try {
+    const bookings = await Booking.find(filter)
+      .populate('driverId', 'name email mobileNumber')
+      .populate('userId', 'name email')
+      .populate('vehicleId', 'cabNumber modelName') // ✅ Now works
+      .sort({ dateTime: -1 });
+    return NextResponse.json(bookings);
+  } catch (err: any) {
+    console.error('Booking fetch error:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,6 +74,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Booking created', booking: newBooking }, { status: 201 });
   } catch (error: any) {
+    console.error('POST error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

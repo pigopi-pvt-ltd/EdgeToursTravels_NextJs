@@ -1,93 +1,84 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import apiClient from '@/lib/apiClient';
 import { getStoredUser } from '@/lib/auth';
+import Link from 'next/link';
 import {
   HiOutlineCalendar,
   HiOutlineClock,
   HiOutlineMapPin,
-  HiOutlineUser,
-  HiOutlinePhone,
-  HiOutlineCheckCircle,
-  HiOutlineXCircle,
-  HiArrowPath,
-  HiOutlineTruck,
-  HiOutlineIdentification,
+  HiOutlineArrowRight,
 } from 'react-icons/hi2';
-import Link from 'next/link';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface Booking {
   _id: string;
   from: string;
   destination: string;
   dateTime: string;
-  name: string;
-  contact: string;
-  price?: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  driverId?: { _id: string; name: string; mobileNumber?: string } | null;
-  vehicleId?: { _id: string; cabNumber: string; modelName: string } | null;
+  price?: number;
 }
 
 export default function CustomerDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const user = getStoredUser();
-
-  const fetchBookings = async () => {
-    try {
-      const data = await apiClient('/api/bookings', { method: 'GET' });
-      setBookings(Array.isArray(data) ? data : []);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load bookings');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchBookings();
-  };
 
   useEffect(() => {
     fetchBookings();
   }, []);
 
+  const fetchBookings = async () => {
+    try {
+      const data = await apiClient('/api/bookings', { method: 'GET' });
+      setBookings(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch bookings', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Chart data: trips per month (last 6 months)
+  const getMonthlyData = () => {
+    const months: Record<string, number> = {};
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toLocaleString('default', { month: 'short', year: 'numeric' });
+      months[key] = 0;
+    }
+    bookings.forEach((b) => {
+      const date = new Date(b.dateTime);
+      const key = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      if (months[key] !== undefined) months[key]++;
+    });
+    return Object.entries(months).map(([month, count]) => ({ month, trips: count }));
+  };
+
+  const recentBookings = [...bookings]
+    .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())
+    .slice(0, 4);
+
   const getStatusBadge = (status: string) => {
     const styles = {
-      pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
-      completed: 'bg-green-100 text-green-800 border-green-200',
-      cancelled: 'bg-red-100 text-red-800 border-red-200',
+      pending: 'bg-yellow-100 text-yellow-800',
+      confirmed: 'bg-blue-100 text-blue-800',
+      completed: 'bg-green-100 text-green-800',
+      cancelled: 'bg-red-100 text-red-800',
     };
     return styles[status as keyof typeof styles] || styles.pending;
   };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
-
-  const upcomingBookings = bookings.filter(b => b.status !== 'completed' && b.status !== 'cancelled');
-  const pastBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
   if (loading) {
     return (
@@ -98,177 +89,91 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-            My Dashboard
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            Welcome back, {user?.name || 'Customer'}!
-          </p>
-        </div>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition"
-        >
-          <HiArrowPath className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+        <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {user?.name || 'Guest'}! 👋</h1>
+        <p className="text-orange-100 mt-1">Track your rides and book new trips easily.</p>
       </div>
-
-      {/* Profile Summary Card */}
-      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-800/80 rounded-2xl p-6 border border-indigo-100 dark:border-slate-700">
-        <div className="flex items-start gap-4 flex-wrap">
-          <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
-          </div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">{user?.name}</h2>
-            <div className="flex flex-wrap gap-4 mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {user?.email && (
-                <span className="flex items-center gap-1">
-                  <HiOutlineUser className="w-4 h-4" /> {user.email}
-                </span>
-              )}
-              {user?.mobileNumber && (
-                <span className="flex items-center gap-1">
-                  <HiOutlinePhone className="w-4 h-4" /> {user.mobileNumber}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-red-600 dark:text-red-400 text-sm">
-          ⚠️ {error}
-        </div>
-      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Bookings" value={bookings.length} icon={<HiOutlineCalendar className="w-5 h-5" />} color="indigo" />
-        <StatCard label="Upcoming" value={upcomingBookings.length} icon={<HiOutlineClock className="w-5 h-5" />} color="orange" />
-        <StatCard label="Completed" value={pastBookings.filter(b => b.status === 'completed').length} icon={<HiOutlineCheckCircle className="w-5 h-5" />} color="green" />
-        <StatCard label="Cancelled" value={pastBookings.filter(b => b.status === 'cancelled').length} icon={<HiOutlineXCircle className="w-5 h-5" />} color="red" />
+        <StatCard label="Total Trips" value={bookings.length} color="indigo" />
+        <StatCard label="Pending" value={bookings.filter(b => b.status === 'pending').length} color="yellow" />
+        <StatCard label="Confirmed" value={bookings.filter(b => b.status === 'confirmed').length} color="blue" />
+        <StatCard label="Completed" value={bookings.filter(b => b.status === 'completed').length} color="green" />
       </div>
 
-      {/* Upcoming Bookings Section */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-          <HiOutlineCalendar className="text-orange-500" /> Upcoming Trips
-        </h2>
-        {upcomingBookings.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center text-slate-400">
-            No upcoming trips. Book a ride to get started!
-          </div>
+      {/* Chart Section */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl border p-5">
+        <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Trips Overview (Last 6 Months)</h2>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={getMonthlyData()}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="month" stroke="#94a3b8" />
+            <YAxis stroke="#94a3b8" />
+            <Tooltip />
+            <Bar dataKey="trips" fill="#f97316" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Recent Bookings */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl border p-5">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Recent Bookings</h2>
+          <Link
+            href="/customer-dashboard/bookings"
+            className="text-orange-500 hover:text-orange-600 text-sm font-medium flex items-center gap-1"
+          >
+            View all <HiOutlineArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+        {recentBookings.length === 0 ? (
+          <p className="text-slate-500 text-center py-8">No bookings yet. <Link href="/customer-dashboard/bookings" className="text-orange-500">Book your first ride →</Link></p>
         ) : (
-          <div className="grid gap-4">
-            {upcomingBookings.map((booking) => (
-              <BookingCard key={booking._id} booking={booking} formatDate={formatDate} formatTime={formatTime} getStatusBadge={getStatusBadge} />
+          <div className="space-y-4">
+            {recentBookings.map((booking) => (
+              <div key={booking._id} className="border-b last:border-0 pb-4 last:pb-0">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <HiOutlineMapPin className="text-orange-500" />
+                      <span className="font-medium">{booking.from}</span>
+                      <span>→</span>
+                      <HiOutlineMapPin className="text-blue-500" />
+                      <span className="font-medium">{booking.destination}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-slate-500">
+                      <span className="flex items-center gap-1"><HiOutlineCalendar className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleDateString()}</span>
+                      <span className="flex items-center gap-1"><HiOutlineClock className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    {booking.price && <p className="text-sm font-bold text-emerald-600 mt-1">₹{booking.price}</p>}
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${getStatusBadge(booking.status)}`}>
+                    {booking.status}
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         )}
-      </div>
-
-      {/* Past Bookings Section */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-          <HiOutlineCheckCircle className="text-green-500" /> Past Trips
-        </h2>
-        {pastBookings.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center text-slate-400">
-            No past trips yet.
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {pastBookings.map((booking) => (
-              <BookingCard key={booking._id} booking={booking} formatDate={formatDate} formatTime={formatTime} getStatusBadge={getStatusBadge} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Quick Action Button */}
-      <div className="flex justify-center pt-4">
-        <Link
-          href="/booking"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95"
-        >
-          + Book a New Ride
-        </Link>
       </div>
     </div>
   );
 }
 
-// --- Helper Components ---
-function StatCard({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) {
+function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   const colorClasses = {
-    indigo: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
-    orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
-    green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
-    red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
+    indigo: 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400',
+    yellow: 'bg-yellow-50 dark:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400',
+    blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400',
+    green: 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400',
   };
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-      <div className="flex items-center justify-between">
-        <div className={`p-2 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}>{icon}</div>
-        <span className="text-2xl font-bold text-slate-800 dark:text-white">{value}</span>
-      </div>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{label}</p>
-    </div>
-  );
-}
-
-function BookingCard({ booking, formatDate, formatTime, getStatusBadge }: any) {
-  return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 hover:shadow-md transition-shadow">
-      <div className="flex flex-wrap justify-between gap-4">
-        <div className="space-y-2 flex-1">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-            <HiOutlineMapPin className="text-orange-500" />
-            <span className="font-medium">{booking.from}</span>
-            <span>→</span>
-            <HiOutlineMapPin className="text-blue-500" />
-            <span className="font-medium">{booking.destination}</span>
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
-            <span className="flex items-center gap-1">
-              <HiOutlineCalendar className="w-4 h-4" /> {formatDate(booking.dateTime)}
-            </span>
-            <span className="flex items-center gap-1">
-              <HiOutlineClock className="w-4 h-4" /> {formatTime(booking.dateTime)}
-            </span>
-          </div>
-          {booking.driverId && (
-            <div className="flex items-center gap-3 text-sm">
-              <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                <HiOutlineUser className="w-4 h-4" /> Driver: {booking.driverId.name}
-              </span>
-              {booking.vehicleId && (
-                <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                  <HiOutlineTruck className="w-4 h-4" /> {booking.vehicleId.cabNumber} ({booking.vehicleId.modelName})
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-        <div className="text-right">
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase border ${getStatusBadge(booking.status)}`}>
-            {booking.status}
-          </span>
-          {booking.price && (
-            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-              ₹{booking.price}
-            </p>
-          )}
-        </div>
-      </div>
+    <div className={`rounded-xl p-4 text-center ${colorClasses[color as keyof typeof colorClasses]}`}>
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-xs font-medium uppercase tracking-wider">{label}</p>
     </div>
   );
 }

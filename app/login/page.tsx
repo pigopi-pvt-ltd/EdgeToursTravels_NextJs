@@ -27,7 +27,7 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- OTP handlers ---
+  // OTP handlers
   const handleSendOtp = async () => {
     if (!mobileNumber) {
       setError('Mobile number is required');
@@ -95,20 +95,11 @@ export default function AuthPage() {
 
   const redirectBasedOnRole = (role: string) => {
     switch (role) {
-      case 'admin':
-        router.push('/admin-dashboard');
-        break;
-      case 'employee':
-        router.push('/employee-dashboard');
-        break;
-      case 'driver':
-        router.push('/driver-dashboard');
-        break;
-      case 'customer':
-        router.push('/customer-dashboard');
-        break;
-      default:
-        router.push('/');
+      case 'admin': router.push('/admin-dashboard'); break;
+      case 'employee': router.push('/employee-dashboard'); break;
+      case 'driver': router.push('/driver-dashboard'); break;
+      case 'customer': router.push('/customer-dashboard'); break;
+      default: router.push('/');
     }
   };
 
@@ -131,7 +122,7 @@ export default function AuthPage() {
         }
         payload.email = regEmail;
       } else if (regRole === 'driver') {
-        if (regEmail) payload.email = regEmail; // optional
+        if (regEmail) payload.email = regEmail;
       }
       
       const response = await registerUser(payload);

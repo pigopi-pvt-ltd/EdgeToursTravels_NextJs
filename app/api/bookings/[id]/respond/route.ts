@@ -4,6 +4,7 @@ import Booking from '@/models/Booking';
 import Notification from '@/models/Notification';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/jwt';
+import { sendSMS } from '@/lib/sms';
 
 export async function POST(
   req: NextRequest,
@@ -28,6 +29,9 @@ export async function POST(
     return NextResponse.json({ error: 'Not your assigned trip' }, { status: 403 });
   }
 
+  const driver = await User.findById(payload.userId);
+  const driverName = driver?.name || 'Driver';
+
   booking.driverResponse = response;
   if (response === 'accepted') {
     booking.status = 'confirmed';
@@ -36,17 +40,27 @@ export async function POST(
   }
   await booking.save();
 
-  // Notify customer if exists
+  // Notify customer via in-app notification and SMS
   if (booking.userId) {
+    const customer = await User.findById(booking.userId);
+    const customerMobile = customer?.mobileNumber || booking.contact; // fallback to booking contact
+    
     await Notification.create({
       userId: booking.userId,
       bookingId: booking._id,
       title: response === 'accepted' ? 'Trip Accepted' : 'Trip Rejected',
       message: response === 'accepted'
-        ? `Your trip from ${booking.from} to ${booking.destination} has been accepted by the driver.`
+        ? `Your trip from ${booking.from} to ${booking.destination} has been accepted by driver ${driverName}.`
         : `The driver has rejected your trip from ${booking.from} to ${booking.destination}. Admin will assign another driver.`,
       type: response === 'accepted' ? 'trip_accepted' : 'trip_rejected',
     });
+
+    // Send SMS only when accepted and customer has mobile number
+    if (response === 'accepted' && customerMobile) {
+      const dateStr = new Date(booking.dateTime).toLocaleString();
+      const message = `🚖 Edge Tours: Your trip from ${booking.from} to ${booking.destination} on ${dateStr} has been ACCEPTED by driver ${driverName}. We will notify you when the driver arrives. Thank you!`;
+      await sendSMS(customerMobile, message);
+    }
   }
 
   // Notify admin

@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 401 });
     }
 
-    // OTP is valid – delete it so it can't be reused
     await OTP.deleteOne({ _id: record._id });
 
     const user = await User.findOne({ mobileNumber });
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const token = signToken({
       userId: user._id.toString(),
-      email: user.email || '',  //  fallback to empty string if email is undefined
+      email: user.email || '',
       role: user.role,
     });
 
