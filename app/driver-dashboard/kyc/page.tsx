@@ -181,13 +181,13 @@ export default function KycPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-1 px-1 md:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-white dark:bg-slate-950 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
+      <div className="p-4 md:p-6">
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-              <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
+
               KYC & Driver Profile
             </h1>
             <p className="text-base text-slate-500 dark:text-slate-400 mt-1">
@@ -207,7 +207,7 @@ export default function KycPage() {
               type="button"
               onClick={handleSubmit}
               disabled={loading || !isFormValid()}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-base transition disabled:opacity-50 shadow-md"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-lg text-base transition disabled:opacity-50 shadow-md"
             >
               {loading ? 'Processing...' : '💾 Save & Submit KYC'}
             </button>
@@ -215,11 +215,10 @@ export default function KycPage() {
         </div>
 
         {message && (
-          <div className={`mb-6 p-4 rounded-xl flex justify-between items-center text-base ${
-            message.includes('✅') 
-              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 border border-emerald-200'
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 border border-red-200'
-          }`}>
+          <div className={`mb-6 p-4 rounded-lg flex justify-between items-center text-base ${message.includes('✅')
+            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 border border-emerald-200'
+            : 'bg-red-50 dark:bg-red-900/20 text-red-800 border border-red-200'
+            }`}>
             <span>{message}</span>
             <button onClick={() => setMessage('')}>✕</button>
           </div>
@@ -227,65 +226,93 @@ export default function KycPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal & Vehicle */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md border p-6">
             <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
+
               Personal & Vehicle Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              <div><label className="block text-sm font-semibold mb-1.5">Full Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.fullName} onChange={e => updateDriverField('fullName', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={driverDetails.dateOfBirth} onChange={e => updateDriverField('dateOfBirth', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Driving License No <span className="text-red-500">*</span></label><input type="text" value={driverDetails.drivingLicenseNumber} onChange={e => updateDriverField('drivingLicenseNumber', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base uppercase" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">DL Expiry Date <span className="text-red-500">*</span></label><input type="date" value={driverDetails.dlExpiryDate} onChange={e => updateDriverField('dlExpiryDate', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Reg Number <span className="text-red-500">*</span></label><input type="text" value={driverDetails.vehicleRegNumber} onChange={e => updateDriverField('vehicleRegNumber', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base uppercase" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Type <span className="text-red-500">*</span></label><select value={driverDetails.vehicleType} onChange={e => updateDriverField('vehicleType', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base"><option value="auto">Auto</option><option value="bike">Bike</option><option value="car">Car</option></select></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Make</label><input type="text" value={driverDetails.vehicleMake} onChange={e => updateDriverField('vehicleMake', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Model</label><input type="text" value={driverDetails.vehicleModel} onChange={e => updateDriverField('vehicleModel', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Year of Manufacture</label><input type="number" value={driverDetails.vehicleYear} onChange={e => updateDriverField('vehicleYear', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Full Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.fullName} onChange={e => updateDriverField('fullName', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div>
+                <label className="block text-sm font-semibold mb-1.5">Date of Birth <span className="text-red-500">*</span></label>
+                <input 
+                  type={driverDetails.dateOfBirth ? "date" : "text"} 
+                  placeholder="DD-MM-YYYY"
+                  value={driverDetails.dateOfBirth} 
+                  onFocus={(e) => (e.target.type = "date")}
+                  onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                  onChange={e => updateDriverField('dateOfBirth', e.target.value)} 
+                  className="w-full border rounded-lg px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-indigo-100" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1.5">Driving License No <span className="text-red-500">*</span></label>
+                <input type="text" value={driverDetails.drivingLicenseNumber} onChange={e => updateDriverField('drivingLicenseNumber', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base uppercase outline-none focus:ring-2 focus:ring-indigo-100" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1.5">DL Expiry Date <span className="text-red-500">*</span></label>
+                <input 
+                  type={driverDetails.dlExpiryDate ? "date" : "text"} 
+                  placeholder="DD-MM-YYYY"
+                  value={driverDetails.dlExpiryDate} 
+                  onFocus={(e) => (e.target.type = "date")}
+                  onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                  onChange={e => updateDriverField('dlExpiryDate', e.target.value)} 
+                  className="w-full border rounded-lg px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-indigo-100" 
+                />
+              </div>
+              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Reg Number <span className="text-red-500">*</span></label><input type="text" value={driverDetails.vehicleRegNumber} onChange={e => updateDriverField('vehicleRegNumber', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base uppercase" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Type <span className="text-red-500">*</span></label><select value={driverDetails.vehicleType} onChange={e => updateDriverField('vehicleType', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base"><option value="auto">Auto</option><option value="bike">Bike</option><option value="car">Car</option></select></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Make</label><input type="text" value={driverDetails.vehicleMake} onChange={e => updateDriverField('vehicleMake', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Vehicle Model</label><input type="text" value={driverDetails.vehicleModel} onChange={e => updateDriverField('vehicleModel', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Year of Manufacture</label><input type="number" value={driverDetails.vehicleYear} onChange={e => updateDriverField('vehicleYear', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
             </div>
           </div>
 
           {/* Address Details */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md border p-6">
             <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
+
               Address Details
             </h2>
             <div className="grid grid-cols-1 gap-5">
-              <div><label className="block text-sm font-semibold mb-1.5">Present Address <span className="text-red-500">*</span></label><textarea rows={2} value={driverDetails.presentAddress} onChange={e => updateDriverField('presentAddress', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Permanent Address <span className="text-red-500">*</span></label><textarea rows={2} value={driverDetails.permanentAddress} onChange={e => updateDriverField('permanentAddress', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Present Address <span className="text-red-500">*</span></label><textarea rows={2} value={driverDetails.presentAddress} onChange={e => updateDriverField('presentAddress', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Permanent Address <span className="text-red-500">*</span></label><textarea rows={2} value={driverDetails.permanentAddress} onChange={e => updateDriverField('permanentAddress', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
             </div>
           </div>
 
           {/* Bank Details */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md border p-6">
             <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-emerald-500 rounded-full"></span>
+
               Bank Account Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div><label className="block text-sm font-semibold mb-1.5">Account Holder Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.accountHolderName} onChange={e => updateDriverField('accountHolderName', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Bank Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.bankName} onChange={e => updateDriverField('bankName', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">Account Number <span className="text-red-500">*</span></label><input type="text" value={driverDetails.accountNumber} onChange={e => updateDriverField('accountNumber', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base" /></div>
-              <div><label className="block text-sm font-semibold mb-1.5">IFSC Code <span className="text-red-500">*</span></label><input type="text" value={driverDetails.ifscCode} onChange={e => updateDriverField('ifscCode', e.target.value)} className="w-full border rounded-xl px-4 py-2.5 text-base uppercase" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Account Holder Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.accountHolderName} onChange={e => updateDriverField('accountHolderName', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Bank Name <span className="text-red-500">*</span></label><input type="text" value={driverDetails.bankName} onChange={e => updateDriverField('bankName', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">Account Number <span className="text-red-500">*</span></label><input type="text" value={driverDetails.accountNumber} onChange={e => updateDriverField('accountNumber', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base" /></div>
+              <div><label className="block text-sm font-semibold mb-1.5">IFSC Code <span className="text-red-500">*</span></label><input type="text" value={driverDetails.ifscCode} onChange={e => updateDriverField('ifscCode', e.target.value)} className="w-full border rounded-lg px-4 py-2.5 text-base uppercase" /></div>
             </div>
           </div>
 
           {/* KYC Documents Upload - Same design as first code */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md border p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-md border p-6">
             <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+
               Upload KYC Documents
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">All 6 documents are mandatory. Max 5MB each (JPG, PNG, PDF).</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Aadhaar Front */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Aadhaar Card (Front)</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload clear photo (Front side)</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload clear photo (Front side)</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.aadhaarFront} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('aadhaarFront', e)} />
                 {kycDocuments.aadhaarFront ? (
                   <div className="relative inline-block">
@@ -295,19 +322,22 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.aadhaarFront.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.aadhaarFront.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>
 
               {/* Aadhaar Back */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Aadhaar Card (Back)</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload clear photo (Back side)</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload clear photo (Back side)</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.aadhaarBack} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('aadhaarBack', e)} />
                 {kycDocuments.aadhaarBack ? (
                   <div className="relative inline-block">
@@ -317,19 +347,22 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.aadhaarBack.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.aadhaarBack.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>
 
               {/* Driving License */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Driving License</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Front side of your license</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Front side of your license</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.drivingLicenseImage} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('drivingLicenseImage', e)} />
                 {kycDocuments.drivingLicenseImage ? (
                   <div className="relative inline-block">
@@ -339,19 +372,22 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.drivingLicenseImage.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.drivingLicenseImage.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>
 
               {/* Vehicle RC */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Vehicle RC</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Registration Certificate</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Registration Certificate</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.vehicleRCImage} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('vehicleRCImage', e)} />
                 {kycDocuments.vehicleRCImage ? (
                   <div className="relative inline-block">
@@ -361,19 +397,22 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.vehicleRCImage.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.vehicleRCImage.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>
 
               {/* Insurance */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Insurance Certificate</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Valid insurance document</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Valid insurance document</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.insuranceImage} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('insuranceImage', e)} />
                 {kycDocuments.insuranceImage ? (
                   <div className="relative inline-block">
@@ -383,19 +422,22 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.insuranceImage.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.insuranceImage.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>
 
               {/* PUC */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center group hover:border-orange-200 transition">
-                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform mx-auto">
-                  <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-orange-500" />
+              <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                  <HiOutlineCloudUpload className="text-3xl text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">PUC Certificate</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Pollution Under Control</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Pollution Under Control</p>
+                <div className="mb-4">
+                   <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                </div>
                 <input type="file" ref={fileInputs.pucImage} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('pucImage', e)} />
                 {kycDocuments.pucImage ? (
                   <div className="relative inline-block">
@@ -405,8 +447,8 @@ export default function KycPage() {
                     </button>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileInputs.pucImage.current?.click()} disabled={uploading} className="px-6 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-700 transition">
-                    Browse Files
+                  <button type="button" onClick={() => fileInputs.pucImage.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                    Choose File
                   </button>
                 )}
               </div>

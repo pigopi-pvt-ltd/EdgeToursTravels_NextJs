@@ -35,6 +35,7 @@ const adminItems = [
   { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
   { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
+  { name: "Settings", icon: HiOutlineCog, href: "/admin-dashboard/settings" },
 ];
 
 // Driver menu items
