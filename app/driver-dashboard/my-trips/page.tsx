@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getAuthToken } from '@/lib/auth';
 import {
   HiOutlineCalendar,
   HiOutlineClock,
@@ -11,9 +12,9 @@ import {
   HiXCircle,
   HiArrowPath,
   HiOutlineTruck,
-  HiOutlineClipboard,        
+  HiOutlineClipboard,
   HiOutlineCheckBadge,
-  HiOutlineExclamationCircle, 
+  HiOutlineExclamationCircle,
 } from 'react-icons/hi2';
 
 interface Booking {
@@ -25,107 +26,64 @@ interface Booking {
   contact: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   driverResponse?: 'accepted' | 'rejected' | null;
-  vehicleId?: { cabNumber: string; modelName: string };
+  vehicleId?: { cabNumber: string; modelName: string } | string | null;
 }
 
-// Sample trip data (static)
-const sampleTrips: Booking[] = [
-  {
-    _id: 'trip1',
-    from: 'Mumbai Airport',
-    destination: 'Andheri East',
-    dateTime: new Date(Date.now() + 86400000).toISOString(),
-    name: 'Rahul Sharma',
-    contact: '9876543210',
-    status: 'pending',
-    driverResponse: null,
-    vehicleId: { cabNumber: 'MH01AB1234', modelName: 'Toyota Innova' },
-  },
-  {
-    _id: 'trip2',
-    from: 'Churchgate',
-    destination: 'Nariman Point',
-    dateTime: new Date(Date.now() + 172800000).toISOString(),
-    name: 'Priya Mehta',
-    contact: '9988776655',
-    status: 'confirmed',
-    driverResponse: 'accepted',
-    vehicleId: { cabNumber: 'MH02CD5678', modelName: 'Hyundai Creta' },
-  },
-  {
-    _id: 'trip3',
-    from: 'Bandra West',
-    destination: 'Juhu Beach',
-    dateTime: new Date(Date.now() - 86400000).toISOString(),
-    name: 'Amit Patel',
-    contact: '8877665544',
-    status: 'completed',
-    driverResponse: 'accepted',
-    vehicleId: { cabNumber: 'MH03EF9012', modelName: 'Mahindra XUV500' },
-  },
-  {
-    _id: 'trip4',
-    from: 'Powai',
-    destination: 'BKC',
-    dateTime: new Date(Date.now() + 259200000).toISOString(),
-    name: 'Sneha Reddy',
-    contact: '7766554433',
-    status: 'pending',
-    driverResponse: null,
-    vehicleId: { cabNumber: 'MH04GH3456', modelName: 'Kia Seltos' },
-  },
-  {
-    _id: 'trip5',
-    from: 'Thane',
-    destination: 'Navi Mumbai',
-    dateTime: new Date(Date.now() + 345600000).toISOString(),
-    name: 'Vikram Singh',
-    contact: '6655443322',
-    status: 'pending',
-    driverResponse: null,
-    vehicleId: { cabNumber: 'MH05IJ7890', modelName: 'Maruti Swift' },
-  },
-  {
-    _id: 'trip6',
-    from: 'Lonavala',
-    destination: 'Pune',
-    dateTime: new Date(Date.now() + 432000000).toISOString(),
-    name: 'Neha Gupta',
-    contact: '9988771122',
-    status: 'confirmed',
-    driverResponse: 'accepted',
-    vehicleId: { cabNumber: 'MH06KL1234', modelName: 'Tata Nexon EV' },
-  },
-];
-
 export default function MyTripsPage() {
-  const [bookings, setBookings] = useState<Booking[]>(sampleTrips);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'>('all');
 
-  const refreshTrips = () => {
-    setBookings(sampleTrips);
-    showToast('Trips refreshed', 'success');
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    const token = getAuthToken();
+    try {
+      const res = await fetch('/api/bookings', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBookings(Array.isArray(data) ? data : []);
+      } else {
+        showToast(data.error || 'Failed to fetch trips', 'error');
+      }
+    } catch (error) {
+      showToast('Network error', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const respondToTrip = (bookingId: string, response: 'accepted' | 'rejected') => {
+  const respondToTrip = async (bookingId: string, response: 'accepted' | 'rejected') => {
     setResponding(bookingId);
-    setTimeout(() => {
-      setBookings(prev =>
-        prev.map(booking =>
-          booking._id === bookingId
-            ? {
-                ...booking,
-                driverResponse: response,
-                status: response === 'accepted' ? 'confirmed' : 'pending',
-              }
-            : booking
-        )
-      );
-      showToast(`Trip ${response} successfully`, 'success');
+    const token = getAuthToken();
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/respond`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ response }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Trip ${response} successfully`, 'success');
+        fetchBookings();
+      } else {
+        showToast(data.error || 'Failed to respond', 'error');
+      }
+    } catch (error) {
+      showToast('Network error', 'error');
+    } finally {
       setResponding(null);
-    }, 500);
+    }
   };
 
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -154,29 +112,37 @@ export default function MyTripsPage() {
     }
   };
 
+  const getVehicleDisplay = (vehicle: any) => {
+    if (!vehicle) return null;
+    if (typeof vehicle === 'object' && vehicle.cabNumber) return vehicle;
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800/50 rounded-2xl"></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-48 bg-slate-100 dark:bg-slate-800/50 rounded-2xl"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Toast */}
+    <div className="space-y-6 animate-in fade-in duration-500">
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
           {toast.type === 'success' ? <HiCheckCircle className="text-xl" /> : <HiXCircle className="text-xl" />}
           {toast.message}
         </div>
       )}
-
-      {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">My Trips</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your assigned rides</p>
-        </div>
-        <button
-          onClick={refreshTrips}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow transition"
-        >
-          <HiArrowPath className="w-4 h-4" /> Refresh
-        </button>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -186,21 +152,29 @@ export default function MyTripsPage() {
         <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-6 h-6" />} color="emerald" />
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
-        {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setFilterStatus(filter)}
-            className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all capitalize ${
-              filterStatus === filter
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
+      {/* Filter Tabs + Refresh Button on the right */}
+      <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
+        <div className="flex flex-wrap gap-2">
+          {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setFilterStatus(filter)}
+              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all capitalize ${
+                filterStatus === filter
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={fetchBookings}
+          className="flex items-center gap-2 px-4 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow transition text-sm"
+        >
+          <HiArrowPath className="w-4 h-4" /> Refresh
+        </button>
       </div>
 
       {/* Trips Grid */}
@@ -210,20 +184,20 @@ export default function MyTripsPage() {
             <HiOutlineTruck className="text-3xl text-slate-400" />
           </div>
           <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">No trips found</h3>
-          <p className="text-sm text-slate-500">You don't have any {filterStatus !== 'all' ? filterStatus : ''} trips.</p>
+          <p className="text-sm text-slate-500">You haven't been assigned any trips yet. Admin will assign you soon.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredBookings.map((booking, idx) => {
+          {filteredBookings.map((booking) => {
             const statusConfig = getStatusConfig(booking.status, booking.driverResponse);
             const StatusIcon = statusConfig.icon;
+            const vehicle = getVehicleDisplay(booking.vehicleId);
             return (
               <div
                 key={booking._id}
                 className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1"
               >
                 <div className="p-5">
-                  {/* Header with route and status */}
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -245,14 +219,10 @@ export default function MyTripsPage() {
                       <span>{statusConfig.label}</span>
                     </div>
                   </div>
-
-                  {/* Date & Time */}
                   <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1"><HiOutlineCalendar className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
                     <span className="flex items-center gap-1"><HiOutlineClock className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
                   </div>
-
-                  {/* Customer info */}
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
                     <div className="flex items-center gap-2 text-sm">
                       <HiOutlineUser className="text-slate-400" />
@@ -262,17 +232,13 @@ export default function MyTripsPage() {
                       <span>{booking.contact}</span>
                     </div>
                   </div>
-
-                  {/* Vehicle details if assigned */}
-                  {booking.vehicleId && (
+                  {vehicle && (
                     <div className="mt-2 flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg">
                       <HiOutlineTruck className="w-4 h-4" />
-                      <span className="font-medium">{booking.vehicleId.cabNumber}</span>
-                      <span className="text-xs">({booking.vehicleId.modelName})</span>
+                      <span className="font-medium">{vehicle.cabNumber}</span>
+                      <span className="text-xs">({vehicle.modelName})</span>
                     </div>
                   )}
-
-                  {/* Action buttons for pending trips */}
                   {!booking.driverResponse && booking.status === 'pending' && (
                     <div className="flex gap-3 mt-5">
                       <button
@@ -303,7 +269,6 @@ export default function MyTripsPage() {
   );
 }
 
-// Stat Card Component
 function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
   const colorClasses = {
     indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
@@ -318,9 +283,7 @@ function StatCard({ title, value, icon, color }: { title: string; value: number;
           <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
           <p className="text-3xl font-black mt-1">{value}</p>
         </div>
-        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">
-          {icon}
-        </div>
+        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
       </div>
     </div>
   );

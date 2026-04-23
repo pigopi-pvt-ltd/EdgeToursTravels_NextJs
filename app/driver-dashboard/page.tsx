@@ -75,7 +75,7 @@ export default function DriverDashboard() {
       const data = await res.json();
       if (res.ok) {
         showToast(`Trip ${response} successfully`, 'success');
-        fetchBookings();
+        fetchBookings(); // refresh list
       } else {
         showToast(data.error || 'Failed to respond', 'error');
       }
@@ -152,7 +152,7 @@ export default function DriverDashboard() {
         <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-6 h-6" />} color="emerald" />
       </div>
 
-      {/* Filter Tabs + Refresh Button*/}
+      {/* Filter Tabs + Refresh Button in same row */}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
         <div className="flex flex-wrap gap-2">
           {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
