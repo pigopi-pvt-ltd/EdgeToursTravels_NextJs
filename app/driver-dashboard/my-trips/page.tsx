@@ -98,7 +98,7 @@ const sampleTrips: Booking[] = [
   },
 ];
 
-export default function MyTripsPage() {
+function MyTripsPage() {
   const [bookings, setBookings] = useState<Booking[]>(sampleTrips);
   const [responding, setResponding] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -116,10 +116,10 @@ export default function MyTripsPage() {
         prev.map(booking =>
           booking._id === bookingId
             ? {
-                ...booking,
-                driverResponse: response,
-                status: response === 'accepted' ? 'confirmed' : 'pending',
-              }
+              ...booking,
+              driverResponse: response,
+              status: response === 'accepted' ? 'confirmed' : 'pending',
+            }
             : booking
         )
       );
@@ -152,153 +152,162 @@ export default function MyTripsPage() {
       case 'cancelled': return { label: 'Cancelled', color: 'rose', icon: HiXCircle };
       default: return { label: status, color: 'gray', icon: HiOutlineExclamationCircle };
     }
-  };
-
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+  }; return (
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+        <div className={`fixed top-24 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} animate-in slide-in-from-right-8 duration-300`}>
           {toast.type === 'success' ? <HiCheckCircle className="text-xl" /> : <HiXCircle className="text-xl" />}
           {toast.message}
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">My Trips</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your assigned rides</p>
-        </div>
-        <button
-          onClick={refreshTrips}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow transition"
-        >
-          <HiArrowPath className="w-4 h-4" /> Refresh
-        </button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Total Trips" value={stats.total} icon={<HiOutlineClipboard className="w-6 h-6" />} color="indigo" />
-        <StatCard title="Pending Response" value={stats.pending} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
-        <StatCard title="Confirmed" value={stats.confirmed} icon={<HiCheckCircle className="w-6 h-6" />} color="blue" />
-        <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-6 h-6" />} color="emerald" />
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
-        {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setFilterStatus(filter)}
-            className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all capitalize ${
-              filterStatus === filter
-                ? 'bg-orange-500 text-white shadow-md'
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      {/* Trips Grid */}
-      {filteredBookings.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <div className="w-20 h-20 mx-auto bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
-            <HiOutlineTruck className="text-3xl text-slate-400" />
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              My Trips
+              {/* <span className="text-slate-400 dark:text-slate-500 font-normal hidden sm:inline text-xs md:text-sm normal-case ml-2">({stats.total})</span> */}
+            </h2>
           </div>
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">No trips found</h3>
-          <p className="text-sm text-slate-500">You don't have any {filterStatus !== 'all' ? filterStatus : ''} trips.</p>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={refreshTrips}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredBookings.map((booking, idx) => {
-            const statusConfig = getStatusConfig(booking.status, booking.driverResponse);
-            const StatusIcon = statusConfig.icon;
-            return (
-              <div
-                key={booking._id}
-                className="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-1"
-              >
-                <div className="p-5">
-                  {/* Header with route and status */}
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                        <HiOutlineMapPin className="text-orange-500 shrink-0" />
-                        <span className="font-bold text-base">{booking.from}</span>
-                        <span>→</span>
-                        <HiOutlineMapPin className="text-blue-500 shrink-0" />
-                        <span className="font-bold text-base">{booking.destination}</span>
+
+        <div className="p-4 md:p-6 lg:p-8 space-y-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard title="Total Trips" value={stats.total} icon={<HiOutlineClipboard className="w-5 h-5 md:w-6 md:h-6" />} color="indigo" />
+            <StatCard title="Pending" value={stats.pending} icon={<HiOutlineExclamationCircle className="w-5 h-5 md:w-6 md:h-6" />} color="amber" />
+            <StatCard title="Confirmed" value={stats.confirmed} icon={<HiCheckCircle className="w-5 h-5 md:w-6 md:h-6" />} color="blue" />
+            <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-5 h-5 md:w-6 md:h-6" />} color="emerald" />
+          </div>
+
+          {/* Filter Tabs & Content */}
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
+              {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setFilterStatus(filter)}
+                  className={`px-4 py-1.5 rounded-full text-xs md:text-sm font-black uppercase tracking-wider transition-all ${filterStatus === filter
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            {/* Trips Grid */}
+            {filteredBookings.length === 0 ? (
+              <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div className="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                  <HiOutlineTruck className="text-2xl text-slate-400" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No trips found</h3>
+                <p className="text-sm text-slate-500">You don't have any {filterStatus !== 'all' ? filterStatus : ''} trips.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredBookings.map((booking) => {
+                  const statusConfig = getStatusConfig(booking.status, booking.driverResponse);
+                  const StatusIcon = statusConfig.icon;
+                  return (
+                    <div
+                      key={booking._id}
+                      className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                    >
+                      <div className="p-5">
+                        {/* Header with route and status */}
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                              <HiOutlineMapPin className="text-orange-500 shrink-0" />
+                              <span className="font-bold text-sm md:text-base">{booking.from}</span>
+                              <span className="text-slate-400">→</span>
+                              <HiOutlineMapPin className="text-blue-500 shrink-0" />
+                              <span className="font-bold text-sm md:text-base">{booking.destination}</span>
+                            </div>
+                          </div>
+                          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusConfig.color === 'green' ? 'bg-green-100 text-green-700' :
+                            statusConfig.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                              statusConfig.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                                statusConfig.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' :
+                                  'bg-red-100 text-red-700'
+                            }`}>
+                            <StatusIcon className="w-3 h-3" />
+                            <span>{statusConfig.label}</span>
+                          </div>
+                        </div>
+
+                        {/* Date & Time */}
+                        <div className="flex flex-wrap gap-4 mt-4 text-[11px] md:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                          <span className="flex items-center gap-1.5"><HiOutlineCalendar className="w-3.5 h-3.5" /> {new Date(booking.dateTime).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                          <span className="flex items-center gap-1.5"><HiOutlineClock className="w-3.5 h-3.5" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                        </div>
+
+                        {/* Customer info */}
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-500">
+                              {booking.name.charAt(0)}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-xs">{booking.name}</p>
+                              <p className="text-[11px] opacity-60 flex items-center gap-1"><HiOutlinePhone className="w-3 h-3" /> {booking.contact}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Vehicle details if assigned */}
+                        {booking.vehicleId && (
+                          <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-2 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                            <HiOutlineTruck className="w-3.5 h-3.5" />
+                            <span className="tracking-wider">{booking.vehicleId.cabNumber}</span>
+                            <span className="opacity-60">({booking.vehicleId.modelName})</span>
+                          </div>
+                        )}
+
+                        {/* Action buttons for pending trips */}
+                        {!booking.driverResponse && booking.status === 'pending' && (
+                          <div className="flex gap-2 mt-5">
+                            <button
+                              onClick={() => respondToTrip(booking._id, 'accepted')}
+                              disabled={responding === booking._id}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-black text-[11px] uppercase tracking-widest transition shadow-sm active:scale-95 disabled:opacity-50"
+                            >
+                              {responding === booking._id ? <HiArrowPath className="animate-spin w-4 h-4" /> : <HiCheckCircle className="w-4 h-4" />}
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => respondToTrip(booking._id, 'rejected')}
+                              disabled={responding === booking._id}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg font-black text-[11px] uppercase tracking-widest transition active:scale-95 disabled:opacity-50"
+                            >
+                              {responding === booking._id ? <HiArrowPath className="animate-spin w-4 h-4" /> : <HiXCircle className="w-4 h-4" />}
+                              Reject
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                      statusConfig.color === 'green' ? 'bg-green-100 text-green-700' :
-                      statusConfig.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
-                      statusConfig.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                      statusConfig.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      <StatusIcon className="w-3.5 h-3.5" />
-                      <span>{statusConfig.label}</span>
-                    </div>
-                  </div>
-
-                  {/* Date & Time */}
-                  <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1"><HiOutlineCalendar className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                    <span className="flex items-center gap-1"><HiOutlineClock className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-                  </div>
-
-                  {/* Customer info */}
-                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-sm">
-                      <HiOutlineUser className="text-slate-400" />
-                      <span className="font-medium">{booking.name}</span>
-                      <span className="text-slate-400">•</span>
-                      <HiOutlinePhone className="text-slate-400" />
-                      <span>{booking.contact}</span>
-                    </div>
-                  </div>
-
-                  {/* Vehicle details if assigned */}
-                  {booking.vehicleId && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg">
-                      <HiOutlineTruck className="w-4 h-4" />
-                      <span className="font-medium">{booking.vehicleId.cabNumber}</span>
-                      <span className="text-xs">({booking.vehicleId.modelName})</span>
-                    </div>
-                  )}
-
-                  {/* Action buttons for pending trips */}
-                  {!booking.driverResponse && booking.status === 'pending' && (
-                    <div className="flex gap-3 mt-5">
-                      <button
-                        onClick={() => respondToTrip(booking._id, 'accepted')}
-                        disabled={responding === booking._id}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition transform active:scale-95 disabled:opacity-50"
-                      >
-                        {responding === booking._id ? <HiArrowPath className="animate-spin" /> : <HiCheckCircle className="w-5 h-5" />}
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => respondToTrip(booking._id, 'rejected')}
-                        disabled={responding === booking._id}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition transform active:scale-95 disabled:opacity-50"
-                      >
-                        {responding === booking._id ? <HiArrowPath className="animate-spin" /> : <HiXCircle className="w-5 h-5" />}
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -325,3 +334,5 @@ function StatCard({ title, value, icon, color }: { title: string; value: number;
     </div>
   );
 }
+
+export default MyTripsPage;

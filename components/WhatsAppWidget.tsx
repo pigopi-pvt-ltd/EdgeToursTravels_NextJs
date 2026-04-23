@@ -18,10 +18,15 @@ const WhatsAppWidget = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Hide only on dashboard routes for admin and employee roles
-  const isDashboard = pathname.startsWith('/admin-dashboard') || pathname.startsWith('/employee-dashboard');
+  // Hide on dashboard routes for internal roles (admin, employee, driver)
+  const isInternalDashboard = 
+    pathname.startsWith('/admin-dashboard') || 
+    pathname.startsWith('/employee-dashboard') || 
+    pathname.startsWith('/driver-dashboard');
   
-  if (isDashboard && (user?.role === 'admin' || user?.role === 'employee')) {
+  const isInternalRole = user?.role === 'admin' || user?.role === 'employee' || user?.role === 'driver';
+
+  if (isInternalDashboard && isInternalRole) {
     return null;
   }
 
