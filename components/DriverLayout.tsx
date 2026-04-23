@@ -6,6 +6,8 @@ import { getStoredUser } from '@/lib/auth';
 import AdminSidebar from './AdminSidebar';
 import Header from './Header';
 
+// This layout component is used to wrap all driver dashboard pages, providing a consistent sidebar and header for drivers. It also checks for authentication and redirects to login if the user is not a driver.
+
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);

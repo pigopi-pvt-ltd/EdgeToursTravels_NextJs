@@ -152,7 +152,7 @@ export default function DriverDashboard() {
         <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-6 h-6" />} color="emerald" />
       </div>
 
-      {/* Filter Tabs + Refresh Button in one row */}
+      {/* Filter Tabs + Refresh Button*/}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
         <div className="flex flex-wrap gap-2">
           {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (

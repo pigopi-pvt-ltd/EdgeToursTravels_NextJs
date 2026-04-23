@@ -11,9 +11,9 @@ import {
   HiXCircle,
   HiArrowPath,
   HiOutlineTruck,
-  HiOutlineClipboard,        // ✅ correct name
+  HiOutlineClipboard,        
   HiOutlineCheckBadge,
-  HiOutlineExclamationCircle, // ✅ instead of HiOutlineStatusOnline
+  HiOutlineExclamationCircle, 
 } from 'react-icons/hi2';
 
 interface Booking {
