@@ -124,14 +124,12 @@ export default function Header({ user, role, onMenuClick }: HeaderProps) {
                   </span>
                 </div>
                 <div
-                  className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${
-                    theme === 'dark' ? 'bg-orange-500' : 'bg-slate-200 dark:bg-slate-700'
-                  }`}
+                  className={`w-10 h-5 rounded-full relative transition-colors duration-300 ${theme === 'dark' ? 'bg-orange-500' : 'bg-slate-200 dark:bg-slate-700'
+                    }`}
                 >
                   <div
-                    className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${
-                      theme === 'dark' ? 'left-6' : 'left-1'
-                    }`}
+                    className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${theme === 'dark' ? 'left-6' : 'left-1'
+                      }`}
                   ></div>
                 </div>
               </div>

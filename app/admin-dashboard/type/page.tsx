@@ -446,7 +446,7 @@ export default function CustomersPage() {
 
       {/* Modal / Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-24 overflow-y-auto subtle-scrollbar" onClick={() => setIsModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto subtle-scrollbar" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-[0.5rem] shadow-2xl w-full max-w-4xl animate-in slide-in-from-top-10 duration-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20 rounded-t-[0.5rem]">
               <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
@@ -463,65 +463,69 @@ export default function CustomersPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-8">
-              <div className="space-y-4">
+              {/* Customer Information */}
+              <div className="space-y-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Customer Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Full Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Full Name <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                       value={formData.fullName}
                       onChange={(e) =>
                         setFormData({ ...formData, fullName: e.target.value })
                       }
+                      placeholder="e.g. John Doe"
                     />
                   </div>
 
                   {/* Mobile Number */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Mobile Number <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                       value={formData.mobileNumber}
                       onChange={(e) =>
                         setFormData({ ...formData, mobileNumber: e.target.value })
                       }
+                      placeholder="+91 0000000000"
                     />
                   </div>
 
                   {/* Email Address */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Email Address <span className="text-red-500 ml-1">*</span>
                     </label>
                     <input
                       required
                       type="email"
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 dark:text-white outline-none"
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
+                      placeholder="john@example.com"
                     />
                   </div>
 
                   {/* Gender Selection */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Gender <span className="text-red-500 ml-1">*</span>
                     </label>
                     <select
                       required
-                      className="mt-1 w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none text-sm dark:text-white"
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
                       value={formData.gender}
                       onChange={(e) =>
                         setFormData({ ...formData, gender: e.target.value })
@@ -536,23 +540,25 @@ export default function CustomersPage() {
 
                   {/* Pickup Time */}
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Pickup Time (24h)
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="number"
                         placeholder="HH"
-                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none dark:text-white"
+                        className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                         value={formData.pickupHour}
                         onChange={(e) =>
                           setFormData({ ...formData, pickupHour: e.target.value })
                         }
+                        min="0"
+                        max="23"
                       />
                       <input
                         type="number"
                         placeholder="MM"
-                        className="mt-1 w-1/2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-4 py-2.5 outline-none dark:text-white"
+                        className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                         value={formData.pickupMinute}
                         onChange={(e) =>
                           setFormData({
@@ -560,20 +566,22 @@ export default function CustomersPage() {
                             pickupMinute: e.target.value,
                           })
                         }
+                        min="0"
+                        max="59"
                       />
                     </div>
                   </div>
 
                   {/* Regular Status */}
                   <div className="flex flex-col">
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 opacity-0 select-none">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2 opacity-0 select-none">
                       Regular Status
                     </label>
-                    <div className="mt-1 flex items-center gap-3 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30 h-[46px]">
+                    <div className="flex items-center gap-3 p-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 h-[46px] transition-all hover:bg-indigo-50">
                       <input
                         type="checkbox"
                         id="regular"
-                        className="w-5 h-5 rounded text-indigo-600 cursor-pointer"
+                        className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                         checked={formData.isRegular}
                         onChange={(e) =>
                           setFormData({
@@ -584,7 +592,7 @@ export default function CustomersPage() {
                       />
                       <label
                         htmlFor="regular"
-                        className="text-xs font-bold text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase"
+                        className="text-[11px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest"
                       >
                         Regular Client
                       </label>
@@ -594,37 +602,38 @@ export default function CustomersPage() {
               </div>
 
               {/* Address Information */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Address Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Present Address */}
-                  <div className="space-y-1">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                       Present Address
                     </label>
                     <textarea
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none focus:ring-2 focus:ring-indigo-200"
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white h-24 resize-none"
                       value={formData.presentAddress}
                       onChange={(e) =>
                         setFormData({ ...formData, presentAddress: e.target.value })
                       }
+                      placeholder="Enter full present address..."
                     />
                   </div>
 
                   {/* Drop-off Address */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest">
                         Drop-off Address
                       </label>
                       <div className="flex items-center gap-2 cursor-pointer group transition-all">
                         <input
                           type="checkbox"
                           id="sameAsPresent"
-                          className="w-4 h-4 rounded text-indigo-600 cursor-pointer"
+                          className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                           checked={isSameAsPresent}
                           onChange={(e) => {
                             const checked = e.target.checked;
@@ -639,7 +648,7 @@ export default function CustomersPage() {
                         />
                         <label
                           htmlFor="sameAsPresent"
-                          className="text-xs font-bold text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase select-none"
+                          className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest select-none"
                         >
                           Same as Present
                         </label>
@@ -648,7 +657,7 @@ export default function CustomersPage() {
                     <textarea
                       required
                       readOnly={isSameAsPresent}
-                      className={`w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-white outline-none h-24 resize-none transition-all duration-200 focus:ring-2 focus:ring-indigo-200 ${isSameAsPresent ? "opacity-60 bg-slate-50/80 dark:bg-slate-800/40 cursor-not-allowed border-dashed" : ""}`}
+                      className={`w-full px-4 py-3 rounded-xl border dark:text-white outline-none h-24 resize-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm ${isSameAsPresent ? "opacity-60 bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed border-dashed border-slate-300" : "bg-[#f8fafc] dark:bg-slate-800/50 border-[#e2e8f0] dark:border-slate-700"}`}
                       value={formData.dropOffAddress}
                       onChange={(e) =>
                         setFormData({
@@ -656,30 +665,33 @@ export default function CustomersPage() {
                           dropOffAddress: e.target.value,
                         })
                       }
+                      placeholder="Enter full drop-off address..."
                     />
                   </div>
                 </div>
               </div>
 
               {message && (
-                <p className="text-center text-sm font-bold text-indigo-600 animate-pulse uppercase tracking-widest">
-                  {message}
-                </p>
+                <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30">
+                  <p className="text-center text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">
+                    {message}
+                  </p>
+                </div>
               )}
 
               {/* Submit Action */}
-              <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end gap-3 pt-8 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-6 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md shadow-indigo-200 dark:shadow-indigo-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[140px]"
+                  className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer"
                 >
                   {creating
                     ? "Saving..."

@@ -35,7 +35,6 @@ const adminItems = [
   { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
   { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
-  { name: "Settings", icon: HiOutlineCog, href: "/admin-dashboard/settings" },
 ];
 
 // Driver menu items
@@ -43,14 +42,12 @@ const driverItems = [
   { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
   { name: "Profile", icon: HiOutlineUser, href: "/driver-dashboard/profile" },
-  { name: "Settings", icon: HiOutlineCog, href: "/driver-dashboard/settings" },
 ];
 
 // Employee menu items 
 const employeeItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/employee-dashboard" },
   { name: "Profile", icon: HiOutlineUser, href: "/employee-dashboard/profile" },
-  { name: "Settings", icon: HiOutlineCog, href: "/employee-dashboard/settings" },
 ];
 
 interface SidebarProps {
@@ -158,8 +155,8 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                       }
                     }}
                     className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${isActive
-                        ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500"
-                        : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500"
+                      : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
                       }`}
                   >
                     <item.icon
@@ -197,16 +194,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           </ul>
         </nav>
 
-        {/* Logout Button at bottom */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-black dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-          >
-            <HiOutlineLogout className="text-xl" />
-            {!isCollapsed && <span className="font-bold text-[15px]">Logout</span>}
-          </button>
-        </div>
+
       </aside>
     </>
   );

@@ -534,59 +534,63 @@ export default function AvailabilityPage() {
               <h2 className="text-xl font-bold">{editingEvent ? 'Edit Slot' : 'New Slot'}</h2>
               <button onClick={closeModal}><HiXMark className="w-6 h-6" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Title *</label>
-                <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full border rounded-lg px-4 py-2" />
+            <form onSubmit={handleSubmit} className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Slot Title / Vehicle Info <span className="text-red-500">*</span></label>
+                  <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="e.g., DL 1PA 1234 - Available" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Start Time <span className="text-red-500">*</span></label>
+                  <input
+                    type={formData.start ? "datetime-local" : "text"}
+                    placeholder="DD-MM-YYYY"
+                    required
+                    value={formData.start}
+                    onFocus={(e) => (e.target.type = "datetime-local")}
+                    onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                    onChange={(e) => setFormData({ ...formData, start: e.target.value })}
+                    className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Start *</label>
-                  <input type="datetime-local" required value={formData.start} onChange={(e) => setFormData({ ...formData, start: e.target.value })} className="w-full border rounded-lg px-4 py-2" />
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">End Time <span className="text-red-500">*</span></label>
+                  <input
+                    type={formData.end ? "datetime-local" : "text"}
+                    placeholder="DD-MM-YYYY"
+                    required
+                    value={formData.end}
+                    onFocus={(e) => (e.target.type = "datetime-local")}
+                    onBlur={(e) => !e.target.value && (e.target.type = "text")}
+                    onChange={(e) => setFormData({ ...formData, end: e.target.value })}
+                    className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">End *</label>
-                  <input type="datetime-local" required value={formData.end} onChange={(e) => setFormData({ ...formData, end: e.target.value })} className="w-full border rounded-lg px-4 py-2" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Vehicle *</label>
-                  <select required value={formData.vehicleId} onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })} className="w-full border rounded-lg px-4 py-2">
-                    <option value="">Select Vehicle</option>
-                    {vehicles.map((v) => (
-                      <option key={v._id} value={v._id}>{v.cabNumber} - {v.modelName}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full border rounded-lg px-4 py-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Availability Status</label>
+                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none">
                     <option value="available">Available</option>
                     <option value="booked">Booked</option>
                     <option value="maintenance">Maintenance</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Internal Notes</label>
+                  <input type="text" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="Add optional details..." />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Assign Driver (Optional)</label>
-                <select value={formData.driverId} onChange={(e) => setFormData({ ...formData, driverId: e.target.value })} className="w-full border rounded-lg px-4 py-2">
-                  <option value="">None</option>
-                  {drivers.map((d) => (
-                    <option key={d._id} value={d._id}>{d.name} - {d.mobileNumber}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Notes</label>
-                <textarea rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="w-full border rounded-lg px-4 py-2"></textarea>
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
+              <div className="flex justify-between items-center pt-8 border-t border-slate-100 dark:border-slate-800">
                 {editingEvent && (
-                  <button type="button" onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button>
+                  <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-6 py-2.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95"><HiTrash className="text-lg" /> Delete Slot</button>
                 )}
-                <button type="button" onClick={closeModal} className="px-4 py-2 border rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg">Save</button>
+                <div className="flex gap-3 ml-auto">
+                  <button type="button" onClick={closeModal} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
+                  <button type="submit" className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer">
+                    {editingEvent ? 'Update Availability' : 'Save Availability'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

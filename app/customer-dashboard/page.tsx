@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import apiClient from '@/lib/apiClient';
+import { DashboardSkeleton } from '@/components/CustomerSkeletons';
 import { getStoredUser } from '@/lib/auth';
 import Link from 'next/link';
 import {
@@ -9,6 +10,12 @@ import {
   HiOutlineClock,
   HiOutlineMapPin,
   HiOutlineArrowRight,
+  HiArrowPath,
+  HiOutlineClipboard,
+  HiOutlineExclamationCircle,
+  HiCheckCircle,
+  HiOutlineCheckBadge,
+  HiXCircle,
 } from 'react-icons/hi2';
 import {
   BarChart,
@@ -39,6 +46,7 @@ export default function CustomerDashboard() {
   }, []);
 
   const fetchBookings = async () => {
+    setLoading(true);
     try {
       const data = await apiClient('/api/bookings', { method: 'GET' });
       setBookings(Array.isArray(data) ? data : []);
@@ -81,99 +89,130 @@ export default function CustomerDashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {user?.name || 'Guest'}! 👋</h1>
-        <p className="text-orange-100 mt-1">Track your rides and book new trips easily.</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Trips" value={bookings.length} color="indigo" />
-        <StatCard label="Pending" value={bookings.filter(b => b.status === 'pending').length} color="yellow" />
-        <StatCard label="Confirmed" value={bookings.filter(b => b.status === 'confirmed').length} color="blue" />
-        <StatCard label="Completed" value={bookings.filter(b => b.status === 'completed').length} color="green" />
-      </div>
-
-      {/* Chart Section */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border p-5">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Trips Overview (Last 6 Months)</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={getMonthlyData()}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="month" stroke="#94a3b8" />
-            <YAxis stroke="#94a3b8" />
-            <Tooltip />
-            <Bar dataKey="trips" fill="#f97316" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Recent Bookings */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Recent Bookings</h2>
-          <Link
-            href="/customer-dashboard/bookings"
-            className="text-orange-500 hover:text-orange-600 text-sm font-medium flex items-center gap-1"
-          >
-            View all <HiOutlineArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        {recentBookings.length === 0 ? (
-          <p className="text-slate-500 text-center py-8">No bookings yet. <Link href="/customer-dashboard/bookings" className="text-orange-500">Book your first ride →</Link></p>
-        ) : (
-          <div className="space-y-4">
-            {recentBookings.map((booking) => (
-              <div key={booking._id} className="border-b last:border-0 pb-4 last:pb-0">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                      <HiOutlineMapPin className="text-orange-500" />
-                      <span className="font-medium">{booking.from}</span>
-                      <span>→</span>
-                      <HiOutlineMapPin className="text-blue-500" />
-                      <span className="font-medium">{booking.destination}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-slate-500">
-                      <span className="flex items-center gap-1"><HiOutlineCalendar className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleDateString()}</span>
-                      <span className="flex items-center gap-1"><HiOutlineClock className="w-4 h-4" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    {booking.price && <p className="text-sm font-bold text-emerald-600 mt-1">₹{booking.price}</p>}
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${getStatusBadge(booking.status)}`}>
-                    {booking.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Dashboard Overview
+            </h2>
           </div>
-        )}
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchBookings}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 md:p-6 lg:p-8 space-y-8">
+          {/* Welcome Section */}
+          <div className="bg-gradient-to-r from-slate-800 to-indigo-900 rounded-2xl p-8 text-white shadow-xl shadow-slate-900/20">
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight">Welcome back, {user?.name || 'Guest'}! 👋</h1>
+            <p className="text-slate-300 mt-2 font-medium">Track your rides and book new trips easily from your personalized dashboard.</p>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard title="Total Trips" value={bookings.length} icon={<HiOutlineClipboard className="w-5 h-5 md:w-6 md:h-6" />} color="indigo" />
+            <StatCard title="Pending" value={bookings.filter(b => b.status === 'pending').length} icon={<HiOutlineExclamationCircle className="w-5 h-5 md:w-6 md:h-6" />} color="amber" />
+            <StatCard title="Confirmed" value={bookings.filter(b => b.status === 'confirmed').length} icon={<HiCheckCircle className="w-5 h-5 md:w-6 md:h-6" />} color="blue" />
+            <StatCard title="Completed" value={bookings.filter(b => b.status === 'completed').length} icon={<HiOutlineCheckBadge className="w-5 h-5 md:w-6 md:h-6" />} color="emerald" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Chart Section */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Trips Overview</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={getMonthlyData()}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    cursor={{ fill: '#f8fafc' }}
+                  />
+                  <Bar dataKey="trips" fill="#f97316" radius={[6, 6, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Recent Bookings */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Recent Bookings</h2>
+                <Link
+                  href="/customer-dashboard/bookings"
+                  className="text-orange-500 hover:text-orange-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-colors"
+                >
+                  View all <HiOutlineArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              {recentBookings.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-slate-500 text-sm font-medium">No bookings yet.</p>
+                  <Link href="/customer-dashboard/bookings" className="text-orange-500 text-xs font-bold hover:underline mt-2 inline-block">Book your first ride →</Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentBookings.map((booking) => (
+                    <div key={booking._id} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-orange-500/30 transition-all">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                            <HiOutlineMapPin className="text-orange-500 shrink-0" />
+                            <span className="font-bold text-xs truncate">{booking.from}</span>
+                            <span className="text-slate-400">→</span>
+                            <span className="font-bold text-xs truncate">{booking.destination}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-3 mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            <span className="flex items-center gap-1"><HiOutlineCalendar className="w-3.5 h-3.5" /> {new Date(booking.dateTime).toLocaleDateString()}</span>
+                            <span className="flex items-center gap-1"><HiOutlineClock className="w-3.5 h-3.5" /> {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0 ${getStatusBadge(booking.status)}`}>
+                          {booking.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
   const colorClasses = {
-    indigo: 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400',
-    yellow: 'bg-yellow-50 dark:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400',
-    blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400',
-    green: 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400',
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+    blue: 'from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-600 dark:text-blue-400',
+    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
   };
   return (
-    <div className={`rounded-xl p-4 text-center ${colorClasses[color as keyof typeof colorClasses]}`}>
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs font-medium uppercase tracking-wider">{label}</p>
+    <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
+          <p className="text-2xl md:text-3xl font-black mt-1">{value}</p>
+        </div>
+        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">
+          {icon}
+        </div>
+      </div>
     </div>
   );
 }
