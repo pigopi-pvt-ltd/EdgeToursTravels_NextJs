@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   await connectToDatabase();
   let filter = {};
   
-  if (payload.role === 'admin') {
+  if (payload.role === 'admin' || payload.role === 'employee') {
     filter = {};
   } 
   else if (payload.role === 'driver') {
