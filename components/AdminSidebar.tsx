@@ -9,6 +9,7 @@ import {
   HiOutlineCalendar,
   HiOutlineUserGroup,
   HiOutlineStar,
+  HiOutlineSupport,
   HiOutlineCurrencyDollar,
   HiOutlineBriefcase,
   HiOutlineUser,
@@ -20,6 +21,9 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineLogout,
+   HiOutlineClock,        
+  HiOutlineChat,         
+  HiQuestionMarkCircle, 
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
@@ -47,7 +51,11 @@ const driverItems = [
 // Employee menu items 
 const employeeItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/employee-dashboard" },
-  { name: "Profile", icon: HiOutlineUser, href: "/employee-dashboard/profile" },
+  { name: "Manage Bookings", icon: HiOutlineCalendar, href: "/employee-dashboard/bookings" },
+    { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
+  { name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" },
+  { name: "Complaints", icon: HiOutlineChat, href: "/employee-dashboard/complaints" },
+  { name: "Support", icon: HiOutlineSupport, href: "/employee-dashboard/support" },
 ];
 
 interface SidebarProps {

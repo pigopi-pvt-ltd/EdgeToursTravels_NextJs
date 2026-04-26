@@ -86,9 +86,7 @@ export default function EmployeesPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        // API returns direct array
         const usersArray = Array.isArray(data) ? data : data.employees || [];
-        // Only show users with role 'employee' as per request
         setUsers(usersArray.filter((u: any) => u.role === 'employee'));
       } else {
         setError(data.error || 'Failed to fetch users');
@@ -110,25 +108,11 @@ export default function EmployeesPage() {
     setCopySuccess(false);
     const token = getAuthToken();
 
-    let payload: any;
-    let apiUrl = '/api/admin/create-employee';
-    let method = 'POST';
-
-    if (editingUser) {
-      // Update operation
-      apiUrl = '/api/admin/update-employee';
-      method = 'PUT';
-      payload = { userId: editingUser._id };
-    }
-
-    // Employee payload with all required fields
-    payload = {
-      ...payload,
+    // Build payload for the backend (using correct field names)
+    const payload = {
+      fullName: newEmployee.fullName || newEmployee.name,
+      mobile: newEmployee.mobileNumber,
       email: newEmployee.email,
-      mobileNumber: newEmployee.mobileNumber,
-      name: newEmployee.name,
-      role: 'employee',
-      fullName: newEmployee.fullName,
       gender: newEmployee.gender,
       presentAddress: newEmployee.presentAddress,
       permanentAddress: newEmployee.permanentAddress,
@@ -136,13 +120,16 @@ export default function EmployeesPage() {
       aadhar: newEmployee.aadhar,
       dob: newEmployee.dob,
       pan: newEmployee.pan,
-      yearsOfExperience: newEmployee.yearsOfExperience,
+      yearsOfExperience: parseInt(newEmployee.yearsOfExperience) || 0,
       highestQualification: newEmployee.highestQualification,
       previousExperience: newEmployee.previousExperience,
     };
 
+    const method = editingUser ? 'PUT' : 'POST';
+    const url = editingUser ? `/api/admin/employees/${editingUser._id}` : '/api/admin/employees';
+
     try {
-      const res = await fetch(apiUrl, {
+      const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
@@ -151,7 +138,6 @@ export default function EmployeesPage() {
       if (res.ok) {
         setTempPassword(data.temporaryPassword);
         setMessage(`${editingUser ? 'User updated' : 'User created'} successfully!`);
-        // Reset forms
         resetForm();
         fetchUsers();
         setTimeout(() => {
@@ -178,19 +164,14 @@ export default function EmployeesPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
-
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     setDeletingUserId(userId);
     const token = getAuthToken();
     try {
-      const res = await fetch('/api/admin/delete-employee', {
+      const res = await fetch(`/api/admin/employees/${userId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ userId }),
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (res.ok) {
         setMessage('User deleted successfully');
         fetchUsers();
@@ -266,29 +247,23 @@ export default function EmployeesPage() {
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.mobileNumber?.includes(searchTerm);
-
     const matchesRole = roleFilter === 'all' ? true : user.role === roleFilter;
     const matchesKyc = kycFilter === 'all' ? true : (user.driverDetails?.kycStatus || 'pending') === kycFilter;
-
     return matchesSearch && matchesRole && matchesKyc;
   });
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        {/* Precise Header Skeleton (56px) */}
         <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-
         <div className="flex flex-col">
-          {/* Skeleton Search Area (approx 72px) */}
           <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
             <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
             <div className="h-10 w-32 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-800 hidden md:block"></div>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -340,7 +315,6 @@ export default function EmployeesPage() {
               Employees <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredUsers.length})</span>
             </h2>
           </div>
-
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={() => setIsModalOpen(true)}
@@ -375,9 +349,7 @@ export default function EmployeesPage() {
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">User</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
-                    <span className="uppercase text-slate-700 dark:text-slate-300">Role</span>
-                  </th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Role</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">
                     <div className="relative inline-flex items-center gap-1 cursor-pointer group hover:text-slate-900 dark:hover:text-white transition-colors">
                       <span className="uppercase">{kycFilter === 'all' ? 'KYC Status' : kycFilter}</span>
@@ -474,7 +446,6 @@ export default function EmployeesPage() {
               </div>
             )}
           </div>
-          {/* Footer Stats */}
           <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
             <span>Total users: {users.length}</span>
             <span>Showing {filteredUsers.length} of {users.length}</span>
