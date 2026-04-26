@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Vehicle from '@/models/Vehicle';
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
   await connectToDatabase();
   const body = await req.json();
 
-  // Required fields validation with better error messages
+  // Required fields validation
   const requiredVendor = ['vendorName', 'mobile', 'gender', 'address', 'aadhar', 'dob', 'pan', 'email'];
   const requiredVehicle = ['cabNumber', 'licenseNo', 'insuranceNo', 'modelName', 'expiryDate', 'yearOfMaking'];
 
@@ -38,24 +39,35 @@ export async function POST(req: NextRequest) {
     }, { status: 400 });
   }
 
+  // Cab number validation
+  const cabNumber = body.cabNumber;
+  if (!cabNumber || typeof cabNumber !== 'string' || cabNumber.trim() === '') {
+    return NextResponse.json({ error: 'Cab number (registration number) is required' }, { status: 400 });
+  }
+
+  // Check for existing vehicle with same cabNumber
+  const existing = await Vehicle.findOne({ cabNumber });
+  if (existing) {
+    return NextResponse.json({ error: 'A vehicle with this cab number already exists' }, { status: 409 });
+  }
+
   const licenseNo = body.licenseNo || body.licenceNumber;
   const tacNo = body.tacNo || body.racNo;
 
-  // Enhanced uniqueness checks
-  const existingCab = await Vehicle.findOne({ cabNumber: body.cabNumber });
-  if (existingCab) return NextResponse.json({ error: 'Cab number already exists' }, { status: 400 });
+  if (licenseNo) {
+    const existingLicense = await Vehicle.findOne({ licenseNo });
+    if (existingLicense) {
+      return NextResponse.json({ error: 'License number already exists' }, { status: 400 });
+    }
+  }
 
-  const existingLicense = await Vehicle.findOne({ licenseNo });
-  if (existingLicense) return NextResponse.json({ error: 'License number already exists' }, { status: 400 });
-
-  // Validate email format
+  // Email and mobile validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const vendorEmail = body.vendor?.email || body.email;
   if (!emailRegex.test(vendorEmail)) {
     return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
   }
 
-  // Validate mobile number (basic check)
   const mobileRegex = /^[6-9]\d{9}$/;
   const vendorMobile = body.vendor?.mobile || body.mobile;
   if (!mobileRegex.test(vendorMobile)) {
@@ -63,7 +75,7 @@ export async function POST(req: NextRequest) {
   }
 
   const vehicleData = {
-    cabNumber: body.cabNumber,
+    cabNumber: cabNumber.trim(),
     tacNo,
     licenseNo,
     pollutionNo: body.pollutionNo,
@@ -103,8 +115,11 @@ export async function POST(req: NextRequest) {
       message: 'Vehicle and vendor created successfully',
       vehicle
     }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Vehicle creation error:', error);
+    if (error.code === 11000) {
+      return NextResponse.json({ error: 'Duplicate cab number or license number' }, { status: 409 });
+    }
     return NextResponse.json({ error: 'Failed to create vehicle' }, { status: 500 });
   }
 }
