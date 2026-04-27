@@ -37,7 +37,8 @@ interface Booking {
 
 interface DashboardData {
   employees: Employee[];
-  drivers: Employee[];
+  drivers: any[];
+  vehicles: any[];
   bookings: Booking[];
   revenue: number;
   dailyBookings: { date: string; count: number }[];
@@ -76,6 +77,7 @@ export default function AdminDashboard() {
   const [dashboard, setDashboard] = useState<DashboardData>({
     employees: [],
     drivers: [],
+    vehicles: [],
     bookings: [],
     revenue: 0,
     dailyBookings: [],
@@ -94,20 +96,25 @@ export default function AdminDashboard() {
     }
 
     try {
-      const [employeesRes, bookingsRes] = await Promise.all([
+      const [employeesRes, driversRes, vehiclesRes, bookingsRes] = await Promise.all([
         fetch('/api/admin/employees', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/admin/drivers', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/admin/vehicles', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/admin/book-form', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
-      if (!employeesRes.ok || !bookingsRes.ok) {
-        throw new Error('Failed to fetch employees or bookings');
+      if (!employeesRes.ok || !driversRes.ok || !vehiclesRes.ok || !bookingsRes.ok) {
+        throw new Error('Failed to fetch dashboard data');
       }
 
       const employeesData = await employeesRes.json();
+      const driversData = await driversRes.json();
+      const vehiclesData = await vehiclesRes.json();
       const bookingsData = await bookingsRes.json();
 
       const employees = Array.isArray(employeesData) ? employeesData : employeesData.employees || [];
-      const drivers = employees.filter((emp: Employee) => emp.role === 'driver');
+      const drivers = Array.isArray(driversData) ? driversData : driversData.drivers || [];
+      const vehicles = Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.data || [];
 
       let bookings = Array.isArray(bookingsData) ? bookingsData : bookingsData.bookings || [];
       bookings = bookings.map((b: any) => ({
@@ -152,6 +159,7 @@ export default function AdminDashboard() {
       setDashboard({
         employees,
         drivers,
+        vehicles,
         bookings,
         revenue,
         dailyBookings,
@@ -261,27 +269,17 @@ export default function AdminDashboard() {
     );
   }
 
-  const { employees, drivers, bookings, revenue, dailyBookings, statusCounts } = dashboard;
+  const { employees, drivers, vehicles, bookings, revenue, dailyBookings, statusCounts } = dashboard;
   const totalBookings = bookings.length;
   const pendingBookings = bookings.filter(b => b.status === 'pending').length;
   const unassignedBookings = bookings.filter(b => !b.driverId).length;
-
-  // Safely count unique vehicles (only if vehicleId is an object with _id)
-  const vehiclesInUse = new Set(
-    bookings
-      .map(b => b.vehicleId)
-      .filter(v => v && typeof v === 'object')
-      .map(v => (v as { _id: string })._id)
-  ).size;
-  const totalVehiclesPlaceholder = Math.max(vehiclesInUse, 5);
-  const activeVehicles = vehiclesInUse;
 
   const recentBookings = [...bookings]
     .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())
     .slice(0, 5);
 
   return (
-    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300 font-roboto">
       {/* Flush Dashboard Header matched to Bookings toolbar height */}
       <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
         <div className="min-w-0">
@@ -301,20 +299,18 @@ export default function AdminDashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Total Employees"
-            value={employees.length}
-            subtext={`${drivers.length} drivers`}
+            title="Total Driver"
+            value={drivers.length}
             icon={<HiUserGroup className="w-6 h-6 text-orange-500" />}
             trend="+2 this month"
             trendUp
           />
           <StatCard
-            title="Active Vehicles"
-            value={activeVehicles}
-            subtext={`${totalVehiclesPlaceholder} total (estimated)`}
+            title="Total Vehicles"
+            value={vehicles.length}
             icon={<HiTruck className="w-6 h-6 text-blue-500" />}
-            trend="from assigned bookings"
-            trendUp={false}
+            trend={`${vehicles.filter(v => v.status === 'active').length} active`}
+            trendUp={true}
           />
           <StatCard
             title="Total Bookings"
@@ -325,11 +321,10 @@ export default function AdminDashboard() {
             trendUp={false}
           />
           <StatCard
-            title="Revenue"
-            value={`₹${revenue.toLocaleString()}`}
-            subtext="from confirmed/completed"
-            icon={<HiCurrencyDollar className="w-6 h-6 text-amber-500" />}
-            trend="+12% vs last month"
+            title="Total Employee"
+            value={employees.length}
+            icon={<HiUserGroup className="w-6 h-6 text-indigo-500" />}
+            trend="+1 this month"
             trendUp
           />
         </div>
@@ -473,9 +468,9 @@ function StatCard({ title, value, subtext, icon, trend, trendUp }: any) {
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all group">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{title}</p>
+          <p className="text-emerald-600 dark:text-emerald-400 text-base font-bold">{title}</p>
           <div className="flex items-baseline gap-2 mt-1">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">{value}</h3>
+            <h3 className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300 tracking-tight">{value}</h3>
             {subtext && <span className="text-xs text-slate-400 dark:text-slate-500">{subtext}</span>}
           </div>
         </div>

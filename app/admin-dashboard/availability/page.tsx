@@ -502,9 +502,176 @@ export default function AvailabilityPage() {
 
       {/* Calendar */}
       <div className="p-4 md:p-6">
+        <style dangerouslySetInnerHTML={{ __html: `
+          .fc .fc-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem !important;
+          }
+          .fc .fc-toolbar-chunk {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+            flex-wrap: nowrap !important;
+          }
+          .fc .fc-toolbar-title {
+            font-size: 1.4rem !important;
+            font-weight: 700 !important;
+            color: #059669 !important;
+            font-family: inherit;
+            margin: 0 15px !important;
+            white-space: nowrap !important;
+          }
+          .fc .fc-button {
+            margin: 0 !important;
+            background-color: #059669 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            text-transform: capitalize !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+          }
+          .fc .fc-button:hover {
+            background-color: #047857 !important;
+            transform: translateY(-1px);
+          }
+          .fc .fc-button:active {
+            transform: translateY(0);
+          }
+          .fc .fc-today-button {
+            background-color: #34d399 !important;
+            opacity: 1 !important;
+            color: #064e3b !important;
+          }
+          .fc .fc-today-button:hover {
+            background-color: #10b981 !important;
+          }
+          .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #064e3b !important;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
+          }
+          .fc .fc-button-group {
+            gap: 6px;
+            align-items: center;
+          }
+          .fc .fc-button-group .fc-button {
+            border-radius: 8px !important;
+            margin-left: 0 !important;
+          }
+          .dark .fc .fc-toolbar-title {
+            color: #34d399 !important;
+          }
+          .dark .fc .fc-button {
+            background-color: #065f46 !important;
+          }
+          .dark .fc .fc-button:hover {
+            background-color: #047857 !important;
+          }
+          .dark .fc .fc-today-button {
+            background-color: #059669 !important;
+            color: white !important;
+          }
+          
+          /* Grid & Cell Styling */
+          .fc {
+            --fc-border-color: #e2e8f0 !important;
+            --fc-daygrid-event-dot-width: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            background: white !important;
+          }
+          .fc-theme-standard td, .fc-theme-standard th {
+            border: 1px solid #e2e8f0 !important;
+          }
+          .fc .fc-scrollgrid {
+            border: none !important;
+          }
+          .fc .fc-col-header-cell {
+            background: #f8fafc !important;
+            padding: 14px 0 !important;
+            font-size: 11px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #475569 !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+          }
+          .fc .fc-daygrid-day-number {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #475569 !important;
+            padding: 8px 12px !important;
+          }
+          .fc .fc-day-today {
+            background-color: #ecfdf5 !important; /* Soft Emerald highlight */
+          }
+          .fc .fc-day-today .fc-daygrid-day-number {
+            color: #059669 !important;
+            font-weight: 800 !important;
+          }
+          
+          /* Event Styling */
+          .fc-v-event, .fc-h-event {
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 2px 4px !important;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+            margin-bottom: 2px !important;
+            cursor: pointer !important;
+            transition: transform 0.1s ease !important;
+          }
+          .fc-v-event:hover, .fc-h-event:hover {
+            transform: scale(1.02) !important;
+            z-index: 5 !important;
+          }
+          .fc-event-title {
+            font-weight: 600 !important;
+            font-size: 11px !important;
+            padding: 2px 4px !important;
+          }
+          .fc-daygrid-event-harness {
+            margin: 1px 4px !important;
+          }
+
+          /* Dark Mode Grid */
+          .dark .fc {
+            --fc-border-color: #1e293b !important;
+          }
+          .dark .fc-theme-standard td, .dark .fc-theme-standard th {
+            border: 1px solid #1e293b !important;
+          }
+          .dark .fc .fc-col-header-cell {
+            background: #0f172a !important;
+            color: #94a3b8 !important;
+            border-bottom: 2px solid #1e293b !important;
+          }
+          .dark .fc .fc-day-today {
+            background-color: rgba(5, 150, 105, 0.1) !important;
+          }
+          .dark .fc .fc-daygrid-day-number {
+            color: #94a3b8 !important;
+          }
+          .dark .fc .fc-day-today .fc-daygrid-day-number {
+            color: #34d399 !important;
+          }
+        `}} />
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+          headerToolbar={{ 
+            left: 'prev title next today', 
+            center: '', 
+            right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+          }}
           initialView="dayGridMonth"
           editable={true}
           selectable={true}
