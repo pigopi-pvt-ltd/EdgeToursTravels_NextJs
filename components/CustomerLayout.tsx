@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStoredUser } from '@/lib/auth';
-import CustomerSidebar from './CustomerSidebar';
-import Header from './Header';
+import CustomerSidebar from '@/components/CustomerSidebar';
+import Header from '@/components/Header';
+import FloatingSupportButton from '@/components/FloatingSupportButton';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -45,6 +46,8 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         <Header user={user} role="customer" onMenuClick={() => setIsSidebarOpen(true)} />
         <div className="p-4 sm:p-8">{children}</div>
       </main>
+      {/* Floating support button */}
+      <FloatingSupportButton />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import "@/models/User";        //  Register User model
-import "@/models/Booking";     //  Register Booking model
-import "@/models/Vehicle";     //  Register Vehicle model (CRITICAL)
+import "@/models/User";        
+import "@/models/Booking";     
+import "@/models/Vehicle";     
 import "@/models/Notification";
 import "@/models/OTP";
 

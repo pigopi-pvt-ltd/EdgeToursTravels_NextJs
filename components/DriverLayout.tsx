@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStoredUser } from '@/lib/auth';
-import AdminSidebar from './AdminSidebar';
-import Header from './Header';
-
-// This layout component is used to wrap all driver dashboard pages, providing a consistent sidebar and header for drivers. It also checks for authentication and redirects to login if the user is not a driver.
+import AdminSidebar from '@/components/AdminSidebar';
+import Header from '@/components/Header';
+import FloatingSupportButton from '@/components/FloatingSupportButton';
 
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -47,6 +46,8 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
         <Header user={user} role="driver" onMenuClick={() => setIsSidebarOpen(true)} />
         <div className="p-4 sm:p-8">{children}</div>
       </main>
+      {/* Floating support button */}
+      <FloatingSupportButton />
     </div>
   );
 }

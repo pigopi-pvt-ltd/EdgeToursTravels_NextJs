@@ -39,7 +39,7 @@ function parseDate(dateStr: string): Date | null {
 export async function GET(req: NextRequest) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();
-  if (admin.role !== 'admin') return forbiddenResponse();
+  if (admin.role !== 'admin' && admin.role !== 'employee' ) return forbiddenResponse();
 
   await connectToDatabase();
   const employees = await User.find({ role: 'employee' }).select('-password').sort({ createdAt: -1 });
