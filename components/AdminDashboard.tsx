@@ -468,9 +468,9 @@ function StatCard({ title, value, subtext, icon, trend, trendUp }: any) {
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all group">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-emerald-600 dark:text-emerald-400 text-base font-bold">{title}</p>
+          <p className="text-slate-900 dark:text-white text-base font-bold">{title}</p>
           <div className="flex items-baseline gap-2 mt-1">
-            <h3 className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300 tracking-tight">{value}</h3>
+            <h3 className="text-2xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">{value}</h3>
             {subtext && <span className="text-xs text-slate-400 dark:text-slate-500">{subtext}</span>}
           </div>
         </div>
