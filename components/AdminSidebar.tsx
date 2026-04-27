@@ -45,7 +45,6 @@ const adminItems = [
 const driverItems = [
   { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
-  { name: "Profile", icon: HiOutlineUser, href: "/driver-dashboard/profile" },
 ];
 
 // Employee menu items 
@@ -109,7 +108,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
       <aside
         className={`
         fixed left-0 top-0 h-screen bg-white dark:bg-[#0A1128] text-black dark:text-white 
-        flex flex-col shadow-xl z-50 transition-all duration-300 border-r border-slate-200 dark:border-slate-800
+        flex flex-col shadow-xl z-50 transition-all duration-300 border-r border-slate-200 dark:border-slate-800 font-roboto
         ${isCollapsed ? "w-20" : "w-64"}
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}

@@ -502,9 +502,176 @@ export default function AvailabilityPage() {
 
       {/* Calendar */}
       <div className="p-4 md:p-6">
+        <style dangerouslySetInnerHTML={{ __html: `
+          .fc .fc-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem !important;
+          }
+          .fc .fc-toolbar-chunk {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+            flex-wrap: nowrap !important;
+          }
+          .fc .fc-toolbar-title {
+            font-size: 1.4rem !important;
+            font-weight: 700 !important;
+            color: #059669 !important;
+            font-family: inherit;
+            margin: 0 15px !important;
+            white-space: nowrap !important;
+          }
+          .fc .fc-button {
+            margin: 0 !important;
+            background-color: #059669 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            text-transform: capitalize !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+          }
+          .fc .fc-button:hover {
+            background-color: #047857 !important;
+            transform: translateY(-1px);
+          }
+          .fc .fc-button:active {
+            transform: translateY(0);
+          }
+          .fc .fc-today-button {
+            background-color: #34d399 !important;
+            opacity: 1 !important;
+            color: #064e3b !important;
+          }
+          .fc .fc-today-button:hover {
+            background-color: #10b981 !important;
+          }
+          .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #064e3b !important;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
+          }
+          .fc .fc-button-group {
+            gap: 6px;
+            align-items: center;
+          }
+          .fc .fc-button-group .fc-button {
+            border-radius: 8px !important;
+            margin-left: 0 !important;
+          }
+          .dark .fc .fc-toolbar-title {
+            color: #34d399 !important;
+          }
+          .dark .fc .fc-button {
+            background-color: #065f46 !important;
+          }
+          .dark .fc .fc-button:hover {
+            background-color: #047857 !important;
+          }
+          .dark .fc .fc-today-button {
+            background-color: #059669 !important;
+            color: white !important;
+          }
+          
+          /* Grid & Cell Styling */
+          .fc {
+            --fc-border-color: #e2e8f0 !important;
+            --fc-daygrid-event-dot-width: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            background: white !important;
+          }
+          .fc-theme-standard td, .fc-theme-standard th {
+            border: 1px solid #e2e8f0 !important;
+          }
+          .fc .fc-scrollgrid {
+            border: none !important;
+          }
+          .fc .fc-col-header-cell {
+            background: #f8fafc !important;
+            padding: 14px 0 !important;
+            font-size: 11px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #475569 !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+          }
+          .fc .fc-daygrid-day-number {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #475569 !important;
+            padding: 8px 12px !important;
+          }
+          .fc .fc-day-today {
+            background-color: #ecfdf5 !important; /* Soft Emerald highlight */
+          }
+          .fc .fc-day-today .fc-daygrid-day-number {
+            color: #059669 !important;
+            font-weight: 800 !important;
+          }
+          
+          /* Event Styling */
+          .fc-v-event, .fc-h-event {
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 2px 4px !important;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+            margin-bottom: 2px !important;
+            cursor: pointer !important;
+            transition: transform 0.1s ease !important;
+          }
+          .fc-v-event:hover, .fc-h-event:hover {
+            transform: scale(1.02) !important;
+            z-index: 5 !important;
+          }
+          .fc-event-title {
+            font-weight: 600 !important;
+            font-size: 11px !important;
+            padding: 2px 4px !important;
+          }
+          .fc-daygrid-event-harness {
+            margin: 1px 4px !important;
+          }
+
+          /* Dark Mode Grid */
+          .dark .fc {
+            --fc-border-color: #1e293b !important;
+          }
+          .dark .fc-theme-standard td, .dark .fc-theme-standard th {
+            border: 1px solid #1e293b !important;
+          }
+          .dark .fc .fc-col-header-cell {
+            background: #0f172a !important;
+            color: #94a3b8 !important;
+            border-bottom: 2px solid #1e293b !important;
+          }
+          .dark .fc .fc-day-today {
+            background-color: rgba(5, 150, 105, 0.1) !important;
+          }
+          .dark .fc .fc-daygrid-day-number {
+            color: #94a3b8 !important;
+          }
+          .dark .fc .fc-day-today .fc-daygrid-day-number {
+            color: #34d399 !important;
+          }
+        `}} />
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+          headerToolbar={{ 
+            left: 'prev title next today', 
+            center: '', 
+            right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+          }}
           initialView="dayGridMonth"
           editable={true}
           selectable={true}
@@ -528,17 +695,28 @@ export default function AvailabilityPage() {
 
       {/* Modal for Create/Edit */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={closeModal}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white dark:bg-slate-900 border-b px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold">{editingEvent ? 'Edit Slot' : 'New Slot'}</h2>
-              <button onClick={closeModal}><HiXMark className="w-6 h-6" /></button>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-20" onClick={closeModal}>
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-5 duration-200 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                {editingEvent ? 'Edit Availability Slot' : 'Create New Availability'}
+              </h2>
+              <button onClick={closeModal} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <HiXMark className="text-2xl" />
+              </button>
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Slot Title / Vehicle Info <span className="text-red-500">*</span></label>
-                  <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="e.g., DL 1PA 1234 - Available" />
+                  <input 
+                    type="text" 
+                    required 
+                    value={formData.title} 
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })} 
+                    className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" 
+                    placeholder="e.g., DL 1PA 1234 - Available" 
+                  />
                 </div>
                 <div>
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Start Time <span className="text-red-500">*</span></label>
@@ -553,8 +731,6 @@ export default function AvailabilityPage() {
                     className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">End Time <span className="text-red-500">*</span></label>
                   <input
@@ -570,7 +746,11 @@ export default function AvailabilityPage() {
                 </div>
                 <div>
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Availability Status</label>
-                  <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none">
+                  <select 
+                    value={formData.status} 
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })} 
+                    className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                  >
                     <option value="available">Available</option>
                     <option value="booked">Booked</option>
                     <option value="maintenance">Maintenance</option>
@@ -578,17 +758,27 @@ export default function AvailabilityPage() {
                 </div>
                 <div>
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Internal Notes</label>
-                  <input type="text" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="Add optional details..." />
+                  <input 
+                    type="text" 
+                    value={formData.notes} 
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })} 
+                    className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" 
+                    placeholder="Add optional details..." 
+                  />
                 </div>
               </div>
               <div className="flex justify-between items-center pt-8 border-t border-slate-100 dark:border-slate-800">
                 {editingEvent && (
-                  <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-6 py-2.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95"><HiTrash className="text-lg" /> Delete Slot</button>
+                  <button type="button" onClick={handleDelete} className="flex items-center gap-2 px-6 py-2.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
+                    <HiTrash className="text-lg" /> Delete Slot
+                  </button>
                 )}
                 <div className="flex gap-3 ml-auto">
-                  <button type="button" onClick={closeModal} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
-                  <button type="submit" className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer">
-                    {editingEvent ? 'Update Availability' : 'Save Availability'}
+                  <button type="button" onClick={closeModal} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer text-xs uppercase tracking-widest">
+                    {editingEvent ? 'Update Slot' : 'Save Slot'}
                   </button>
                 </div>
               </div>
@@ -599,15 +789,24 @@ export default function AvailabilityPage() {
 
       {/* Bulk Create Modal */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setIsBulkModalOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold">Bulk Create Slots</h2>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-20" onClick={() => setIsBulkModalOpen(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-md animate-in slide-in-from-bottom-5 duration-200 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                Bulk Create Slots
+              </h2>
+              <button onClick={() => setIsBulkModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <HiXMark className="text-2xl" />
+              </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-1">Vehicle *</label>
-                <select value={bulkData.vehicleId} onChange={(e) => setBulkData({ ...bulkData, vehicleId: e.target.value })} className="w-full border rounded-lg px-4 py-2">
+                <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle *</label>
+                <select 
+                  value={bulkData.vehicleId} 
+                  onChange={(e) => setBulkData({ ...bulkData, vehicleId: e.target.value })} 
+                  className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                >
                   <option value="">Select Vehicle</option>
                   {vehicles.map((v) => (
                     <option key={v._id} value={v._id}>{v.cabNumber} - {v.modelName}</option>
@@ -615,24 +814,48 @@ export default function AvailabilityPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Start Date & Time *</label>
-                <input type="datetime-local" value={bulkData.start} onChange={(e) => setBulkData({ ...bulkData, start: e.target.value })} className="w-full border rounded-lg px-4 py-2" />
+                <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Start Date & Time *</label>
+                <input 
+                  type="datetime-local" 
+                  value={bulkData.start} 
+                  onChange={(e) => setBulkData({ ...bulkData, start: e.target.value })} 
+                  className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white" 
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">End Date & Time *</label>
-                <input type="datetime-local" value={bulkData.end} onChange={(e) => setBulkData({ ...bulkData, end: e.target.value })} className="w-full border rounded-lg px-4 py-2" />
+                <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">End Date & Time *</label>
+                <input 
+                  type="datetime-local" 
+                  value={bulkData.end} 
+                  onChange={(e) => setBulkData({ ...bulkData, end: e.target.value })} 
+                  className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white" 
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Repeat</label>
-                <select value={bulkData.repeats} onChange={(e) => setBulkData({ ...bulkData, repeats: e.target.value })} className="w-full border rounded-lg px-4 py-2">
+                <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Repeat</label>
+                <select 
+                  value={bulkData.repeats} 
+                  onChange={(e) => setBulkData({ ...bulkData, repeats: e.target.value })} 
+                  className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                >
                   <option value="none">No repeat</option>
                   <option value="weekly">Weekly (4 weeks)</option>
                 </select>
               </div>
             </div>
-            <div className="p-6 border-t flex justify-end gap-2">
-              <button onClick={() => setIsBulkModalOpen(false)} className="px-4 py-2 border rounded-lg">Cancel</button>
-              <button onClick={handleBulkCreate} className="px-4 py-2 bg-indigo-600 text-white rounded-lg">Create</button>
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+              <button 
+                onClick={() => setIsBulkModalOpen(false)} 
+                className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleBulkCreate} 
+                className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[120px] active:scale-95 cursor-pointer text-xs uppercase tracking-widest"
+              >
+                Create Slots
+              </button>
             </div>
           </div>
         </div>

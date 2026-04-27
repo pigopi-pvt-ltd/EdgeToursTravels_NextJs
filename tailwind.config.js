@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         outfit: ['var(--font-outfit)', 'sans-serif'],
+        roboto: ['var(--font-roboto)', 'sans-serif'],
       },
     },
   },

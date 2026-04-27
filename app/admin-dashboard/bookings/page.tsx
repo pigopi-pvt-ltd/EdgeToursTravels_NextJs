@@ -537,7 +537,7 @@ export default function BookingsPage() {
                             <path d="M7 7h2v2H7V7zm0 4h2v2H7v-2zm4-4h2v2h-2V7zm0 4h2v2h-2v-2zM7 15h2v2H7v-2zm4 0h2v2h-2v-2z" />
                           </svg>
                         </div>
-                        
+
                         {/* Resize Handle */}
                         <div
                           onMouseDown={(e) => handleResizeStart(e, colId)}
