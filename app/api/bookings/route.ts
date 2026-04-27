@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     const bookings = await Booking.find(filter)
       .populate('driverId', 'name email mobileNumber')
       .populate('userId', 'name email')
-      .populate('vehicleId', 'cabNumber modelName') // ✅ Now works
+      .populate('vehicleId', 'cabNumber modelName')
       .sort({ dateTime: -1 });
     return NextResponse.json(bookings);
   } catch (err: any) {
