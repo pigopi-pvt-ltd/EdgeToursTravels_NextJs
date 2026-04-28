@@ -1,14 +1,15 @@
 'use client';
 
-import { getStoredUser } from '@/lib/auth';
+import { useEffect, useState } from 'react';
+import { getAuthToken } from '@/lib/auth';
 import {
-  HiOutlineUserGroup,
-  HiOutlineChartBar,
-  HiOutlineChat,
-  HiOutlineStar,
+  HiArrowPath,
+  HiOutlineChatBubbleLeftEllipsis,
+  HiOutlineCheckCircle,
+  HiOutlineExclamationCircle,
   HiOutlineClock,
-} from 'react-icons/hi';
-import { HiCheckCircle } from 'react-icons/hi2';
+  HiOutlineChartBar,
+} from 'react-icons/hi2';
 import {
   BarChart,
   Bar,
@@ -17,156 +18,240 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
 
-// Static data
-const weeklyData = [
-  { day: 'Mon', tasks: 12 },
-  { day: 'Tue', tasks: 19 },
-  { day: 'Wed', tasks: 15 },
-  { day: 'Thu', tasks: 22 },
-  { day: 'Fri', tasks: 28 },
-  { day: 'Sat', tasks: 18 },
-  { day: 'Sun', tasks: 9 },
-];
+interface SupportTicket {
+  _id: string;
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  createdAt: string;
+}
 
-const activities = [
-  { id: 1, text: 'Booking #EDG-1234 confirmed', time: '2 min ago', icon: HiCheckCircle, color: 'text-emerald-500' },
-  { id: 2, text: 'New driver assigned to trip', time: '1 hour ago', icon: HiOutlineUserGroup, color: 'text-blue-500' },
-  { id: 3, text: 'Customer support ticket closed', time: '3 hours ago', icon: HiOutlineChat, color: 'text-purple-500' },
-  { id: 4, text: 'Monthly performance report generated', time: 'Yesterday', icon: HiOutlineChartBar, color: 'text-amber-500' },
-];
+interface AttendanceRecord {
+  date: string;
+  status: 'present' | 'absent' | 'half-day';
+}
+
+interface TicketStats {
+  open: number;
+  inProgress: number;
+  resolved: number;
+  total: number;
+}
+
+interface DailyCount {
+  date: string;
+  day: string;
+  present: number;
+  absent: number;
+  tickets: number;
+}
 
 export default function EmployeeDashboard() {
-  const user = getStoredUser();
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [ticketStats, setTicketStats] = useState<TicketStats>({ open: 0, inProgress: 0, resolved: 0, total: 0 });
+  const [dailyData, setDailyData] = useState<DailyCount[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { label: 'Tasks Completed', value: 86, icon: HiCheckCircle, color: 'emerald', trend: '+12%' },
-    { label: 'Customer Rating', value: 4.8, icon: HiOutlineStar, color: 'amber', trend: '⭐ 5.0 avg' },
-    { label: 'Avg Response', value: '2.4', unit: 'min', icon: HiOutlineClock, color: 'blue', trend: '-18%' },
-    { label: 'Active Sessions', value: 3, icon: HiOutlineUserGroup, color: 'indigo', trend: 'Today' },
-  ];
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
-  const getColorClass = (color: string) => {
-    switch (color) {
-      case 'emerald': return 'from-emerald-500 to-emerald-600 bg-emerald-50 text-emerald-700';
-      case 'amber':   return 'from-amber-500 to-amber-600 bg-amber-50 text-amber-700';
-      case 'blue':    return 'from-blue-500 to-blue-600 bg-blue-50 text-blue-700';
-      case 'indigo':  return 'from-indigo-500 to-indigo-600 bg-indigo-50 text-indigo-700';
-      default:        return 'from-slate-500 to-slate-600 bg-slate-50 text-slate-700';
+  const fetchAllData = async () => {
+    setLoading(true);
+    await Promise.all([fetchSupportTickets(), fetchAttendanceRecords()]);
+    setLoading(false);
+  };
+
+  const fetchSupportTickets = async () => {
+    const token = getAuthToken();
+    try {
+      const res = await fetch('/api/support', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setTickets(data);
+        const open = data.filter((t: SupportTicket) => t.status === 'open').length;
+        const inProgress = data.filter((t: SupportTicket) => t.status === 'in-progress').length;
+        const resolved = data.filter((t: SupportTicket) => t.status === 'resolved').length;
+        setTicketStats({ open, inProgress, resolved, total: data.length });
+        computeDailyData(data, attendance);
+      }
+    } catch (error) {
+      console.error('Support fetch error', error);
     }
   };
 
+  const fetchAttendanceRecords = async () => {
+    const token = getAuthToken();
+    // Fetch current month's attendance (or last 30 days – adjust as needed)
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    try {
+      const res = await fetch(`/api/attendance?month=${month}&year=${year}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setAttendance(data);
+        computeDailyData(tickets, data);
+      }
+    } catch (error) {
+      console.error('Attendance fetch error', error);
+    }
+  };
+
+  const computeDailyData = (ticketList: SupportTicket[], attendanceList: AttendanceRecord[]) => {
+    // Last 7 days
+    const last7Days: DailyCount[] = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      last7Days.push({
+        date: dateStr,
+        day: dayName,
+        present: 0,
+        absent: 0,
+        tickets: 0,
+      });
+    }
+
+    // Count attendance per day
+    attendanceList.forEach(rec => {
+      const recDate = new Date(rec.date).toISOString().split('T')[0];
+      const day = last7Days.find(d => d.date === recDate);
+      if (day) {
+        if (rec.status === 'present') day.present += 1;
+        else if (rec.status === 'absent') day.absent += 1;
+      }
+    });
+
+    // Count tickets created per day
+    ticketList.forEach(ticket => {
+      const createdDate = new Date(ticket.createdAt).toISOString().split('T')[0];
+      const day = last7Days.find(d => d.date === createdDate);
+      if (day) day.tickets += 1;
+    });
+
+    setDailyData(last7Days);
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="h-80 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+          <div className="h-80 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-5 animate-in fade-in duration-500">
-      {/* Stats Cards – no greeting line above */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{stat.label}</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</span>
-                  {stat.unit && <span className="text-xs text-slate-500">{stat.unit}</span>}
-                </div>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">{stat.trend}</p>
-              </div>
-              <div className={`p-2 rounded-xl bg-gradient-to-br ${getColorClass(stat.color)} shadow-sm`}>
-                <stat.icon className="w-5 h-5 text-white" />
-              </div>
-            </div>
-          </div>
-        ))}
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Ticket Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="Open Tickets" value={ticketStats.open} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
+        <StatCard title="In Progress" value={ticketStats.inProgress} icon={<HiOutlineClock className="w-6 h-6" />} color="violet" />
+        <StatCard title="Resolved" value={ticketStats.resolved} icon={<HiOutlineCheckCircle className="w-6 h-6" />} color="green" />
+        <StatCard title="Total Tickets" value={ticketStats.total} icon={<HiOutlineChatBubbleLeftEllipsis className="w-6 h-6" />} color="indigo" />
       </div>
 
-      {/* Two‑column layout: Chart + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-          <div className="flex justify-between items-center mb-3">
+      {/* Two Charts Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Attendance Chart (Present vs Absent) */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="text-base font-semibold text-slate-800 dark:text-white">Weekly Task Completion</h3>
-              <p className="text-xs text-slate-500">Last 7 days</p>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Attendance Trend</h3>
+              <p className="text-xs text-slate-500">Last 7 days – Present vs Absent</p>
             </div>
+            <button onClick={fetchAttendanceRecords} className="p-2 text-slate-500 hover:text-indigo-600 transition">
+              <HiArrowPath className="w-5 h-5" />
+            </button>
           </div>
-          <div className="h-56">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
                 <XAxis dataKey="day" tick={{ fill: '#94a3b8' }} />
-                <YAxis tick={{ fill: '#94a3b8' }} />
-                {/* Fixed Tooltip – no borderColor, only border shorthand */}
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    padding: '8px 12px',
-                  }}
-                />
-                <Bar dataKey="tasks" radius={[6, 6, 0, 0]} fill="#818cf8" />
+                <YAxis tick={{ fill: '#94a3b8' }} allowDecimals={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                <Legend />
+                <Bar dataKey="present" name="Present" radius={[6, 6, 0, 0]} fill="#10b981" />
+                <Bar dataKey="absent" name="Absent" radius={[6, 6, 0, 0]} fill="#ef4444" />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <div className="mt-4 pt-3 text-center">
+            {/* <a href="/employee/attendance" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1">
+              View full attendance <span>→</span>
+            </a> */}
+          </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-          <h3 className="text-base font-semibold text-slate-800 dark:text-white mb-3">Recent Activity</h3>
-          <div className="space-y-3">
-            {activities.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-2">
-                <div className={`p-1 rounded-full bg-slate-100 dark:bg-slate-700 ${activity.color}`}>
-                  <activity.icon className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{activity.text}</p>
-                  <p className="text-xs text-slate-400">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
-            <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-lg p-2">
-              <p className="text-xs text-slate-600 dark:text-slate-300">💡 <span className="font-semibold">Pro tip:</span> Fast responses boost ratings.</p>
+        {/* Ticket Creation Chart */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Ticket Creation Trend</h3>
+              <p className="text-xs text-slate-500">Last 7 days – Number of tickets created</p>
             </div>
+            <button onClick={fetchSupportTickets} className="p-2 text-slate-500 hover:text-indigo-600 transition">
+              <HiArrowPath className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                <XAxis dataKey="day" tick={{ fill: '#94a3b8' }} />
+                <YAxis tick={{ fill: '#94a3b8' }} allowDecimals={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                <Legend />
+                <Bar dataKey="tickets" name="Tickets Created" radius={[6, 6, 0, 0]} fill="#8b5cf6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 pt-3 text-center">
+            {/* <a href="/employee/support" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1">
+              View all tickets <span>→</span>
+            </a> */}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Bottom quick links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl p-4 border border-blue-100 dark:border-blue-800/30">
-          <div className="flex items-center gap-3">
-            <HiOutlineUserGroup className="w-5 h-5 text-blue-600" />
-            <div>
-              <p className="font-semibold text-slate-800 dark:text-white">Team Collaboration</p>
-              <p className="text-xs text-slate-500">Chat with teammates</p>
-            </div>
-          </div>
+function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
+  const colorClasses: Record<string, string> = {
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+    violet: 'from-violet-50 to-violet-100 dark:from-violet-950/30 dark:to-violet-900/20 text-violet-600 dark:text-violet-400',
+    green: 'from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 text-green-600 dark:text-green-400',
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+  };
+  return (
+    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
+          <p className="text-3xl font-black mt-1">{value}</p>
         </div>
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-4 border border-emerald-100 dark:border-emerald-800/30">
-          <div className="flex items-center gap-3">
-            <HiOutlineChartBar className="w-5 h-5 text-emerald-600" />
-            <div>
-              <p className="font-semibold text-slate-800 dark:text-white">Performance Reports</p>
-              <p className="text-xs text-slate-500">Weekly insights</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-4 border border-amber-100 dark:border-amber-800/30">
-          <div className="flex items-center gap-3">
-            <HiOutlineStar className="w-5 h-5 text-amber-600" />
-            <div>
-              <p className="font-semibold text-slate-800 dark:text-white">Customer Feedback</p>
-              <p className="text-xs text-slate-500">4.8 ★ from 152 reviews</p>
-            </div>
-          </div>
-        </div>
+        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
       </div>
     </div>
   );

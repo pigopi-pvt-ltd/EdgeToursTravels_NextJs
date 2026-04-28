@@ -83,7 +83,10 @@ export async function PATCH(req: NextRequest) {
   const token = req.headers.get('authorization')?.split(' ')[1];
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  //  both admin and employee update driver/vehicle/status
+  if (!payload || (payload.role !== 'admin' && payload.role !== 'employee')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const { id, status, driverId, vehicleId } = await req.json();
   if (!id) return NextResponse.json({ error: 'Booking ID required' }, { status: 400 });

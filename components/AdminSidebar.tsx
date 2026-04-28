@@ -39,6 +39,7 @@ const adminItems = [
   { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
   { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
   { name: "Attendance", icon: HiOutlineCalendar, href: "/admin-dashboard/attendance" },
+   { name: "Salary", icon: HiOutlineUserGroup, href: "/admin-dashboard/salary" },
    { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
 ];
 
