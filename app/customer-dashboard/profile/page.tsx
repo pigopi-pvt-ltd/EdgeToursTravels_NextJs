@@ -19,6 +19,7 @@ import {
   HiTicket,
 } from "react-icons/hi";
 import { getAuthToken } from "@/lib/auth";
+import { ProfileSkeleton } from "@/components/CustomerSkeletons";
 
 // Static stats for a "fuller" look for customers
 const STATS = [
@@ -90,12 +91,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="p-10 text-center animate-pulse text-slate-500">
-        Preparing your personalized profile...
-      </div>
-    );
+  if (loading) return <ProfileSkeleton />;
   if (!user)
     return (
       <div className="p-10 text-center">

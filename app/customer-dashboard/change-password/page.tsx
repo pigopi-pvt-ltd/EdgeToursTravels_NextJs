@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import apiClient from '@/lib/apiClient';
-import { 
-  HiOutlineLockClosed, 
-  HiArrowPath, 
-  HiOutlineEye, 
+import {
+  HiOutlineLockClosed,
+  HiArrowPath,
+  HiOutlineEye,
   HiOutlineEyeSlash,
   HiCheckCircle,
   HiXCircle
@@ -79,27 +79,24 @@ function ChangePasswordPage() {
         </div>
 
         <div className="p-0">
-          <div className="bg-white dark:bg-slate-900 py-6 md:py-8 transition-colors min-h-[calc(100vh-112px)] flex items-center justify-center">
-            <div className="w-full max-w-lg bg-white dark:bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl mx-4 animate-in zoom-in-95 duration-500">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-                  <HiOutlineLockClosed className="text-3xl text-orange-600" />
-                </div>
-                <h3 className="text-xl font-extrabold text-black dark:text-white uppercase tracking-tight">Security Update</h3>
-                <p className="text-[10px] text-slate-700 dark:text-slate-400 mt-1 uppercase tracking-[0.2em] font-extrabold">Protect Your Account with a Strong Password</p>
-                <div className="h-1 w-10 bg-orange-500 mx-auto mt-4 rounded-full"></div>
+          <div className="bg-white dark:bg-slate-900 py-1 transition-colors min-h-[calc(100vh-120px)] flex items-center justify-center">
+            <div className="w-full max-w-lg bg-white dark:bg-slate-800/50 p-4 md:p-5 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-xl mx-4 animate-in zoom-in-95 duration-500">
+              <div className="text-center mb-2">
+                <h3 className="text-lg font-extrabold text-black dark:text-white uppercase tracking-tight">Security Update</h3>
+                <p className="text-[9px] text-slate-700 dark:text-slate-400 mt-1 uppercase tracking-[0.2em] font-extrabold">Protect Your Account with a Strong Password</p>
+                <div className="h-1 w-8 bg-orange-500 mx-auto mt-2 rounded-full"></div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">Current Password</label>
+              <form onSubmit={handleSubmit} className="space-y-1.5">
+                <div className="space-y-0.5">
+                  <label className="text-[10px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">Current Password</label>
                   <div className="relative group">
                     <input
                       type={showCurrentPassword ? "text" : "password"}
                       required
                       value={passwordData.currentPassword}
                       onChange={e => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-orange-500/50 focus:ring-4 focus:ring-orange-500/5 transition-all font-semibold pr-14 text-black dark:text-white"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/5 transition-all font-semibold pr-10 text-black dark:text-white"
                       placeholder="Enter your current password"
                     />
                     <button
@@ -112,15 +109,15 @@ function ChangePasswordPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">New Password</label>
+                <div className="space-y-0.5">
+                  <label className="text-[10px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">New Password</label>
                   <div className="relative group">
                     <input
                       type={showNewPassword ? "text" : "password"}
                       required
                       value={passwordData.newPassword}
                       onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all font-semibold pr-14 text-black dark:text-white"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/5 transition-all font-semibold pr-10 text-black dark:text-white"
                       placeholder="Create a strong password"
                     />
                     <button
@@ -137,15 +134,15 @@ function ChangePasswordPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">Confirm New Password</label>
+                <div className="space-y-0.5">
+                  <label className="text-[10px] font-extrabold text-black dark:text-slate-400 uppercase tracking-widest ml-1">Confirm New Password</label>
                   <div className="relative group">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       required
                       value={passwordData.confirmPassword}
                       onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all font-semibold pr-14 text-black dark:text-white"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/5 transition-all font-semibold pr-10 text-black dark:text-white"
                       placeholder="Repeat your new password"
                     />
                     <button
@@ -158,11 +155,11 @@ function ChangePasswordPage() {
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-1">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-extrabold uppercase text-sm tracking-widest transition-all transform active:scale-[0.98] shadow-xl shadow-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-3"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-extrabold uppercase text-xs tracking-widest transition-all transform active:scale-[0.98] shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
