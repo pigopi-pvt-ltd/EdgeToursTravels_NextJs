@@ -11,33 +11,33 @@ export async function GET(req: NextRequest) {
   const payload = verifyToken(token);
   if (!payload) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
 
-  await connectToDatabase();
-  let filter = {};
-  
-  if (payload.role === 'admin' || payload.role === 'employee') {
-    filter = {};
-  } 
-  else if (payload.role === 'driver') {
-    filter = { driverId: payload.userId };
-  } 
-  else if (payload.role === 'customer') {
-    const user = await User.findById(payload.userId).select('mobileNumber');
-    if (user && user.mobileNumber) {
-      filter = {
-        $or: [
-          { userId: payload.userId },
-          { contact: user.mobileNumber }
-        ]
-      };
-    } else {
-      filter = { userId: payload.userId };
-    }
-  } 
-  else {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
   try {
+    await connectToDatabase();
+    
+    let filter = {};
+    if (payload.role === 'admin' || payload.role === 'employee') {
+      filter = {};
+    } 
+    else if (payload.role === 'driver') {
+      filter = { driverId: payload.userId };
+    } 
+    else if (payload.role === 'customer') {
+      const user = await User.findById(payload.userId).select('mobileNumber');
+      if (user && user.mobileNumber) {
+        filter = {
+          $or: [
+            { userId: payload.userId },
+            { contact: user.mobileNumber }
+          ]
+        };
+      } else {
+        filter = { userId: payload.userId };
+      }
+    } 
+    else {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const bookings = await Booking.find(filter)
       .populate('driverId', 'name email mobileNumber')
       .populate('userId', 'name email')
@@ -85,16 +85,21 @@ export async function PATCH(req: NextRequest) {
   const payload = verifyToken(token);
   if (!payload || payload.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id, status, driverId, vehicleId } = await req.json();
-  if (!id) return NextResponse.json({ error: 'Booking ID required' }, { status: 400 });
+  try {
+    const { id, status, driverId, vehicleId } = await req.json();
+    if (!id) return NextResponse.json({ error: 'Booking ID required' }, { status: 400 });
 
-  await connectToDatabase();
-  const updateData: any = {};
-  if (status) updateData.status = status;
-  if (driverId) updateData.driverId = driverId;
-  if (vehicleId) updateData.vehicleId = vehicleId;
+    await connectToDatabase();
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (driverId) updateData.driverId = driverId;
+    if (vehicleId) updateData.vehicleId = vehicleId;
 
-  const updatedBooking = await Booking.findByIdAndUpdate(id, updateData, { new: true });
-  if (!updatedBooking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
-  return NextResponse.json(updatedBooking);
+    const updatedBooking = await Booking.findByIdAndUpdate(id, updateData, { new: true });
+    if (!updatedBooking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+    return NextResponse.json(updatedBooking);
+  } catch (error: any) {
+    console.error('PATCH error:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
 }

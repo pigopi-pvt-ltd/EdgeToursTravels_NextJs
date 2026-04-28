@@ -1,0 +1,68 @@
+/* Premium Admin Table Styles */
+.custom-admin-datagrid {
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-columnHeaders {
+  border-bottom: 1px solid rgba(224, 224, 224, 1) !important;
+  background-color: #f5f5f5 !important;
+}
+
+.dark .custom-admin-datagrid .MuiDataGrid-columnHeaders {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background-color: #1e1e1e !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-columnHeaderTitle {
+  font-weight: bold !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-columnHeader {
+  display: flex !important;
+  align-items: center !important;
+  border-right: 1px solid rgba(224, 224, 224, 1) !important;
+}
+
+.dark .custom-admin-datagrid .MuiDataGrid-columnHeader {
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-cell {
+  border-right: 1px solid rgba(224, 224, 224, 1) !important;
+  border-bottom: 1px solid rgba(224, 224, 224, 1) !important;
+}
+
+.dark .custom-admin-datagrid .MuiDataGrid-cell {
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-footerContainer {
+  height: auto !important;
+  min-height: 52px !important;
+  background-color: #f5f5f5 !important;
+  border-top: 1px solid rgba(224, 224, 224, 1) !important;
+}
+
+.dark .custom-admin-datagrid .MuiDataGrid-footerContainer {
+  background-color: #1e1e1e !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.custom-admin-datagrid .MuiTablePagination-root {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding-right: 40px !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-row:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.dark .custom-admin-datagrid .MuiDataGrid-row:hover {
+  background-color: #1e1e1e !important;
+}

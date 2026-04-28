@@ -21,16 +21,16 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineLogout,
-   HiOutlineClock,        
-  HiOutlineChat,         
-  HiQuestionMarkCircle, 
+  HiOutlineClock,
+  HiOutlineChat,
+  HiQuestionMarkCircle,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
 // Admin menu items
 const adminItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
-   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
+  { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
   { name: "Drivers", icon: HiOutlineUsers, href: "/admin-dashboard/drivers" },
   { name: "Vehicles", icon: HiOutlineTruck, href: "/admin-dashboard/vehicles" },
   { name: "Availability", icon: HiOutlineCalendar, href: "/admin-dashboard/availability" },
@@ -39,7 +39,7 @@ const adminItems = [
   { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
   { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
   { name: "Attendance", icon: HiOutlineCalendar, href: "/admin-dashboard/attendance" },
-   { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
+  { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
 ];
 
 // Driver menu items
@@ -52,7 +52,7 @@ const driverItems = [
 const employeeItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/employee-dashboard" },
   { name: "Manage Bookings", icon: HiOutlineCalendar, href: "/employee-dashboard/bookings" },
-    { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
+  { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
   { name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" },
   // { name: "Complaints", icon: HiOutlineChat, href: "/employee-dashboard/complaints" },
   { name: "Support", icon: HiOutlineSupport, href: "/employee-dashboard/support" },

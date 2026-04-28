@@ -26,13 +26,30 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      family: 4, // Force IPv4 to avoid some DNS issues
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-      return mongoose;
-    });
+    console.log("Attempting to connect to MongoDB...");
+    cached.promise = mongoose.connect(MONGODB_URI!, opts)
+      .then((mongoose) => {
+        console.log("MongoDB connected successfully");
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error("MongoDB connection error:", error);
+        cached.promise = null; // Reset promise so we can retry
+        throw error;
+      });
   }
-  cached.conn = await cached.promise;
+  
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null; // Ensure we don't keep a failed promise
+    throw e;
+  }
   return cached.conn;
 }
 

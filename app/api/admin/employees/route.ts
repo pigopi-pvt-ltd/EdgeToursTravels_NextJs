@@ -41,9 +41,14 @@ export async function GET(req: NextRequest) {
   if (!admin) return unauthorizedResponse();
   if (admin.role !== 'admin' && admin.role !== 'employee' ) return forbiddenResponse();
 
-  await connectToDatabase();
-  const employees = await User.find({ role: 'employee' }).select('-password').sort({ createdAt: -1 });
-  return NextResponse.json(employees);
+  try {
+    await connectToDatabase();
+    const employees = await User.find({ role: 'employee' }).select('-password').sort({ createdAt: -1 });
+    return NextResponse.json(employees);
+  } catch (error: any) {
+    console.error('GET employees error:', error);
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
