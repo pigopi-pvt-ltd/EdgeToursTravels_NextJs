@@ -7,14 +7,19 @@ import {
   HiPencil,
   HiTrash,
   HiPlus,
-  HiSearch,
-  HiX,
-  HiCheck,
-  HiChevronDown,
-  HiChevronLeft,
-  HiChevronRight
-} from "react-icons/hi";
-import { HiOutlineCloudUpload } from "react-icons/hi"; // for document cards
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+  HiArrowPath,
+  HiOutlineCalendar,
+  HiOutlineClock,
+  HiOutlineIdentification,
+  HiOutlineUserCircle,
+  HiXMark
+} from "react-icons/hi2";
+import { HiOutlineCloudUpload } from "react-icons/hi";
+import CustomTable from "@/components/CustomTable";
+import { GridColDef } from "@mui/x-data-grid";
+import apiClient from "@/lib/apiClient";
 
 interface VehicleVendor {
   vendorName: string;
@@ -45,7 +50,6 @@ interface Vehicle {
   yearOfMaking: number;
   status: "active" | "inactive" | "maintenance";
   vendor: VehicleVendor;
-  // Document URLs
   aadharFront?: string;
   aadharBack?: string;
   panImage?: string;
@@ -74,6 +78,7 @@ export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [formData, setFormData] = useState<VehicleFormData>({
@@ -88,29 +93,26 @@ export default function VehiclesPage() {
     manufacturingNo: "",
     expiryDate: "",
     yearOfMaking: new Date().getFullYear(),
-    status: 'active',
-    aadharFront: '',
-    aadharBack: '',
-    panImage: '',
-    rcImage: '',
-    insuranceImage: '',
-    pollutionImage: '',
+    status: "active",
+    aadharFront: "",
+    aadharBack: "",
+    panImage: "",
+    rcImage: "",
+    insuranceImage: "",
+    pollutionImage: "",
     kycDocuments: {}
   });
   const [masterDocs, setMasterDocs] = useState<any[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
-    fetchVehicles();
+    fetchAllData();
     fetchMasterDocs();
   }, []);
 
   const fetchMasterDocs = async () => {
     try {
-      const res = await fetch('/api/admin/master-documents?category=vehicle', {
-        headers: { Authorization: `Bearer ${getAuthToken()}` }
-      });
-      const data = await res.json();
+      const data = await apiClient('/api/admin/master-documents?category=vehicle', { method: 'GET' });
       if (Array.isArray(data)) setMasterDocs(data.filter(d => d.isActive));
     } catch (err) {
       console.error('Error fetching master docs:', err);
@@ -122,19 +124,13 @@ export default function VehiclesPage() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const fetchVehicles = async () => {
+  const fetchAllData = async () => {
+    setLoading(true);
     try {
-      const token = getAuthToken();
-      const res = await fetch("/api/admin/vehicles", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setVehicles(Array.isArray(data) ? data : []);
-      } else {
-        showToast(data.error || "Failed to fetch vehicles", "error");
-      }
+      const data = await apiClient("/api/admin/vehicles", { method: 'GET' });
+      setVehicles(Array.isArray(data) ? data : []);
     } catch (error) {
+      console.error("Error fetching vehicles:", error);
       showToast("Error fetching vehicles", "error");
     } finally {
       setLoading(false);
@@ -143,98 +139,49 @@ export default function VehiclesPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = getAuthToken();
     try {
-      const res = await fetch("/api/admin/vehicles", {
+      const data = await apiClient("/api/admin/vehicles", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(
-          data.message || "Vehicle/vendor created successfully",
-          "success",
-        );
-        fetchVehicles();
-        closeModal();
-      } else {
-        const errorMessage =
-          data.error ||
-          (data.missing
-            ? `Missing: ${Object.values(data.missing).flat().join(", ")}`
-            : "Creation failed");
-        showToast(errorMessage, "error");
-      }
-    } catch (err) {
-      showToast("Something went wrong", "error");
+      showToast(data.message || "Vehicle created successfully", "success");
+      fetchAllData();
+      closeModal();
+    } catch (err: any) {
+      showToast(err.message || "Creation failed", "error");
     }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = getAuthToken();
     try {
-      const res = await fetch(`/api/admin/vehicles/${editingVehicle?._id}`, {
+      const data = await apiClient(`/api/admin/vehicles/${editingVehicle?._id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
-      if (res.ok) {
-        showToast(
-          data.message || "Vehicle/vendor updated successfully",
-          "success",
-        );
-        fetchVehicles();
-        closeModal();
-      } else {
-        showToast(data.error || 'Update failed', 'error');
-      }
-    } catch (err) {
-      showToast("Something went wrong", "error");
+      showToast(data.message || "Vehicle updated successfully", "success");
+      fetchAllData();
+      closeModal();
+    } catch (err: any) {
+      showToast(err.message || 'Update failed', 'error');
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"?`)) return;
-    const token = getAuthToken();
     try {
-      const res = await fetch(`/api/admin/vehicles/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        showToast("Deleted successfully", "success");
-        fetchVehicles();
-      } else {
-        const data = await res.json();
-        showToast(data.error || "Delete failed", "error");
-      }
-    } catch (err) {
-      showToast("Delete failed", "error");
+      await apiClient(`/api/admin/vehicles/${id}`, { method: "DELETE" });
+      showToast("Deleted successfully", "success");
+      fetchAllData();
+    } catch (err: any) {
+      showToast(err.message || "Delete failed", "error");
     }
   };
 
   const openCreateModal = () => {
     setEditingVehicle(null);
     setFormData({
-      vendor: {
-        vendorName: "",
-        mobile: "",
-        gender: "male",
-        address: "",
-        aadhar: "",
-        dob: "",
-        pan: "",
-        email: "",
-      },
+      vendor: { ...defaultVendorValues },
       cabNumber: "",
       tacNo: "",
       licenseNo: "",
@@ -252,6 +199,7 @@ export default function VehiclesPage() {
       rcImage: "",
       insuranceImage: "",
       pollutionImage: "",
+      kycDocuments: {}
     });
     setIsModalOpen(true);
   };
@@ -268,10 +216,15 @@ export default function VehiclesPage() {
   };
 
   const filteredVehicles = vehicles.filter(
-    (v) =>
-      v.vendor?.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.vendor?.mobile?.includes(searchTerm) ||
-      v.cabNumber?.toLowerCase().includes(searchTerm.toLowerCase()),
+    (v) => {
+      const matchesStatus = statusFilter === 'all' ? true : v.status === statusFilter;
+      const matchesSearch =
+        v.vendor?.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.vendor?.mobile?.includes(searchTerm) ||
+        v.cabNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.modelName?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesStatus && matchesSearch;
+    }
   );
 
   const getInitials = (name: string) => {
@@ -283,60 +236,113 @@ export default function VehiclesPage() {
       .slice(0, 2);
   };
 
+  const vehicleColumns: GridColDef[] = [
+    {
+      field: 'vendorName',
+      headerName: 'VENDOR NAME',
+      width: 180,
+      valueGetter: (value, row) => row.vendor?.vendorName,
+      renderCell: (params: any) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-[10px] ring-1 ring-slate-100 dark:ring-slate-600">
+            {getInitials(params.value || 'V')}
+          </div>
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{params.value || '-'}</span>
+        </div>
+      )
+    },
+    {
+      field: 'mobile',
+      headerName: 'CONTACT NO',
+      width: 130,
+      valueGetter: (value, row) => row.vendor?.mobile,
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{params.value || '-'}</span>
+    },
+    {
+      field: 'email',
+      headerName: 'EMAIL ADDRESS',
+      width: 180,
+      valueGetter: (value, row) => row.vendor?.email,
+      renderCell: (params: any) => <span className="text-xs font-medium text-slate-500 lowercase">{params.value || '-'}</span>
+    },
+    {
+      field: 'cabNumber',
+      headerName: 'CAB NUMBER',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => <span className="text-sm font-black uppercase tracking-tighter text-indigo-600 dark:text-indigo-400">{params.value}</span>
+    },
+    {
+      field: 'modelName',
+      headerName: 'MODEL',
+      width: 150,
+      renderCell: (params: any) => (
+        <div className="flex flex-col leading-tight">
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase">{params.value}</span>
+          <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">YEAR: {params.row.yearOfMaking}</span>
+        </div>
+      )
+    },
+    {
+      field: 'tacNo',
+      headerName: 'TAC NO',
+      width: 110,
+      renderCell: (params: any) => <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{params.value || '-'}</span>
+    },
+    {
+      field: 'gstNo',
+      headerName: 'GST NO',
+      width: 140,
+      renderCell: (params: any) => <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{params.value || '-'}</span>
+    },
+    {
+      field: 'status',
+      headerName: 'STATUS',
+      width: 120,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => {
+        const status = params.value;
+        const colorClass = status === 'active' ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]' :
+          status === 'inactive' ? 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]' :
+            'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]';
+        return (
+          <span className={`px-2 py-0.5 rounded text-xs font-bold border inline-block min-w-[90px] text-center uppercase tracking-widest ${colorClass}`}>
+            {status}
+          </span>
+        );
+      }
+    },
+    {
+      field: 'actions',
+      headerName: 'ACTIONS',
+      width: 100,
+      sortable: false,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => (
+        <div className="flex items-center justify-center gap-2">
+          <button onClick={() => openEditModal(params.row)} className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white transition-all">
+            <HiPencil className="w-4 h-4" />
+          </button>
+          <button onClick={() => handleDelete(params.row._id, params.row.cabNumber)} className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition-all">
+            <HiTrash className="w-4 h-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        {/* Precise Header Skeleton (56px) */}
         <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-
-        <div className="flex flex-col">
-          {/* Skeleton Search Area (approx 72px) */}
-          <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
-            <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                    <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
-                      <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
-                  <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[72px]">
-                    <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700"></div>
-                        <div className="space-y-2">
-                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                          <div className="h-2 w-16 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
-                        </div>
-                      </div>
-                    </td>
-                    {[1, 2, 3, 4, 5].map((col) => (
-                      <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
-                        <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
-                      </td>
-                    ))}
-                    <td className="px-6 py-3">
-                      <div className="flex justify-center gap-2">
-                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                        <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 rounded-lg"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="p-8 space-y-4">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>)}
         </div>
       </div>
     );
@@ -344,168 +350,76 @@ export default function VehiclesPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-lg shadow-2xl text-white text-sm font-bold ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'} animate-in fade-in slide-in-from-top-8 duration-300`}>
+          {toast.type === 'success' ? <HiOutlineCheckCircle className="w-5 h-5" /> : <HiOutlineXCircle className="w-5 h-5" />}
+          {toast.message}
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 flex flex-col">
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2 md:py-1.5 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
-            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
-              Vehicles & Vendors <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredVehicles.length})</span>
+            <h2 className="text-[13px] md:text-xl font-black text-emerald-600 uppercase tracking-tighter truncate flex items-center gap-1.5">
+              Vehicles & Vendors <span className="text-black dark:text-white font-normal font-bold pl-1 pr-1 hidden sm:inline">({filteredVehicles.length})</span>
             </h2>
           </div>
-          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={fetchVehicles}
-              className="hidden md:inline-flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
+              onClick={fetchAllData}
+              className="hidden md:flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
             >
+              <HiArrowPath className="text-lg" />
               Refresh
             </button>
             <button
               onClick={openCreateModal}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-2 md:px-5 md:py-2.5 rounded-lg font-bold text-[10px] md:text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap flex items-center gap-1.5"
             >
-              Add Vendor / Cab
+              <HiPlus className="text-lg" />
+              <span>Add Vehicle / Vendor</span>
             </button>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div>
-          {/* Search Area */}
-          <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <div className="relative w-full md:max-w-md">
-              <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
-              <input
-                type="text"
-                placeholder="Search vendor, mobile or cab number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg outline-none text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 custom-scrollbar shadow-inner">
-            <table className="w-full border-collapse min-w-[1100px] md:min-w-full">
-              <thead>
-                <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Vendor</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Contact No</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Cab Number</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Model</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredVehicles.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-20 text-center uppercase font-black italic text-slate-400">No vehicles found</td>
-                  </tr>
-                ) : (
-                  filteredVehicles.map((vehicle) => (
-                    <tr key={vehicle._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
-                            {getInitials(vehicle.vendor?.vendorName || 'V')}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate">{vehicle.vendor?.vendorName || '-'}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
-                        {vehicle.vendor?.mobile || '-'}
-                      </td>
-                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
-                        {vehicle.vendor?.email || '-'}
-                      </td>
-                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
-                        {vehicle.cabNumber}
-                      </td>
-                      <td className="px-6 py-1 text-sm font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <p className="uppercase tracking-tighter">{vehicle.modelName}</p>
-                          {vehicle.manufacturingNo && (
-                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 rounded border border-emerald-100 dark:border-emerald-800">
-                              {vehicle.manufacturingNo}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
-                        <span className={`
-                        px-2 py-0.5 rounded text-sm font-bold uppercase tracking-widest border inline-block min-w-[95px]
-                        ${vehicle.status === 'active' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
-                            'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30'}
-                      `}>
-                          {vehicle.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-1.5 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button onClick={() => openEditModal(vehicle)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all active:scale-95">
-                            <HiPencil className="w-5 h-5" />
-                          </button>
-                          <button onClick={() => handleDelete(vehicle._id, vehicle.cabNumber)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all active:scale-95">
-                            <HiTrash className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-            {/* Standardized Administrative Table Footer */}
-            <div className="px-6 py-2 border-t border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-end gap-4 sticky bottom-0 z-20 backdrop-blur-md">
-
-              <div className="flex items-center gap-4 md:gap-8">
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Rows per page:</span>
-                  <div className="relative group">
-                    <select className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1 text-[11px] font-black text-slate-800 dark:text-slate-200 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/20 transition-all pr-8">
-                      <option value="100">100</option>
-                      <option value="50">50</option>
-                      <option value="25">25</option>
-                    </select>
-                    <HiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-indigo-500 transition-colors" />
-                  </div>
-                </div>
-
-                <div className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                  1-{Math.min(100, filteredVehicles.length)} of {filteredVehicles.length}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button className="p-1.5 hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow" disabled>
-                    <HiChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button className="p-1.5 hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow" disabled={filteredVehicles.length <= 100}>
-                    <HiChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-        </div>
+        {/* Main Content using CustomTable */}
+        <CustomTable
+          rows={filteredVehicles}
+          columns={vehicleColumns}
+          getRowId={(row) => row._id}
+          height="calc(100vh - 110px)"
+          title="Vehicles List"
+          rowCount={filteredVehicles.length}
+          onSearch={setSearchTerm}
+          extraToolbarContent={
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
+            >
+              <option value="all">ALL STATUS</option>
+              <option value="active">ACTIVE</option>
+              <option value="inactive">INACTIVE</option>
+              <option value="maintenance">MAINTENANCE</option>
+            </select>
+          }
+        />
 
         {/* Modal Form */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10" onClick={closeModal}>
-            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
-              <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center">
-                <h2 className="text-xl font-bold">
-                  {editingVehicle
-                    ? "Edit Vendor & Cab"
-                    : "Add New Vendor & Cab"}
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10 overflow-y-auto subtle-scrollbar" onClick={closeModal}>
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-5xl my-8" style={{ borderRadius: '0.5rem' }} onClick={(e) => e.stopPropagation()}>
+              <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                  {editingVehicle ? "Edit Vendor & Cab" : "Add New Vendor & Cab"}
                 </h2>
                 <button
                   onClick={closeModal}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                 >
-                  <HiX className="text-2xl" />
+                  <HiXMark className="text-2xl" />
                 </button>
               </div>
 
@@ -518,7 +432,7 @@ export default function VehiclesPage() {
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     Vendor Information
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vendor Name <span className="text-red-500 ml-1">*</span></label>
                       <input type="text" required value={formData.vendor?.vendorName || ''} onChange={e => setFormData(prev => ({ ...prev, vendor: { ...(prev.vendor ?? defaultVendorValues), vendorName: e.target.value } }))} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
@@ -551,9 +465,9 @@ export default function VehiclesPage() {
                       <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">PAN Number <span className="text-red-500 ml-1">*</span></label>
                       <input type="text" required value={formData.vendor?.pan || ''} onChange={e => setFormData(prev => ({ ...prev, vendor: { ...(prev.vendor ?? defaultVendorValues), pan: e.target.value } }))} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Email</label>
-                      <input type="email" required value={formData.vendor?.email || ''} onChange={e => setFormData(prev => ({ ...prev, vendor: { ...(prev.vendor ?? defaultVendorValues), email: e.target.value } }))} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Email Address</label>
+                      <input type="email" value={formData.vendor?.email || ''} onChange={e => setFormData(prev => ({ ...prev, vendor: { ...(prev.vendor ?? defaultVendorValues), email: e.target.value } }))} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
                     </div>
                   </div>
                 </div>
@@ -563,7 +477,7 @@ export default function VehiclesPage() {
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     Cab Details
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Cab Number <span className="text-red-500 ml-1">*</span></label>
                       <input type="text" required value={formData.cabNumber || ''} onChange={e => setFormData({ ...formData, cabNumber: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
@@ -722,4 +636,3 @@ export default function VehiclesPage() {
     </div>
   );
 }
-
