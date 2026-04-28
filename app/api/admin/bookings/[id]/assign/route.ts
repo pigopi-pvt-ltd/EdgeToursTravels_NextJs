@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Booking from '@/models/Booking';
-import Notification from '@/models/Notification';
 import User from '@/models/User';
 import Vehicle from '@/models/Vehicle';
 import { verifyAdmin, unauthorizedResponse, forbiddenResponse } from '@/lib/admin-auth';
+import { sendNotification } from '@/lib/notifications';
 
 export async function POST(
   req: NextRequest,
@@ -38,23 +38,24 @@ export async function POST(
   await booking.save();
 
   // Notify driver
-  await Notification.create({
-    userId: driverId,
-    bookingId: booking._id,
+  await sendNotification({
+    userId: driverId.toString(),
+    bookingId: booking._id.toString(),
+    type: 'driver_assigned',
     title: 'New Trip Assignment',
     message: `You have been assigned a trip from ${booking.from} to ${booking.destination} on ${new Date(booking.dateTime).toLocaleString()}. Vehicle: ${vehicle ? vehicle.cabNumber : 'Not specified'}. Please accept or reject.`,
-    type: 'driver_assigned',
-    metadata: { bookingFrom: booking.from, bookingTo: booking.destination, vehicleId },
+    metadata: { bookingFrom: booking.from, bookingTo: booking.destination, vehicleId: vehicleId?.toString() },
   });
 
   // Notify customer if exists
   if (booking.userId) {
-    await Notification.create({
-      userId: booking.userId,
-      bookingId: booking._id,
+    await sendNotification({
+      userId: booking.userId.toString(),
+      bookingId: booking._id.toString(),
+      type: 'driver_assigned',
       title: 'Driver and Vehicle Assigned',
       message: `A driver and vehicle (${vehicle ? vehicle.cabNumber : 'TBD'}) have been assigned to your trip.`,
-      type: 'driver_assigned',
+      metadata: { driverName: driver.name, vehicleNumber: vehicle?.cabNumber },
     });
   }
 

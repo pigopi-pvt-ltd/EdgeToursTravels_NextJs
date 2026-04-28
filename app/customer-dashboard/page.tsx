@@ -26,6 +26,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationBell from '@/components/NotificationBell';
 
 interface Booking {
   _id: string;
@@ -40,9 +42,27 @@ export default function CustomerDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
+  const { unreadCount, refresh: refreshNotifications } = useNotifications();
 
   useEffect(() => {
     fetchBookings();
+  }, []);
+
+  // Auto‑refresh when a booking status changes (new notification arrives)
+  useEffect(() => {
+    const handleNewNotification = (event: CustomEvent) => {
+      const { notification } = event.detail;
+      if (notification?.type === 'booking_created' ||
+          notification?.type === 'trip_accepted' ||
+          notification?.type === 'trip_rejected' ||
+          notification?.type === 'trip_completed' ||
+          notification?.type === 'trip_cancelled' ||
+          notification?.type === 'driver_assigned') {
+        fetchBookings();
+      }
+    };
+    window.addEventListener('new-notification', handleNewNotification as EventListener);
+    return () => window.removeEventListener('new-notification', handleNewNotification as EventListener);
   }, []);
 
   const fetchBookings = async () => {
@@ -89,13 +109,20 @@ export default function CustomerDashboard() {
   };
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="flex justify-end p-2">
+          <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
+        <DashboardSkeleton />
+      </div>
+    );
   }
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
-        {/* Header Toolbar */}
+        {/* Header Toolbar with Notification Bell */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
             <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
@@ -110,6 +137,7 @@ export default function CustomerDashboard() {
               <HiArrowPath className="text-sm" />
               Refresh
             </button>
+            <NotificationBell />
           </div>
         </div>
 

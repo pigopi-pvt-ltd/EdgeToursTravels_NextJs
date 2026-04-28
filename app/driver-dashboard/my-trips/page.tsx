@@ -16,6 +16,8 @@ import {
   HiOutlineCheckBadge,
   HiOutlineExclamationCircle,
 } from 'react-icons/hi2';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationBell from '@/components/NotificationBell';
 
 interface Booking {
   _id: string;
@@ -36,8 +38,26 @@ export default function MyTripsPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'>('all');
 
+  const { unreadCount } = useNotifications();
+
   useEffect(() => {
     fetchBookings();
+  }, []);
+
+  // Auto‑refresh when a new trip assignment or status update arrives
+  useEffect(() => {
+    const handleNewNotification = (event: CustomEvent) => {
+      const { notification } = event.detail;
+      if (notification?.type === 'driver_assigned' ||
+          notification?.type === 'trip_accepted' ||
+          notification?.type === 'trip_rejected' ||
+          notification?.type === 'trip_completed' ||
+          notification?.type === 'trip_cancelled') {
+        fetchBookings();
+      }
+    };
+    window.addEventListener('new-notification', handleNewNotification as EventListener);
+    return () => window.removeEventListener('new-notification', handleNewNotification as EventListener);
   }, []);
 
   const fetchBookings = async () => {
@@ -121,6 +141,9 @@ export default function MyTripsPage() {
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
+        <div className="flex justify-end p-2">
+          <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800/50 rounded-2xl"></div>
@@ -144,6 +167,15 @@ export default function MyTripsPage() {
         </div>
       )}
 
+      {/* Header with title and notification bell */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">My Trips</h1>
+          <p className="text-sm text-slate-500">Manage your assigned trips</p>
+        </div>
+        <NotificationBell />
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title="Total Trips" value={stats.total} icon={<HiOutlineClipboard className="w-6 h-6" />} color="indigo" />
@@ -152,7 +184,7 @@ export default function MyTripsPage() {
         <StatCard title="Completed" value={stats.completed} icon={<HiOutlineCheckBadge className="w-6 h-6" />} color="emerald" />
       </div>
 
-      {/* Filter Tabs + Refresh Button on the right */}
+      {/* Filter Tabs + Refresh Button */}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
         <div className="flex flex-wrap gap-2">
           {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (

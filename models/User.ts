@@ -44,6 +44,7 @@ export interface IEmployeeDetails extends IAddress {
 }
 
 export interface IUser extends mongoose.Document {
+  profilePhoto?: string;
   email?: string;
   password: string;
   mobileNumber: string;
@@ -107,6 +108,7 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
 
 const UserSchema = new Schema<IUser>(
   {
+    profilePhoto: { type: String },
     email: {
       type: String,
       required: false,

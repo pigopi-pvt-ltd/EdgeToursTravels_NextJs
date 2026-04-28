@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   HiUser,
   HiMail,
@@ -16,6 +16,7 @@ import {
   HiCheckCircle,
   HiArrowRight,
   HiX,
+  HiCamera,
 } from "react-icons/hi";
 import { getAuthToken } from "@/lib/auth";
 
@@ -44,27 +45,59 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const token = getAuthToken();
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/user/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setUser(data);
-          setEditName(data.name || "");
-        }
-      } catch (err) {
-        console.error("Failed to load profile", err);
-      } finally {
-        setLoading(false);
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch("/api/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data);
+        setEditName(data.name || "");
       }
+    } catch (err) {
+      console.error("Failed to load profile", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchProfile();
   }, []);
+
+  const uploadPhoto = async (file: File) => {
+    const formData = new FormData();
+    formData.append("profilePhoto", file);
+    setUploading(true);
+    try {
+      const res = await fetch("/api/user/profile/photo", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser((prev: any) => ({ ...prev, profilePhoto: data.profilePhoto }));
+      } else {
+        alert("Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading photo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadPhoto(file);
+  };
 
   const handleUpdateName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +135,12 @@ export default function ProfilePage() {
       </div>
     );
 
+  const profilePhoto = user.profilePhoto
+    ? user.profilePhoto.startsWith("http")
+      ? user.profilePhoto
+      : user.profilePhoto
+    : null;
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
       {message && (
@@ -112,15 +151,42 @@ export default function ProfilePage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 p-2 md:p-4">
-        {/* LEFT COLUMN: User Summary Card */}
+        {/*  User Summary Card */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-lg p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 text-center">
-            <div className="relative inline-block">
-              <div className="w-32 h-32 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-6 mx-auto transform ">
-                <span className="-rotate-3">{user.name?.charAt(0) || "U"}</span>
-              </div>
+            <div className="relative inline-block group">
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-3xl object-cover shadow-lg mb-6 mx-auto"
+                />
+              ) : (
+                <div className="w-32 h-32 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-6 mx-auto">
+                  <span className="-rotate-3">{user.name?.charAt(0) || "U"}</span>
+                </div>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-full p-2 shadow-md hover:bg-slate-100 transition disabled:opacity-50"
+                title="Change photo"
+              >
+                {uploading ? (
+                  <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <HiCamera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
               <div
-                className="absolute -bottom-2 -right-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"
+                className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"
                 title="Online"
               ></div>
             </div>
@@ -153,10 +219,11 @@ export default function ProfilePage() {
                     {user.role}
                   </span>
                   <span
-                    className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest ${user.kycStatus === "approved"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-amber-100 text-amber-700"
-                      }`}
+                    className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest ${
+                      user.kycStatus === "approved"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
                   >
                     KYC: {user.kycStatus || "N/A"}
                   </span>
@@ -201,7 +268,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Detailed Info */}
+        {/*  Detailed Info */}
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Communication Details */}
@@ -210,9 +277,7 @@ export default function ProfilePage() {
               <InfoItem label="Mobile Number" value={user.mobileNumber} />
               <InfoItem
                 label="Registration Date"
-                value={new Date(
-                  user.createdAt || Date.now(),
-                ).toLocaleDateString()}
+                value={new Date(user.createdAt || Date.now()).toLocaleDateString()}
               />
             </SectionWrapper>
 
@@ -237,8 +302,7 @@ export default function ProfilePage() {
           <section className="bg-white dark:bg-slate-900 rounded-lg p-8 shadow-sm border border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between mb-8">
               <h3 className="flex items-center gap-3 text-xl font-bold text-slate-800 dark:text-white">
-                <HiShieldCheck className="text-emerald-500 text-2xl" /> Driver 
-                Verification
+                <HiShieldCheck className="text-emerald-500 text-2xl" /> Driver Verification
               </h3>
               <span className="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-lg">
                 <HiCheckCircle /> Secure
@@ -296,7 +360,7 @@ export default function ProfilePage() {
   );
 }
 
-// Sub-components for cleaner code
+// Sub-components 
 function SectionWrapper({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm border border-slate-100 dark:border-slate-800">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   HiUser,
   HiMail,
@@ -15,6 +15,7 @@ import {
   HiClock,
   HiCheckCircle,
   HiArrowRight,
+  HiCamera,
 } from "react-icons/hi";
 import { getAuthToken, getStoredUser } from "@/lib/auth";
 
@@ -22,36 +23,66 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [employeeDetails, setEmployeeDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const token = getAuthToken();
   const storedUser = getStoredUser();
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        // Fetch basic user info
-        const res = await fetch("/api/user/profile", {
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch("/api/user/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const userData = await res.json();
+      if (!res.ok) throw new Error(userData.error);
+      setUser(userData);
+
+      if (storedUser?.role === "employee") {
+        const empRes = await fetch("/api/user/employee-details", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const userData = await res.json();
-        if (!res.ok) throw new Error(userData.error);
-        setUser(userData);
-
-        // If employee, fetch employee details
-        if (storedUser?.role === "employee") {
-          const empRes = await fetch("/api/user/employee-details", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const empData = await empRes.json();
-          if (empRes.ok) setEmployeeDetails(empData);
-        }
-      } catch (err) {
-        console.error("Failed to load profile", err);
-      } finally {
-        setLoading(false);
+        const empData = await empRes.json();
+        if (empRes.ok) setEmployeeDetails(empData);
       }
+    } catch (err) {
+      console.error("Failed to load profile", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchProfile();
   }, []);
+
+  const uploadPhoto = async (file: File) => {
+    const formData = new FormData();
+    formData.append("profilePhoto", file);
+    setUploading(true);
+    try {
+      const res = await fetch("/api/user/profile/photo", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser((prev: any) => ({ ...prev, profilePhoto: data.profilePhoto }));
+      } else {
+        alert("Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading photo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadPhoto(file);
+  };
 
   if (loading)
     return (
@@ -62,22 +93,54 @@ export default function ProfilePage() {
   if (!user)
     return <div className="p-10 text-center">User session expired. Please log in.</div>;
 
-  // Determine which details to show based on role
   const role = storedUser?.role;
   const isEmployee = role === "employee";
   const details = isEmployee ? employeeDetails : null;
+  
+  const profilePhoto = user.profilePhoto
+    ? user.profilePhoto.startsWith("http")
+      ? user.profilePhoto
+      : user.profilePhoto
+    : null;
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 p-2 md:p-4">
-        {/* LEFT COLUMN: User Summary Card */}
+        {/*  User Summary Card */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-lg p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 text-center">
-            <div className="relative inline-block">
-              <div className="w-32 h-32 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-6 mx-auto transform">
-                <span className="-rotate-3">{user.name?.charAt(0) || "U"}</span>
-              </div>
-              <div className="absolute -bottom-2 -right-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full" title="Online"></div>
+            <div className="relative inline-block group">
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-3xl object-cover shadow-lg mb-6 mx-auto"
+                />
+              ) : (
+                <div className="w-32 h-32 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-3xl flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-6 mx-auto">
+                  <span className="-rotate-3">{user.name?.charAt(0) || "U"}</span>
+                </div>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-full p-2 shadow-md hover:bg-slate-100 transition disabled:opacity-50"
+                title="Change photo"
+              >
+                {uploading ? (
+                  <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <HiCamera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              {/* <div className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full" title="Online"></div> */}
             </div>
 
             <h1 className="text-2xl font-black text-slate-800 dark:text-white leading-tight">
@@ -102,7 +165,7 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          {/* Quick Stats (static, as in your design) */}
+          {/* Quick Stats */}
           <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">
               Quick Stats
@@ -132,7 +195,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Detailed Info */}
+        {/*  Detailed Info */}
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Communication Card */}
@@ -147,7 +210,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Role-Specific Card (Employee) */}
+            {/* Employment Details Card */}
             {isEmployee && details && (
               <div className="bg-white dark:bg-slate-900 rounded-lg p-6 shadow-sm border border-slate-100 dark:border-slate-800">
                 <h3 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-6">
@@ -219,7 +282,7 @@ export default function ProfilePage() {
   );
 }
 
-// Helper components
+// Helper components 
 function InfoItem({ label, value, icon }: { label: string; value: any; icon?: React.ReactNode }) {
   return (
     <div className="group">
