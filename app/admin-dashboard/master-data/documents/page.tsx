@@ -203,7 +203,7 @@ export default function DocumentConfigPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8">
-      <div className="bg-white dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors">
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-40 backdrop-blur-md bg-opacity-90 min-h-[56px]">
           <h2 className="text-sm md:text-xl font-extrabold text-slate-800 dark:text-white uppercase tracking-tighter">
             Document Configurations

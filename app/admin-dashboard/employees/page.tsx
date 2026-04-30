@@ -402,7 +402,7 @@ export default function EmployeesPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen transition-colors duration-300">
         {/* Header Toolbar matched to Bookings Page */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
@@ -458,13 +458,8 @@ export default function EmployeesPage() {
             }
           />
         </div>
-      </div>
-    </div>
-      </div >
-
-    {/* Add User Modal */ }
-  {
-    isModalOpen && (
+      {/* Add User Modal */}
+      {isModalOpen && (
       <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200 pt-10" onClick={() => setIsModalOpen(false)}>
         <div className="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl animate-in slide-in-from-bottom-10 duration-300 subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={e => e.stopPropagation()}>
           <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
@@ -585,12 +580,13 @@ export default function EmployeesPage() {
     )
   }
 
-  {/* User Details Modal */ }
-  {
+      {/* User Details Modal */}
+      {
     selectedUserId && (
       <UserDetailsModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} onUpdate={fetchUsers} />
     )
   }
-    </div >
-  );
+    </div>
+  </div>
+);
 }

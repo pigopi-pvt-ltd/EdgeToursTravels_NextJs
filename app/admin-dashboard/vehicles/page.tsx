@@ -244,10 +244,10 @@ export default function VehiclesPage() {
       valueGetter: (value, row) => row.vendor?.vendorName,
       renderCell: (params: any) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-[10px] ring-1 ring-slate-100 dark:ring-slate-600">
+          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold text-[10px] ring-1 ring-slate-100 dark:ring-slate-600">
             {getInitials(params.value || 'V')}
           </div>
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{params.value || '-'}</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{params.value || '-'}</span>
         </div>
       )
     },
@@ -256,14 +256,14 @@ export default function VehiclesPage() {
       headerName: 'CONTACT NO',
       width: 130,
       valueGetter: (value, row) => row.vendor?.mobile,
-      renderCell: (params: any) => <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{params.value || '-'}</span>
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-900 dark:text-white">{params.value || '-'}</span>
     },
     {
       field: 'email',
       headerName: 'EMAIL ADDRESS',
       width: 180,
       valueGetter: (value, row) => row.vendor?.email,
-      renderCell: (params: any) => <span className="text-xs font-medium text-slate-500 lowercase">{params.value || '-'}</span>
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-900 dark:text-white lowercase">{params.value || '-'}</span>
     },
     {
       field: 'cabNumber',
@@ -271,30 +271,33 @@ export default function VehiclesPage() {
       width: 130,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params: any) => <span className="text-sm font-black uppercase tracking-tighter text-indigo-600 dark:text-indigo-400">{params.value}</span>
+      renderCell: (params: any) => <span className="text-sm font-bold uppercase tracking-tighter text-slate-900 dark:text-white">{params.value}</span>
     },
     {
       field: 'modelName',
       headerName: 'MODEL',
       width: 150,
-      renderCell: (params: any) => (
-        <div className="flex flex-col leading-tight">
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase">{params.value}</span>
-          <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">YEAR: {params.row.yearOfMaking}</span>
-        </div>
-      )
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-900 dark:text-white uppercase">{params.value}</span>
+    },
+    {
+      field: 'yearOfMaking',
+      headerName: 'YEAR OF MODEL',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest">{params.value || '-'}</span>
     },
     {
       field: 'tacNo',
       headerName: 'TAC NO',
       width: 110,
-      renderCell: (params: any) => <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{params.value || '-'}</span>
+      renderCell: (params: any) => <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{params.value || '-'}</span>
     },
     {
       field: 'gstNo',
       headerName: 'GST NO',
       width: 140,
-      renderCell: (params: any) => <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{params.value || '-'}</span>
+      renderCell: (params: any) => <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{params.value || '-'}</span>
     },
     {
       field: 'status',
@@ -358,11 +361,11 @@ export default function VehiclesPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 flex flex-col">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 flex flex-col">
         {/* Header Toolbar */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2 md:py-1.5 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
-            <h2 className="text-[13px] md:text-xl font-black text-emerald-600 uppercase tracking-tighter truncate flex items-center gap-1.5">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter truncate flex items-center gap-1.5">
               Vehicles & Vendors <span className="text-black dark:text-white font-normal font-bold pl-1 pr-1 hidden sm:inline">({filteredVehicles.length})</span>
             </h2>
           </div>

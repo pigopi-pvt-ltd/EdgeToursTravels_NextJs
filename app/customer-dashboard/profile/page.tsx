@@ -100,7 +100,7 @@ export default function ProfilePage() {
     );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300 font-sf">
       {message && (
         <div className="sticky top-16 z-50 p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border-b border-emerald-200 dark:border-emerald-800 font-medium text-sm flex justify-between items-center backdrop-blur-md">
           <span>{message}</span>

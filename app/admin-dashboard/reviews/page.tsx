@@ -130,7 +130,7 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 transition-colors">
       {/* Sticky Header Toolbar - Edge-to-Edge */}
       <div className="sticky top-0 z-40 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md min-h-[56px]">
         <div className="flex items-center gap-4">
@@ -168,7 +168,7 @@ export default function ReviewsPage() {
           /* Grid View - Edge-to-Edge border structure (approx 440px height) */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-x divide-y divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 transition-all duration-500">
             {reviews.map((review) => (
-              <div key={review._id} className="p-10 h-[440px] bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group flex flex-col relative">
+              <div key={review._id} className="p-10 h-[440px] bg-slate-50 dark:bg-[#0A1128] hover:bg-white dark:hover:bg-slate-800/40 transition-all group flex flex-col relative">
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex flex-col">
                     <h3 className="font-black text-slate-800 dark:text-white uppercase tracking-tight text-lg group-hover:text-emerald-600 transition-colors">{review.customerName}</h3>

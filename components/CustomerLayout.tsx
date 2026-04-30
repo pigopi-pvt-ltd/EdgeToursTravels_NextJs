@@ -35,7 +35,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] flex font-sf">
       <CustomerSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}

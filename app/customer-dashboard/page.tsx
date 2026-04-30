@@ -94,7 +94,7 @@ export default function CustomerDashboard() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
         {/* Header Toolbar */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
@@ -114,12 +114,6 @@ export default function CustomerDashboard() {
         </div>
 
         <div className="p-4 md:p-6 lg:p-8 space-y-8">
-          {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-slate-800 to-indigo-900 rounded-2xl p-8 text-white shadow-xl shadow-slate-900/20">
-            <h1 className="text-2xl md:text-4xl font-black tracking-tight">Welcome back, {user?.name || 'Guest'}! 👋</h1>
-            <p className="text-slate-300 mt-2 font-medium">Track your rides and book new trips easily from your personalized dashboard.</p>
-          </div>
-
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard title="Total Trips" value={bookings.length} icon={<HiOutlineClipboard className="w-5 h-5 md:w-6 md:h-6" />} color="indigo" />

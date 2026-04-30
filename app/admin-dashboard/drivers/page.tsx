@@ -425,7 +425,8 @@ export default function DriversPage() {
     {
       field: 'email',
       headerName: 'EMAIL',
-      width: 180,
+      width: 200,
+      renderCell: (params: any) => <span className="text-sm font-bold text-slate-900 dark:text-white lowercase">{params.value || '-'}</span>
     },
     {
       field: 'licenseInfo',
@@ -599,7 +600,7 @@ export default function DriversPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen transition-colors duration-300">
         {message && (
           <div className={`mb-6 p-4 rounded-xl text-sm flex items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300 ${message.includes('successfully') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-400 border border-rose-100 dark:border-rose-800'
             }`}>

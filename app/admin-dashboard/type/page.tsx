@@ -12,6 +12,10 @@ import {
   HiClock,
   HiStar,
 } from "react-icons/hi";
+import { HiArrowPath } from "react-icons/hi2";
+import CustomTable from "@/components/CustomTable";
+import { GridColDef } from "@mui/x-data-grid";
+import { IconButton } from "@mui/material";
 
 interface Customer {
   _id: string;
@@ -59,6 +63,104 @@ export default function CustomersPage() {
     pickupMinute: "00",
     dateOfBirth: "",
   });
+
+  // Column definitions for CustomTable
+  const customerColumns: GridColDef[] = [
+    {
+      field: 'fullName',
+      headerName: 'CUSTOMER',
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params) => (
+        <div className="flex items-center gap-3 h-full">
+          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold text-[10px] ring-1 ring-slate-100 dark:ring-slate-600">
+            {getInitials(params.value || 'C')}
+          </div>
+          <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{params.value || '-'}</span>
+        </div>
+      ),
+    },
+    {
+      field: 'mobileNumber',
+      headerName: 'MOBILE NUMBER',
+      width: 150,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{params.value || '-'}</span>
+      ),
+    },
+    {
+      field: 'email',
+      headerName: 'EMAIL ADDRESS',
+      width: 220,
+      renderCell: (params) => (
+        <span className="text-sm font-bold text-slate-900 dark:text-white lowercase">{params.value || '-'}</span>
+      ),
+    },
+    {
+      field: 'isRegular',
+      headerName: 'TYPE',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const isRegular = params.value;
+        return (
+          <span className={`px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px] text-center
+            ${isRegular ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' : 'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}`}>
+            {isRegular ? 'REGULAR' : 'ONE-TIME'}
+          </span>
+        );
+      },
+    },
+    {
+      field: 'pickupTime',
+      headerName: 'PICKUP TIME',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const time = params.value;
+        return (
+          <span className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tighter">
+            {time ? `${time.hour.toString().padStart(2, "0")}:${time.minute.toString().padStart(2, "0")}` : "--:--"}
+          </span>
+        );
+      },
+    },
+    {
+      field: 'actions',
+      headerName: 'ACTIONS',
+      width: 120,
+      headerAlign: 'center',
+      align: 'center',
+      sortable: false,
+      renderCell: (params) => (
+        <div className="flex items-center justify-center gap-2 h-full">
+          <IconButton
+            size="small"
+            onClick={() => handleEdit(params.row)}
+            className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+          >
+            <HiPencil className="text-lg" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => confirmDelete(params.row)}
+            disabled={deletingId === params.row._id}
+            className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full hover:bg-red-600 hover:text-white transition-all shadow-sm"
+          >
+            {deletingId === params.row._id ? (
+              <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <HiTrash className="text-lg" />
+            )}
+          </IconButton>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     fetchCustomers();
@@ -311,7 +413,7 @@ export default function CustomersPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-screen transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen transition-colors duration-300">
         {/* Messages */}
         {message && (
           <div className={`mb-6 p-4 rounded-xl text-sm flex items-center justify-between gap-4 animate-in slide-in-from-top-2 duration-300 ${message.includes('successfully') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-400 border border-rose-100 dark:border-rose-800'
@@ -332,115 +434,42 @@ export default function CustomersPage() {
               Customer Directory <span className="text-black dark:text-white font-normal hidden sm:inline">({filtered.length})</span>
             </h2>
           </div>
-          <button
-            onClick={() => { resetForm(); setIsModalOpen(true); }}
-            className="flex-shrink-0 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"
-          >
-            <HiPlus className="text-lg" /> Add Customer
-          </button>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchCustomers}
+              className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
+            <button
+              onClick={() => { resetForm(); setIsModalOpen(true); }}
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"
+            >
+              <HiPlus className="text-lg" /> Add Customer
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
         <div>
-          {/* Search Area */}
-          <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <div className="relative max-w-md">
-              <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
-              <input
-                type="text"
-                placeholder="Search by name, email or mobile..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-400 dark:focus:border-indigo-700 outline-none text-sm dark:text-white"
-              />
-            </div>
-          </div>
-
-          {/* Stats Bar (Optional, but kept for context if needed, though removed for closer driver page match) */}
-          <div className="px-6 py-2 bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-              <HiStar className="text-lg" />
-              REGULAR CLIENTS: {customers.filter((c) => c.isRegular).length}
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Customer</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Mobile Number</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Email Address</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Type</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest">Pickup Time</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
-                {filtered.map((c, idx) => (
-                  <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-700">
-                    <td className="px-6 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs ring-1 ring-slate-100 dark:ring-slate-600">
-                          {getInitials(c.fullName)}
-                        </div>
-                        <div className="font-bold text-slate-800 dark:text-slate-200">{c.fullName || '-'}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center uppercase tracking-tighter">
-                      {c.mobileNumber || '-'}
-                    </td>
-                    <td className="px-6 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 text-center">
-                      {c.email || '-'}
-                    </td>
-                    <td className="px-6 py-1.5 border-r border-slate-200 dark:border-slate-700 text-center">
-                      <span className={`
-                        px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-widest border inline-block min-w-[90px]
-                        ${c.isRegular ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' : 'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}
-                      `}>
-                        {c.isRegular ? 'REGULAR' : 'ONE-TIME'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-1.5 text-sm text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700 text-center font-bold uppercase tracking-tighter">
-                      {c.pickupTime
-                        ? `${c.pickupTime.hour.toString().padStart(2, "0")}:${c.pickupTime.minute.toString().padStart(2, "0")}`
-                        : "--:--"}
-                    </td>
-                    <td className="px-6 py-1.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => handleEdit(c)} className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all duration-200" title="Edit Customer">
-                          <HiPencil className="text-xl" />
-                        </button>
-                        <button
-                          onClick={() => confirmDelete(c)}
-                          disabled={deletingId === c._id}
-                          className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all duration-200 disabled:opacity-50"
-                          title="Delete Customer"
-                        >
-                          {deletingId === c._id ? (
-                            <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <HiTrash className="text-xl" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <div className="text-slate-300 dark:text-slate-700 text-5xl mb-3">👥</div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium italic">No customers found</p>
+          <CustomTable
+            rows={filtered}
+            columns={customerColumns}
+            getRowId={(row) => row._id}
+            height="calc(100vh - 110px)"
+            title="Customer Directory"
+            rowCount={filtered.length}
+            onSearch={setSearchTerm}
+            extraToolbarContent={
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                  <HiStar className="text-lg" />
+                  REGULAR CLIENTS: {customers.filter((c) => c.isRegular).length}
+                </div>
               </div>
-            )}
-          </div>
-          <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
-            <span>Total customers: {customers.length}</span>
-            <span>Showing {filtered.length} of {customers.length}</span>
-          </div>
+            }
+          />
         </div>
       </div>
 

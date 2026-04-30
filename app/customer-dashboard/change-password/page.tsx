@@ -60,7 +60,7 @@ function ChangePasswordPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
         {/* Toast Notification */}
         {toast && (
           <div className={`fixed top-0 left-1/2 -translate-x-1/2 z-[100] px-8 py-4 rounded-b-2xl shadow-2xl text-white font-extrabold flex items-center gap-3 ${toast.type === 'success' ? 'bg-green-600 shadow-green-500/20' : 'bg-red-600 shadow-red-500/20'} animate-in slide-in-from-top-full fade-in duration-500 whitespace-nowrap`}>

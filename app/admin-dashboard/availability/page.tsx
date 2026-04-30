@@ -356,7 +356,7 @@ export default function AvailabilityPage() {
 
   if (loading && events.length === 0) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
         <div className="sticky top-16 h-14 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b">
           <div className="h-6 w-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
           <div className="h-9 w-28 bg-slate-200 dark:bg-slate-700 rounded"></div>
@@ -372,7 +372,7 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors">
       {/* Toast */}
       {toast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] animate-in slide-in-from-top-4">
@@ -588,7 +588,7 @@ export default function AvailabilityPage() {
             border: 1px solid #e2e8f0 !important;
             border-radius: 12px !important;
             overflow: hidden !important;
-            background: white !important;
+            background: transparent !important;
           }
           .fc-theme-standard td, .fc-theme-standard th {
             border: 1px solid #e2e8f0 !important;

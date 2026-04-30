@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function MasterDataPage() {
   return (
     <div className="-m-4 sm:-m-8">
-      <div className="bg-white dark:bg-[#0A1128] min-h-[calc(100vh-64px)] border-b border-slate-200 dark:border-slate-800 transition-colors">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] border-b border-slate-200 dark:border-slate-800 transition-colors font-sf">
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-16 z-30 min-h-[56px]">
           <h1 className="text-sm md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
             Master Data Management <span className="text-black dark:text-white font-normal">(4)</span>
