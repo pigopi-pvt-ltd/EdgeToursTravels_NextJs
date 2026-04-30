@@ -148,28 +148,29 @@ export default function SupportPage() {
   }
 
   return (
-    <div
-      className="h-[calc(100vh-100px)] rounded-xl overflow-hidden flex flex-col"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-    >
-      {/* ── Top bar ── */}
-      <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <HiChatAlt2 className="text-white text-sm" />
+    <div className="w-full h-[calc(150vh-150px)] overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-xl shadow-sm">
+      {/* ── Top bar  ── */}
+      <div className="flex-shrink-0 flex items-center justify-between px-6 md:px-8 py-4 md:py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-red-600 flex items-center justify-center shadow-md">
+            <HiChatAlt2 className="text-white text-xl md:text-2xl" />
           </div>
           <div>
-            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-slate-400 dark:text-slate-500 leading-none">Support</p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Help Desk</p>
+            <p className="text-2xl md:text-3xl font-black tracking-[0.18em] uppercase text-red-600 dark:text-red-400 leading-none">
+              Support
+            </p>
+            <p className="text-sm md:text-base font-bold text-slate-900 dark:text-white leading-tight mt-1">
+              Help Desk
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm">
           {['open','in-progress','resolved'].map((s) => {
             const cfg = getStatusConfig(s);
             const count = tickets.filter(t => t.status === s).length;
             return (
-              <span key={s} className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold ${cfg.color}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${cfg.bar}`}></span>
+              <span key={s} className="hidden sm:flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1 md:py-1.5 rounded-full font-bold border">
+                <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${cfg.bar}`}></span>
                 {count} {cfg.label}
               </span>
             );
@@ -180,7 +181,7 @@ export default function SupportPage() {
       {/* ── Body ── */}
       <div className="flex flex-1 min-h-0 bg-slate-50 dark:bg-slate-950">
 
-        {/* ── LEFT: Ticket list ── */}
+        {/* ── Ticket list ── */}
         <div
           className={`
             ${mobileListOpen && selectedTicket ? 'hidden' : 'flex'}

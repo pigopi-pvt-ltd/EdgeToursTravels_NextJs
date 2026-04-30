@@ -41,6 +41,7 @@ export interface IEmployeeDetails extends IAddress {
   aadharFront?: string;
   aadharBack?: string;
   panImage?: string;
+  modules?: string[];   
 }
 
 export interface IUser extends mongoose.Document {
@@ -104,6 +105,7 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
   aadharFront: String,
   aadharBack: String,
   panImage: String,
+  modules: { type: [String], default: [] },   
 });
 
 const UserSchema = new Schema<IUser>(
@@ -141,9 +143,5 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string) 
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Delete existing model to force recompilation with new schema
-if (mongoose.models.User) {
-  delete mongoose.models.User;
-}
-
+if (mongoose.models.User) delete mongoose.models.User;
 export default mongoose.model<IUser>("User", UserSchema);
