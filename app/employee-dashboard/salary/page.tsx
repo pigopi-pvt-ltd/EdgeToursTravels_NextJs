@@ -135,31 +135,26 @@ export default function SalaryPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header – bolder and slightly larger */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-white tracking-tight">
+      {/* Header Toolbar - Admin Dashboard Style (Single Line) */}
+      <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 mb-8 transition-all">
+        <div className="min-w-0 flex items-center gap-2">
+          <h2 className="text-[14px] md:text-xl font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tight truncate">
             Salary
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Payslip</p>
+          </h2>
+          <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest border-l border-slate-300 dark:border-slate-600 pl-2">
+            Payslip
+          </span>
         </div>
 
         <button
           onClick={downloadPDF}
-          className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors print:hidden shadow-sm"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm transition-all shadow-sm active:scale-95 flex items-center gap-1.5 print:hidden"
         >
-          <svg
-            className="w-4 h-4"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M8 1v9M4 7l4 4 4-4M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" />
+          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
-          Download PDF
+          <span className="hidden sm:inline">Download PDF</span>
+          <span className="sm:hidden">PDF</span>
         </button>
       </div>
 

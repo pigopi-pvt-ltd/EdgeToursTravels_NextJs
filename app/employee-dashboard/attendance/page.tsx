@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { getAuthToken } from '@/lib/auth';
+import { HiArrowPath } from 'react-icons/hi2';
 
 interface AttendanceRecord {
   _id: string;
@@ -41,12 +42,27 @@ function formatShortDate(iso: string): string {
 }
 
 // ─── Stat Tile ────────────────────────────────────────────────────────────────
-function StatTile({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+function StatTile({ label, value, sub, color = 'indigo' }: { label: string; value: string | number; sub: string; color?: string }) {
+  const colorClasses: Record<string, string> = {
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+    rose: 'from-rose-50 to-rose-100 dark:from-rose-950/30 dark:to-rose-900/20 text-rose-600 dark:text-rose-400',
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+  };
   return (
-    <div className="bg-slate-100 dark:bg-slate-700/60 rounded-lg p-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">{label}</p>
-      <p className="text-2xl font-bold text-slate-800 dark:text-white leading-none">{value}</p>
-      <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">{sub}</p>
+    <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 duration-300`}>
+      <div className="flex justify-between items-start">
+        <div className="min-w-0">
+          <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 truncate">{label}</p>
+          <div className="flex items-baseline gap-1">
+            <p className="text-4xl font-black tracking-tight truncate">{value}</p>
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-2 uppercase tracking-wider truncate">{sub}</p>
+        </div>
+        <div className="p-2.5 bg-white/30 dark:bg-black/20 rounded-xl shadow-inner backdrop-blur-md flex-shrink-0">
+          <HiArrowPath className="text-xl" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -266,194 +282,208 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white tracking-tight">Attendance</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Dashboard</p>
-        </div>
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 bg-slate-50 dark:bg-slate-800 whitespace-nowrap mt-1">
-          {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </span>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <StatTile label="This month" value={presentDays} sub="days present" />
-        <StatTile label="Absences" value={absentDays} sub="days missed" />
-        <StatTile label="Avg. hours" value="8.4" sub="per day" />
-      </div>
-
-      {/* Check‑in Card */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-        <div className="flex flex-wrap items-center justify-between gap-5">
-          <div className="flex items-center gap-3">
-            <StatusDot state={dotState} />
-            <div>
-              <p className="text-base font-bold text-slate-800 dark:text-white">{statusLabel}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{statusSub}</p>
-            </div>
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
+        {/* Header Toolbar - Flush & Sticky */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Attendance Records
+            </h2>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <span className="hidden sm:inline-flex text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 bg-white dark:bg-slate-800 shadow-sm">
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
             <button
-              onClick={handleCheckIn}
-              disabled={checkedIn}
-              className="px-5 py-2 text-sm font-semibold tracking-wide bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              onClick={fetchHistory}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
             >
-              Check In
-            </button>
-            <button
-              onClick={handleCheckOut}
-              disabled={!checkedIn || checkedOut}
-              className="px-5 py-2 text-sm font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              Check Out
+              <HiArrowPath className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+              Refresh
             </button>
           </div>
         </div>
 
-        {/* Workday progress */}
-        <div className="mt-5 flex items-center gap-2">
-          <span className="text-xs font-medium text-slate-500">09:00</span>
-          <div className="flex-1">
-            <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-700 ${checkedOut ? 'bg-blue-500' : 'bg-emerald-500'}`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-[10px] font-medium text-slate-400 mt-1">
-              <span>Start</span>
-              <span>Lunch</span>
-              <span>End</span>
-            </div>
+        <div className="p-4 md:p-6 lg:p-8 space-y-8">
+          {/* Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <StatTile label="This month" value={presentDays} sub="days present" color="emerald" />
+            <StatTile label="Absences" value={absentDays} sub="days missed" color="rose" />
+            <StatTile label="Avg. hours" value="8.4" sub="per day" color="indigo" />
           </div>
-          <span className="text-xs font-medium text-slate-500">18:00</span>
-        </div>
-      </div>
 
-      {/* Calendar + Holidays */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Calendar</p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  let m = calMonth - 1, y = calYear;
-                  if (m < 0) { m = 11; y--; }
-                  setCalMonth(m); setCalYear(y);
-                }}
-                className="w-7 h-7 flex items-center justify-center border border-slate-200 dark:border-slate-600 rounded text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm transition"
-              >‹</button>
-              <span className="text-sm font-semibold text-slate-800 dark:text-white min-w-[100px] text-center">
-                {MONTHS[calMonth]} {calYear}
-              </span>
-              <button
-                onClick={() => {
-                  let m = calMonth + 1, y = calYear;
-                  if (m > 11) { m = 0; y++; }
-                  setCalMonth(m); setCalYear(y);
-                }}
-                className="w-7 h-7 flex items-center justify-center border border-slate-200 dark:border-slate-600 rounded text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm transition"
-              >›</button>
-            </div>
-          </div>
-          <CalendarGrid month={calMonth} year={calYear} records={history} holidays={holidays} />
-          <div className="flex gap-4 mt-4 flex-wrap">
-            {[
-              { cls: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Present' },
-              { cls: 'bg-rose-100 dark:bg-rose-900/30', label: 'Absent' },
-              { cls: 'bg-amber-100 dark:bg-amber-900/30', label: 'Holiday' },
-            ].map(({ cls, label }) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className={`w-2.5 h-2.5 rounded-sm ${cls}`} />
-                <span className="text-xs font-medium text-slate-500">{label}</span>
+          {/* Check‑in Card */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <div className="flex items-center gap-3">
+                <StatusDot state={dotState} />
+                <div>
+                  <p className="text-base font-bold text-slate-800 dark:text-white">{statusLabel}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{statusSub}</p>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Upcoming holidays</p>
-          {upcomingHolidays.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No upcoming holidays</p>
-          ) : (
-            <div className="space-y-3">
-              {upcomingHolidays.map((h) => {
-                const d = new Date(h.date);
-                return (
-                  <div key={h._id} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
-                    <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center flex-shrink-0">
-                      <span className="text-base font-bold text-slate-800 dark:text-white leading-none">{d.getDate()}</span>
-                      <span className="text-xs font-medium text-slate-400 uppercase">{MONTHS[d.getMonth()].slice(0, 3)}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800 dark:text-white">{h.name}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{h.type}</p>
-                    </div>
-                  </div>
-                );
-              })}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCheckIn}
+                  disabled={checkedIn}
+                  className="px-5 py-2 text-sm font-semibold tracking-wide bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  Check In
+                </button>
+                <button
+                  onClick={handleCheckOut}
+                  disabled={!checkedIn || checkedOut}
+                  className="px-5 py-2 text-sm font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  Check Out
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* History Table */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Attendance history</p>
-          <div className="flex gap-2">
-            <select
-              value={currentMonth}
-              onChange={(e) => setCurrentMonth(Number(e.target.value))}
-              className="text-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 font-medium"
-            >
-              {MONTHS.map((m, i) => <option key={m} value={i+1}>{m}</option>)}
-            </select>
-            <select
-              value={currentYear}
-              onChange={(e) => setCurrentYear(Number(e.target.value))}
-              className="text-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 font-medium"
-            >
-              {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+            {/* Workday progress */}
+            <div className="mt-5 flex items-center gap-2">
+              <span className="text-xs font-medium text-slate-500">09:00</span>
+              <div className="flex-1">
+                <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-700 ${checkedOut ? 'bg-blue-500' : 'bg-emerald-500'}`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] font-medium text-slate-400 mt-1">
+                  <span>Start</span>
+                  <span>Lunch</span>
+                  <span>End</span>
+                </div>
+              </div>
+              <span className="text-xs font-medium text-slate-500">18:00</span>
+            </div>
+          </div>
+
+          {/* Calendar + Holidays */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Calendar</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      let m = calMonth - 1, y = calYear;
+                      if (m < 0) { m = 11; y--; }
+                      setCalMonth(m); setCalYear(y);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center border border-slate-200 dark:border-slate-600 rounded text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm transition"
+                  >‹</button>
+                  <span className="text-sm font-semibold text-slate-800 dark:text-white min-w-[100px] text-center">
+                    {MONTHS[calMonth]} {calYear}
+                  </span>
+                  <button
+                    onClick={() => {
+                      let m = calMonth + 1, y = calYear;
+                      if (m > 11) { m = 0; y++; }
+                      setCalMonth(m); setCalYear(y);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center border border-slate-200 dark:border-slate-600 rounded text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm transition"
+                  >›</button>
+                </div>
+              </div>
+              <CalendarGrid month={calMonth} year={calYear} records={history} holidays={holidays} />
+              <div className="flex gap-4 mt-4 flex-wrap">
+                {[
+                  { cls: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Present' },
+                  { cls: 'bg-rose-100 dark:bg-rose-900/30', label: 'Absent' },
+                  { cls: 'bg-amber-100 dark:bg-amber-900/30', label: 'Holiday' },
+                ].map(({ cls, label }) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <span className={`w-2.5 h-2.5 rounded-sm ${cls}`} />
+                    <span className="text-xs font-medium text-slate-500">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Upcoming holidays</p>
+              {upcomingHolidays.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-8">No upcoming holidays</p>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingHolidays.map((h) => {
+                    const d = new Date(h.date);
+                    return (
+                      <div key={h._id} className="flex items-center gap-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+                        <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex flex-col items-center justify-center flex-shrink-0">
+                          <span className="text-base font-bold text-slate-800 dark:text-white leading-none">{d.getDate()}</span>
+                          <span className="text-xs font-medium text-slate-400 uppercase">{MONTHS[d.getMonth()].slice(0, 3)}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800 dark:text-white">{h.name}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{h.type}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* History Table */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Attendance history</p>
+              <div className="flex gap-2">
+                <select
+                  value={currentMonth}
+                  onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                  className="text-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 font-medium"
+                >
+                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                </select>
+                <select
+                  value={currentYear}
+                  onChange={(e) => setCurrentYear(Number(e.target.value))}
+                  className="text-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 font-medium"
+                >
+                  {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
+            </div>
+            {loading ? (
+              <p className="text-center py-8 text-sm text-slate-400">Loading…</p>
+            ) : history.length === 0 ? (
+              <p className="text-center py-8 text-sm text-slate-400">No records this month</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-700">
+                      <th className="text-left py-2 px-3">Date</th>
+                      <th className="text-left py-2 px-3">Check in</th>
+                      <th className="text-left py-2 px-3">Check out</th>
+                      <th className="text-left py-2 px-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((rec) => (
+                      <tr key={rec._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatShortDate(rec.date)}</td>
+                        <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{formatTime(rec.checkIn)}</td>
+                        <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{rec.checkOut ? formatTime(rec.checkOut) : '—'}</td>
+                        <td className="py-2 px-3">
+                          <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${statusBadge[rec.status] ?? ''}`}>
+                            {rec.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
-        {loading ? (
-          <p className="text-center py-8 text-sm text-slate-400">Loading…</p>
-        ) : history.length === 0 ? (
-          <p className="text-center py-8 text-sm text-slate-400">No records this month</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 dark:border-slate-700">
-                  <th className="text-left py-2 px-3">Date</th>
-                  <th className="text-left py-2 px-3">Check in</th>
-                  <th className="text-left py-2 px-3">Check out</th>
-                  <th className="text-left py-2 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((rec) => (
-                  <tr key={rec._id} className="border-b border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="py-2 px-3 font-medium text-slate-700 dark:text-slate-200">{formatShortDate(rec.date)}</td>
-                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{formatTime(rec.checkIn)}</td>
-                    <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{rec.checkOut ? formatTime(rec.checkOut) : '—'}</td>
-                    <td className="py-2 px-3">
-                      <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${statusBadge[rec.status] ?? ''}`}>
-                        {rec.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </div>
   );

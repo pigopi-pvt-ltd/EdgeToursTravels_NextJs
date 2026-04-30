@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/context/ThemeContext";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
-
+import QueryProvider from "@/providers/QueryProvider";
 
 export default function RootLayout({
   children,
@@ -34,13 +34,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${roboto.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sf">
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-            <WhatsAppWidget />
-          </AuthProvider>
-
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              {children}
+              <WhatsAppWidget />
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

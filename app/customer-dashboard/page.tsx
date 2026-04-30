@@ -100,10 +100,10 @@ export default function CustomerDashboard() {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-blue-100 text-blue-800',
-      completed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
+      pending: 'bg-yellow-100 text-yellow-700 font-bold',
+      confirmed: 'bg-blue-100 text-blue-700 font-bold',
+      completed: 'bg-emerald-100 text-emerald-700 font-bold',
+      cancelled: 'bg-red-100 text-red-700 font-bold',
     };
     return styles[status as keyof typeof styles] || styles.pending;
   };
@@ -125,7 +125,7 @@ export default function CustomerDashboard() {
         {/* Header Toolbar */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
-            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+            <h2 className="text-sm md:text-xl font-black text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tight truncate">
               Dashboard Overview
             </h2>
           </div>
@@ -153,7 +153,7 @@ export default function CustomerDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Chart Section */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Trips Overview</h2>
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-6">Trips Overview</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={getMonthlyData()}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -171,7 +171,7 @@ export default function CustomerDashboard() {
             {/* Recent Bookings */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Recent Bookings</h2>
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Bookings</h2>
                 <Link
                   href="/customer-dashboard/bookings"
                   className="text-orange-500 hover:text-orange-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-colors"
@@ -187,7 +187,7 @@ export default function CustomerDashboard() {
               ) : (
                 <div className="space-y-4">
                   {recentBookings.map((booking) => (
-                    <div key={booking._id} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-orange-500/30 transition-all">
+                    <div key={booking._id} className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                       <div className="flex justify-between items-start gap-4">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -228,12 +228,10 @@ function StatCard({ title, value, icon, color }: { title: string; value: number;
     <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
-          <p className="text-2xl md:text-3xl font-black mt-1">{value}</p>
+          <p className="text-[10px] md:text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">{title}</p>
+          <p className="text-2xl md:text-4xl font-black tracking-tight">{value}</p>
         </div>
-        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">
-          {icon}
-        </div>
+        <div className="p-2 md:p-2.5 bg-white/30 dark:bg-black/20 rounded-xl shadow-inner">{icon}</div>
       </div>
     </div>
   );

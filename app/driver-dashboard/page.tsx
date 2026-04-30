@@ -159,22 +159,35 @@ export default function DriverDashboard() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
-          {toast.type === 'success' ? <HiCheckCircle className="text-xl" /> : <HiXCircle className="text-xl" />}
-          {toast.message}
-        </div>
-      )}
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
+        {toast && (
+          <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+            {toast.type === 'success' ? <HiCheckCircle className="text-xl" /> : <HiXCircle className="text-xl" />}
+            {toast.message}
+          </div>
+        )}
 
-      {/* Header with Notification Bell */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Driver Dashboard</h1>
-          <p className="text-sm text-slate-500">Manage your trips</p>
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-sm md:text-xl font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1 md:gap-2 uppercase tracking-tight truncate">
+              Driver Dashboard
+            </h2>
+          </div>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchBookings}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
+            <NotificationBell />
+          </div>
         </div>
-        <NotificationBell />
-      </div>
+
+        <div className="p-4 md:p-6 lg:p-8 space-y-8">
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -293,10 +306,12 @@ export default function DriverDashboard() {
               </div>
             );
           })}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
-  );
+  </div>
+);
 }
 
 function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {

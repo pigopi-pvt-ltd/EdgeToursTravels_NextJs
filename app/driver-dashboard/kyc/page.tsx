@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import { HiOutlineCloudUpload, HiX } from 'react-icons/hi';
+import { useQuery } from '@tanstack/react-query';
 
 type DriverDetails = {
   fullName: string;
@@ -20,16 +21,30 @@ type DriverDetails = {
   ifscCode: string;
   presentAddress: string;
   permanentAddress: string;
+  country: string;
+  state: string;
+  district: string;
 };
 
 type KycDocuments = {
   aadhaarFront: string;
   aadhaarBack: string;
   drivingLicenseImage: string;
+  panCard?: string;
   vehicleRCImage: string;
   insuranceImage: string;
   pucImage: string;
+  driverPhoto: string;
 };
+
+interface StateLocation {
+  name: string;
+  districts: string[];
+}
+
+interface LocationData {
+  states: StateLocation[];
+}
 
 function getMissingFields<T extends Record<string, any>>(obj: T, requiredKeys: (keyof T)[]): (keyof T)[] {
   return requiredKeys.filter(key => !obj[key]);
@@ -52,15 +67,20 @@ function KycPage() {
     ifscCode: '',
     presentAddress: '',
     permanentAddress: '',
+    country: 'India',
+    state: '',
+    district: '',
   });
 
   const [kycDocuments, setKycDocuments] = useState<KycDocuments>({
     aadhaarFront: '',
     aadhaarBack: '',
     drivingLicenseImage: '',
+    panCard: '',
     vehicleRCImage: '',
     insuranceImage: '',
     pucImage: '',
+    driverPhoto: '',
   });
 
   const [message, setMessage] = useState('');
@@ -68,25 +88,38 @@ function KycPage() {
   const [uploading, setUploading] = useState(false);
   const [kycStatus, setKycStatus] = useState('pending');
 
+  // Fetch location data from backend using TanStack Query
+  const { data: locationData } = useQuery<LocationData>({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const res = await fetch('/api/locations');
+      if (!res.ok) throw new Error('Failed to fetch locations');
+      return res.json();
+    }
+  });
+
   // Refs for file inputs
   const fileInputs = {
     aadhaarFront: useRef<HTMLInputElement>(null),
     aadhaarBack: useRef<HTMLInputElement>(null),
     drivingLicenseImage: useRef<HTMLInputElement>(null),
+    panCard: useRef<HTMLInputElement>(null),
     vehicleRCImage: useRef<HTMLInputElement>(null),
     insuranceImage: useRef<HTMLInputElement>(null),
     pucImage: useRef<HTMLInputElement>(null),
+    driverPhoto: useRef<HTMLInputElement>(null),
   };
 
   const requiredDriverFields: (keyof DriverDetails)[] = [
     'fullName', 'dateOfBirth', 'drivingLicenseNumber', 'dlExpiryDate',
     'vehicleRegNumber', 'vehicleType', 'accountHolderName', 'bankName',
-    'accountNumber', 'ifscCode', 'presentAddress', 'permanentAddress'
+    'accountNumber', 'ifscCode', 'presentAddress', 'permanentAddress',
+    'country', 'state', 'district'
   ];
 
   const requiredDocFields: (keyof KycDocuments)[] = [
     'aadhaarFront', 'aadhaarBack', 'drivingLicenseImage',
-    'vehicleRCImage', 'insuranceImage', 'pucImage'
+    'vehicleRCImage', 'insuranceImage', 'pucImage', 'driverPhoto'
   ];
 
   const uploadFile = async (field: keyof KycDocuments, file: File) => {
@@ -262,7 +295,15 @@ function KycPage() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Vehicle Type <span className="text-red-500">*</span></label>
-                    <select value={driverDetails.vehicleType} onChange={e => updateDriverField('vehicleType', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium"><option value="auto">Auto</option><option value="bike">Bike</option><option value="car">Car</option></select>
+                    <select value={driverDetails.vehicleType} onChange={e => updateDriverField('vehicleType', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium">
+                      <option value="auto">Auto</option>
+                      <option value="bike">Bike</option>
+                      <option value="car">Car</option>
+                      <option value="bus">Bus</option>
+                      <option value="4-seater">4 Seater</option>
+                      <option value="6-seater">6 Seater</option>
+                      <option value="truck">Truck</option>
+                    </select>
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Vehicle Make</label>
@@ -275,6 +316,42 @@ function KycPage() {
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Year of Manufacture</label>
                     <input type="number" placeholder="2024" value={driverDetails.vehicleYear} onChange={e => updateDriverField('vehicleYear', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Country <span className="text-red-500">*</span></label>
+                    <select value={driverDetails.country} onChange={e => updateDriverField('country', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium">
+                      <option value="India">India</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">State <span className="text-red-500">*</span></label>
+                    <select 
+                      value={driverDetails.state} 
+                      onChange={e => {
+                        updateDriverField('state', e.target.value);
+                        updateDriverField('district', ''); // Clear district when state changes
+                      }} 
+                      className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium"
+                    >
+                      <option value="">Select State</option>
+                      {locationData?.states?.map((s: StateLocation) => (
+                        <option key={s.name} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">District <span className="text-red-500">*</span></label>
+                    <select 
+                      value={driverDetails.district} 
+                      onChange={e => updateDriverField('district', e.target.value)} 
+                      disabled={!driverDetails.state}
+                      className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-slate-200 font-medium disabled:opacity-50"
+                    >
+                      <option value="">Select District</option>
+                      {locationData?.states?.find((s: StateLocation) => s.name === driverDetails.state)?.districts.map((d: string) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -338,7 +415,7 @@ function KycPage() {
                 </h2>
               </div>
               <div className="p-6">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 uppercase tracking-widest">All 6 documents are mandatory. Max 5MB each (JPG, PNG, PDF).</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 uppercase tracking-widest">All 7 documents are mandatory. Max 5MB each (JPG, PNG, PDF).</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Aadhaar Front */}
                   <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
@@ -410,6 +487,31 @@ function KycPage() {
                       </div>
                     ) : (
                       <button type="button" onClick={() => fileInputs.drivingLicenseImage.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                        Choose File
+                      </button>
+                    )}
+                  </div>
+
+                  {/* PAN Card (Optional) */}
+                  <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                      <HiOutlineCloudUpload className="text-3xl text-blue-600" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Pan Card <span className="text-[10px] font-medium text-slate-400">(Optional)</span></h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload clear photo of PAN Card</p>
+                    <div className="mb-4">
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                    </div>
+                    <input type="file" ref={fileInputs.panCard} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('panCard', e)} />
+                    {kycDocuments.panCard ? (
+                      <div className="relative inline-block">
+                        <img src={kycDocuments.panCard} className="max-h-24 mx-auto rounded-lg border shadow-sm" alt="preview" />
+                        <button type="button" onClick={() => clearFile('panCard')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600">
+                          <HiX className="text-sm" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => fileInputs.panCard.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
                         Choose File
                       </button>
                     )}
@@ -489,6 +591,31 @@ function KycPage() {
                       </button>
                     )}
                   </div>
+
+                  {/* Driver Photo */}
+                  <div className="bg-[#f8faff] dark:bg-slate-800/20 border-2 border-dashed border-blue-200 dark:border-blue-500/20 rounded-lg p-8 text-center group hover:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 dark:shadow-none mb-6 group-hover:scale-110 transition-transform mx-auto">
+                      <HiOutlineCloudUpload className="text-3xl text-blue-600" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Photo Upload</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Upload clear profile photo</p>
+                    <div className="mb-4">
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Upload</p>
+                    </div>
+                    <input type="file" ref={fileInputs.driverPhoto} accept="image/*" className="hidden" onChange={(e) => handleFileSelect('driverPhoto', e)} />
+                    {kycDocuments.driverPhoto ? (
+                      <div className="relative inline-block">
+                        <img src={kycDocuments.driverPhoto} className="max-h-24 mx-auto rounded-lg border shadow-sm" alt="preview" />
+                        <button type="button" onClick={() => clearFile('driverPhoto')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600">
+                          <HiX className="text-sm" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => fileInputs.driverPhoto.current?.click()} disabled={uploading} className="px-8 py-3 bg-[#ff4d00] text-white rounded-lg font-bold hover:bg-[#e64500] transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 text-sm">
+                        Choose File
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/30 rounded-lg">
                   <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">
@@ -497,7 +624,7 @@ function KycPage() {
                 </div>
                 {!isFormValid() && (
                   <p className="text-center text-amber-600 dark:text-amber-400 text-sm mt-5 font-bold">
-                    Please fill all required fields and upload all 6 documents.
+                    Please fill all required fields and upload all 7 documents.
                   </p>
                 )}
               </div>
