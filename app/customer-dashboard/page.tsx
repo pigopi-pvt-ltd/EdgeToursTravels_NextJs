@@ -26,6 +26,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationBell from '@/components/NotificationBell';
 
 interface Booking {
   _id: string;
@@ -40,9 +42,27 @@ export default function CustomerDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
+  const { unreadCount, refresh: refreshNotifications } = useNotifications();
 
   useEffect(() => {
     fetchBookings();
+  }, []);
+
+  // Auto‑refresh when a booking status changes (new notification arrives)
+  useEffect(() => {
+    const handleNewNotification = (event: CustomEvent) => {
+      const { notification } = event.detail;
+      if (notification?.type === 'booking_created' ||
+          notification?.type === 'trip_accepted' ||
+          notification?.type === 'trip_rejected' ||
+          notification?.type === 'trip_completed' ||
+          notification?.type === 'trip_cancelled' ||
+          notification?.type === 'driver_assigned') {
+        fetchBookings();
+      }
+    };
+    window.addEventListener('new-notification', handleNewNotification as EventListener);
+    return () => window.removeEventListener('new-notification', handleNewNotification as EventListener);
   }, []);
 
   const fetchBookings = async () => {
@@ -89,7 +109,14 @@ export default function CustomerDashboard() {
   };
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="flex justify-end p-2">
+          <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
+        <DashboardSkeleton />
+      </div>
+    );
   }
 
   return (
@@ -110,6 +137,7 @@ export default function CustomerDashboard() {
               <HiArrowPath className="text-sm" />
               Refresh
             </button>
+            <NotificationBell />
           </div>
         </div>
 

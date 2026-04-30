@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Booking from '@/models/Booking';
-import Notification from '@/models/Notification';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/jwt';
 import { sendSMS } from '@/lib/sms';
+import { sendNotification } from '@/lib/notifications';
 
 export async function POST(
   req: NextRequest,
@@ -17,7 +17,7 @@ export async function POST(
 
   await connectToDatabase();
   const { id } = await params;
-  const { response } = await req.json(); // 'accepted' or 'rejected'
+  const { response } = await req.json();
 
   if (!['accepted', 'rejected'].includes(response)) {
     return NextResponse.json({ error: 'Invalid response' }, { status: 400 });
@@ -36,26 +36,26 @@ export async function POST(
   if (response === 'accepted') {
     booking.status = 'confirmed';
   } else {
-    booking.status = 'pending'; // admin can reassign
+    booking.status = 'pending';
   }
   await booking.save();
 
-  // Notify customer via in-app notification and SMS
+  // Notify customer
   if (booking.userId) {
     const customer = await User.findById(booking.userId);
-    const customerMobile = customer?.mobileNumber || booking.contact; // fallback to booking contact
-    
-    await Notification.create({
-      userId: booking.userId,
-      bookingId: booking._id,
+    const customerMobile = customer?.mobileNumber || booking.contact;
+
+    await sendNotification({
+      userId: booking.userId.toString(),
+      bookingId: booking._id.toString(),
+      type: response === 'accepted' ? 'trip_accepted' : 'trip_rejected',
       title: response === 'accepted' ? 'Trip Accepted' : 'Trip Rejected',
       message: response === 'accepted'
         ? `Your trip from ${booking.from} to ${booking.destination} has been accepted by driver ${driverName}.`
         : `The driver has rejected your trip from ${booking.from} to ${booking.destination}. Admin will assign another driver.`,
-      type: response === 'accepted' ? 'trip_accepted' : 'trip_rejected',
+      metadata: { driverName, response },
     });
 
-    // Send SMS only when accepted and customer has mobile number
     if (response === 'accepted' && customerMobile) {
       const dateStr = new Date(booking.dateTime).toLocaleString();
       const message = `🚖 Edge Tours: Your trip from ${booking.from} to ${booking.destination} on ${dateStr} has been ACCEPTED by driver ${driverName}. We will notify you when the driver arrives. Thank you!`;
@@ -66,12 +66,13 @@ export async function POST(
   // Notify admin
   const adminUser = await User.findOne({ role: 'admin' });
   if (adminUser) {
-    await Notification.create({
-      userId: adminUser._id,
-      bookingId: booking._id,
-      title: response === 'accepted' ? 'Trip Accepted by Driver' : 'Trip Rejected by Driver',
-      message: `Driver ${payload.userId} has ${response} trip #${booking._id}.`,
+    await sendNotification({
+      userId: adminUser._id.toString(),
+      bookingId: booking._id.toString(),
       type: response === 'accepted' ? 'trip_accepted' : 'trip_rejected',
+      title: response === 'accepted' ? 'Trip Accepted by Driver' : 'Trip Rejected by Driver',
+      message: `Driver ${driverName} has ${response} trip #${booking._id.toString()}.`,
+      metadata: { driverName, response },
     });
   }
 
