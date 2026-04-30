@@ -23,6 +23,7 @@ import {
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
+// Admin menu items (all features)
 const adminItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
@@ -39,6 +40,7 @@ const adminItems = [
   { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
 ];
 
+// Driver menu items
 const driverItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
@@ -93,12 +95,14 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
 
   return (
     <>
+      {/* Backdrop for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity"
           onClick={onClose}
         />
       )}
+
       <aside
         className={`
         fixed left-0 top-0 h-screen bg-white dark:bg-[#0A1128] text-black dark:text-white 
@@ -107,6 +111,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
       >
+        {/* Header with logo & collapse toggle */}
         <div className={`h-16 px-6 border-b border-slate-100 dark:border-slate-800/50 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           {!isCollapsed ? (
             <Link href="/">
@@ -114,21 +119,25 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                 <img
                   src="/images/logo.png"
                   alt="Edge Tours & Travels"
-                  className="h-10 w-auto object-contain cursor-pointer"
+                  className="h-10 w-auto object-contain cursor-pointer transition-transform hover:scale-110"
                 />
               </div>
             </Link>
           ) : (
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-[#1ABC9C] rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/20">
               <HiOutlineViewGrid className="text-white text-xl" />
             </div>
           )}
-          <button onClick={onClose} className="lg:hidden p-2 text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+          >
             <HiOutlineX className="text-xl" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 subtle-scrollbar">
           <ul className="space-y-1">
             {items.map((item) => {
               const isActive = pathname === item.href;
@@ -145,11 +154,17 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                     }}
                     className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${
                       isActive
-                        ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500"
-                        : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        ? "bg-[#1ABC9C] text-white shadow-lg shadow-teal-500/20"
+                        : "text-black dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/10 hover:text-[#1ABC9C] dark:hover:text-[#1ABC9C]"
                     }`}
                   >
-                    <item.icon className={`text-2xl shrink-0 ${isActive ? "text-orange-600" : "text-black dark:text-slate-400"}`} />
+                    <item.icon
+                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+                        isActive
+                          ? "text-white"
+                          : "text-black dark:text-slate-400 group-hover:text-[#1ABC9C]"
+                      }`}
+                    />
                     {!isCollapsed && (
                       <div className="flex items-center justify-between w-full">
                         <span className="font-bold text-[15px] tracking-tight">{item.name}</span>
@@ -160,15 +175,15 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                               e.stopPropagation();
                               setIsCollapsed(true);
                             }}
-                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-md"
+                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-md transition-all active:scale-95"
                           >
-                            <HiOutlineChevronLeft className="text-slate-400 hover:text-orange-500" />
+                            <HiOutlineChevronLeft className="text-slate-400 hover:text-[#1ABC9C]" />
                           </button>
                         )}
                       </div>
                     )}
                     {isCollapsed && (
-                      <div className="absolute left-16 bg-slate-900 text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+                      <div className="absolute left-16 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-1 group-hover:translate-x-0 z-50 whitespace-nowrap shadow-xl">
                         {item.name}
                       </div>
                     )}
@@ -179,12 +194,13 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           </ul>
         </nav>
 
+        {/* Logout button (stays at bottom) */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 w-full rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-all"
+            className="flex items-center gap-3 px-3 py-2 w-full rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-all group"
           >
-            <HiOutlineLogout className="text-xl" />
+            <HiOutlineLogout className="text-xl transition-transform group-hover:scale-110" />
             {!isCollapsed && <span className="font-bold text-sm">Logout</span>}
           </button>
         </div>
