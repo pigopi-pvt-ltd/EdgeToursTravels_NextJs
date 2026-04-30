@@ -22,6 +22,8 @@ import {
   HiOutlineExclamationCircle,
 } from 'react-icons/hi2';
 import Link from 'next/link';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationBell from '@/components/NotificationBell';
 
 interface Booking {
   _id: string;
@@ -44,6 +46,8 @@ export default function BookingsPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const user = getStoredUser();
 
+  const { unreadCount } = useNotifications();
+
   const [newBooking, setNewBooking] = useState({
     from: '',
     destination: '',
@@ -52,6 +56,23 @@ export default function BookingsPage() {
     contact: user?.mobileNumber || '',
     price: 'Start from ₹12/km',
   });
+
+  // Auto‑refresh when a relevant notification arrives
+  useEffect(() => {
+    const handleNewNotification = (event: CustomEvent) => {
+      const { notification } = event.detail;
+      if (notification?.type === 'booking_created' ||
+          notification?.type === 'driver_assigned' ||
+          notification?.type === 'trip_accepted' ||
+          notification?.type === 'trip_rejected' ||
+          notification?.type === 'trip_completed' ||
+          notification?.type === 'trip_cancelled') {
+        fetchBookings();
+      }
+    };
+    window.addEventListener('new-notification', handleNewNotification as EventListener);
+    return () => window.removeEventListener('new-notification', handleNewNotification as EventListener);
+  }, []);
 
   const openModal = () => {
     const currentUser = getStoredUser();
@@ -151,10 +172,30 @@ export default function BookingsPage() {
     }
   };
 
-
-
   if (loading) {
-    return <BookingsSkeleton />;
+    // Skeleton with bell placeholder
+    return (
+      <div className="animate-pulse">
+        <div className="bg-white dark:bg-slate-800 min-h-[calc(100vh-64px)]">
+          <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 px-4 flex justify-between items-center border-b">
+            <div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div className="flex gap-2">
+              <div className="h-9 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+              <div className="h-9 w-9 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+            </div>
+          </div>
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>)}
+            </div>
+            <div className="h-10 w-40 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -168,7 +209,7 @@ export default function BookingsPage() {
       )}
 
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
-        {/* Header Toolbar */}
+        {/* Header Toolbar with Notification Bell */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
             <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
@@ -190,6 +231,7 @@ export default function BookingsPage() {
               <HiOutlinePlus className="text-sm" />
               New Booking
             </button>
+            <NotificationBell />
           </div>
         </div>
 
@@ -203,7 +245,7 @@ export default function BookingsPage() {
             <StatCard title="Cancelled" value={stats.cancelled} icon={<HiXCircle className="w-5 h-5 md:w-6 md:h-6" />} color="rose" />
           </div>
 
-          {/* Filter Tabs */}
+          {/* Filter Tabs  */}
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
               {(['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const).map((tab) => (
@@ -220,7 +262,7 @@ export default function BookingsPage() {
               ))}
             </div>
 
-            {/* Bookings Grid */}
+            {/* Bookings Grid  */}
             {filteredBookings.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700">
                 <div className="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
@@ -314,7 +356,7 @@ export default function BookingsPage() {
         </div>
       </div>
 
-      {/* Add Booking Modal */}
+      {/* Add Booking Modal  */}
       {addModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setAddModalOpen(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-white/20 relative mx-auto animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>

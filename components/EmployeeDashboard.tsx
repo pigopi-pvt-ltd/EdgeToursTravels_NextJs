@@ -8,7 +8,6 @@ import {
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
   HiOutlineClock,
-  HiOutlineChartBar,
 } from 'react-icons/hi2';
 import {
   BarChart,
@@ -18,15 +17,16 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   Legend,
 } from 'recharts';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationBell from '@/components/NotificationBell';
 
 interface SupportTicket {
   _id: string;
   status: 'open' | 'in-progress' | 'resolved' | 'closed';
   createdAt: string;
+  title?: string;
 }
 
 interface AttendanceRecord {
@@ -55,6 +55,23 @@ export default function EmployeeDashboard() {
   const [ticketStats, setTicketStats] = useState<TicketStats>({ open: 0, inProgress: 0, resolved: 0, total: 0 });
   const [dailyData, setDailyData] = useState<DailyCount[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Real‑time notifications
+  const { unreadCount, refresh: refreshNotifications } = useNotifications();
+
+  // Auto‑refresh ticket data when a new notification arrives
+  useEffect(() => {
+    // Listen for new notifications via custom event (optional)
+    const handleNewNotification = (event: CustomEvent) => {
+      const { notification } = event.detail;
+      // If it's a support ticket notification, refresh
+      if (notification?.type === 'new_ticket' || notification?.type === 'ticket_updated') {
+        fetchSupportTickets();
+      }
+    };
+    window.addEventListener('new-notification', handleNewNotification as EventListener);
+    return () => window.removeEventListener('new-notification', handleNewNotification as EventListener);
+  }, []);
 
   useEffect(() => {
     fetchAllData();
@@ -88,7 +105,6 @@ export default function EmployeeDashboard() {
 
   const fetchAttendanceRecords = async () => {
     const token = getAuthToken();
-    // Fetch current month's attendance (or last 30 days – adjust as needed)
     const now = new Date();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
@@ -107,7 +123,6 @@ export default function EmployeeDashboard() {
   };
 
   const computeDailyData = (ticketList: SupportTicket[], attendanceList: AttendanceRecord[]) => {
-    // Last 7 days
     const last7Days: DailyCount[] = [];
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -124,7 +139,6 @@ export default function EmployeeDashboard() {
       });
     }
 
-    // Count attendance per day
     attendanceList.forEach(rec => {
       const recDate = new Date(rec.date).toISOString().split('T')[0];
       const day = last7Days.find(d => d.date === recDate);
@@ -134,7 +148,6 @@ export default function EmployeeDashboard() {
       }
     });
 
-    // Count tickets created per day
     ticketList.forEach(ticket => {
       const createdDate = new Date(ticket.createdAt).toISOString().split('T')[0];
       const day = last7Days.find(d => d.date === createdDate);
@@ -147,6 +160,9 @@ export default function EmployeeDashboard() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
+        <div className="flex justify-end p-2">
+          <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
@@ -162,6 +178,15 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header with Bell */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
+          <p className="text-sm text-slate-500">Welcome back, Employee</p>
+        </div>
+        <NotificationBell />
+      </div>
+
       {/* Ticket Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title="Open Tickets" value={ticketStats.open} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
@@ -172,7 +197,7 @@ export default function EmployeeDashboard() {
 
       {/* Two Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Attendance Chart (Present vs Absent) */}
+        {/* Attendance Chart */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -195,11 +220,6 @@ export default function EmployeeDashboard() {
                 <Bar dataKey="absent" name="Absent" radius={[6, 6, 0, 0]} fill="#ef4444" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="mt-4 pt-3 text-center">
-            {/* <a href="/employee/attendance" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1">
-              View full attendance <span>→</span>
-            </a> */}
           </div>
         </div>
 
@@ -225,11 +245,6 @@ export default function EmployeeDashboard() {
                 <Bar dataKey="tickets" name="Tickets Created" radius={[6, 6, 0, 0]} fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="mt-4 pt-3 text-center">
-            {/* <a href="/employee/support" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1">
-              View all tickets <span>→</span>
-            </a> */}
           </div>
         </div>
       </div>
