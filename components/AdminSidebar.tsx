@@ -19,7 +19,7 @@ import {
   HiOutlineChevronLeft,
   HiOutlineLogout,
   HiOutlineClock,
-  HiOutlinePaperAirplane, 
+  HiOutlinePaperAirplane,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
@@ -40,7 +40,7 @@ const adminItems = [
 ];
 
 const driverItems = [
-  { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
+  { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
 ];
 
@@ -72,7 +72,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           employeeBase.push({ name: "Manage Bookings", icon: HiOutlineCalendar, href: "/employee-dashboard/bookings" });
         }
         employeeBase.push({ name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" });
-        employeeBase.push({ name: "Leave Request", icon: HiOutlinePaperAirplane, href: "/employee-dashboard/leave" }); 
+        employeeBase.push({ name: "Leave Request", icon: HiOutlinePaperAirplane, href: "/employee-dashboard/leave" });
         employeeBase.push({ name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" });
         if (modules.includes('support')) {
           employeeBase.push({ name: "Support", icon: HiOutlineSupport, href: "/employee-dashboard/support" });
