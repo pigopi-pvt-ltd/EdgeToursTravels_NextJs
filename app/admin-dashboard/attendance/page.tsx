@@ -158,7 +158,7 @@ export default function AdminAttendancePage() {
   }
 
   return (
-    <div className="bg-white min-h-screen p-6 space-y-6">
+    <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen p-6 space-y-6 transition-colors duration-300">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

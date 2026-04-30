@@ -29,7 +29,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300">
       {/* Sticky Header */}
       <div className="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function SettingsPage() {
 // Sub-components
 function Section({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+    <div className="bg-slate-50 dark:bg-[#0A1128] rounded-lg p-6 md:p-8 shadow-sm border border-slate-100 dark:border-slate-800">
       <div className="mb-8">
         <h3 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">{title}</h3>
         <p className="text-xs font-semibold text-slate-400 mt-1">{description}</p>

@@ -98,7 +98,7 @@ export default function BookingDetailPage() {
   const StatusIcon = statusConfig.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] p-4 flex items-center justify-center font-sf">
       <div className="w-full max-w-6xl mx-auto">
         {/* Back button & title */}
         <div className="flex items-center gap-4 mb-5">

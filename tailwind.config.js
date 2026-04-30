@@ -10,6 +10,7 @@ module.exports = {
       fontFamily: {
         outfit: ['var(--font-outfit)', 'sans-serif'],
         roboto: ['var(--font-roboto)', 'sans-serif'],
+        sf: ['"SF Pro Display"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },

@@ -162,7 +162,7 @@ export default function PricePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 transition-colors duration-300 animate-in fade-in duration-500">
       {/* Sticky Header Toolbar - Edge-to-Edge */}
       <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
         <div className="min-w-0">

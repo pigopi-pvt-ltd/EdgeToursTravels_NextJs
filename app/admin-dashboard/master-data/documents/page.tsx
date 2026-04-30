@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { HiPlus, HiTrash, HiPencil, HiX, HiCheck } from 'react-icons/hi';
+import { HiPlus, HiTrash, HiPencil, HiX, HiCheck, HiChevronDown, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { getAuthToken } from '@/lib/auth';
 
 interface MasterDocument {
@@ -203,7 +203,7 @@ export default function DocumentConfigPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8">
-      <div className="bg-white dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors">
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-0 z-40 backdrop-blur-md bg-opacity-90 min-h-[56px]">
           <h2 className="text-sm md:text-xl font-extrabold text-slate-800 dark:text-white uppercase tracking-tighter">
             Document Configurations
@@ -301,6 +301,37 @@ export default function DocumentConfigPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Standardized Administrative Table Footer */}
+        <div className="px-6 py-2 border-t border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-end gap-4 sticky bottom-0 z-20 backdrop-blur-md">
+
+          <div className="flex items-center gap-4 md:gap-8">
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Rows per page:</span>
+              <div className="relative group">
+                <select className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1 text-[11px] font-black text-slate-800 dark:text-slate-200 outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/20 transition-all pr-8">
+                  <option value="100">100</option>
+                  <option value="50">50</option>
+                  <option value="25">25</option>
+                </select>
+                <HiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-indigo-500 transition-colors" />
+              </div>
+            </div>
+
+            <div className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest bg-white dark:bg-slate-900 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+              1-{Math.min(100, documents.length)} of {documents.length}
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button className="p-1.5 hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow" disabled>
+                <HiChevronLeft className="w-4 h-4" />
+              </button>
+              <button className="p-1.5 hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm hover:shadow" disabled={documents.length <= 100}>
+                <HiChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

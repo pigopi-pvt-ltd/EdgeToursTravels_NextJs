@@ -184,7 +184,7 @@ export default function AvailableVehicles() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
         {/* Header Toolbar */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
@@ -195,7 +195,7 @@ export default function AvailableVehicles() {
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={fetchVehicles}
-              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
             >
               <HiArrowPath className="text-sm" />
               Refresh
@@ -208,7 +208,7 @@ export default function AvailableVehicles() {
             {vehicles.map((vehicle) => (
               <div
                 key={vehicle._id}
-                className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm transition-all hover:shadow-md ${vehicle.status === 'maintenance' ? 'opacity-60' : ''
+                className={`bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm transition-all hover:shadow-md ${vehicle.status === 'maintenance' ? 'opacity-60' : ''
                   }`}
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -247,7 +247,7 @@ export default function AvailableVehicles() {
       {/* Booking Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-white/20 relative mx-auto animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden border border-white/20 relative mx-auto animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
             <div className="pt-8 pb-4 text-center">
               <h3 className="text-2xl font-black tracking-widest uppercase text-slate-800 dark:text-white">Book Your Ride</h3>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{selectedVehicle?.modelName} • {selectedVehicle?.cabNumber}</p>

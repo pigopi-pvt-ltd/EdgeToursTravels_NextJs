@@ -26,6 +26,11 @@ const WhatsAppWidget = () => {
     return null;
   }
 
+  // Explicitly hide for admin role
+  if (user?.role === 'admin') {
+    return null;
+  }
+
   const phoneNumber = "917631758838"; // Updated with user's phone number
   const message = "Hello Edge Tours & Travels! I'm interested in your services.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

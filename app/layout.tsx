@@ -33,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} ${roboto.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-outfit">
+      <body className="min-h-full flex flex-col font-sf">
         <ThemeProvider>
           <AuthProvider>
             {children}
