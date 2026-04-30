@@ -24,6 +24,7 @@ export interface AuthResponse {
     role: 'admin' | 'driver' | 'employee' | 'customer';
     profileCompleted: boolean;
     createdAt: string;
+    modules?: string[]; 
   };
   token: string;
 }
