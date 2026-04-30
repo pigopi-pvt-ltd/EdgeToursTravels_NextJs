@@ -177,74 +177,94 @@ export default function EmployeeDashboard() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Header with Bell */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
-          <p className="text-sm text-slate-500">Welcome back, Employee</p>
-        </div>
-        <NotificationBell />
-      </div>
-
-      {/* Ticket Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Open Tickets" value={ticketStats.open} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
-        <StatCard title="In Progress" value={ticketStats.inProgress} icon={<HiOutlineClock className="w-6 h-6" />} color="violet" />
-        <StatCard title="Resolved" value={ticketStats.resolved} icon={<HiOutlineCheckCircle className="w-6 h-6" />} color="green" />
-        <StatCard title="Total Tickets" value={ticketStats.total} icon={<HiOutlineChatBubbleLeftEllipsis className="w-6 h-6" />} color="indigo" />
-      </div>
-
-      {/* Two Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Attendance Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Attendance Trend</h3>
-              <p className="text-xs text-slate-500">Last 7 days – Present vs Absent</p>
-            </div>
-            <button onClick={fetchAttendanceRecords} className="p-2 text-slate-500 hover:text-indigo-600 transition">
-              <HiArrowPath className="w-5 h-5" />
-            </button>
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
+        {/* Header Toolbar matched to Admin Dashboard */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Employee Dashboard Overview
+            </h2>
           </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
-                <XAxis dataKey="day" tick={{ fill: '#94a3b8' }} />
-                <YAxis tick={{ fill: '#94a3b8' }} allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                <Legend />
-                <Bar dataKey="present" name="Present" radius={[6, 6, 0, 0]} fill="#10b981" />
-                <Bar dataKey="absent" name="Absent" radius={[6, 6, 0, 0]} fill="#ef4444" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchAllData}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              <HiArrowPath className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <NotificationBell />
           </div>
         </div>
 
-        {/* Ticket Creation Chart */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Ticket Creation Trend</h3>
-              <p className="text-xs text-slate-500">Last 7 days – Number of tickets created</p>
-            </div>
-            <button onClick={fetchSupportTickets} className="p-2 text-slate-500 hover:text-indigo-600 transition">
-              <HiArrowPath className="w-5 h-5" />
-            </button>
+        <div className="p-4 md:p-6 lg:p-8 space-y-8">
+          {/* Ticket Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <StatCard title="Open Tickets" value={ticketStats.open} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
+            <StatCard title="In Progress" value={ticketStats.inProgress} icon={<HiOutlineClock className="w-6 h-6" />} color="violet" />
+            <StatCard title="Resolved" value={ticketStats.resolved} icon={<HiOutlineCheckCircle className="w-6 h-6" />} color="emerald" />
+            <StatCard title="Total Tickets" value={ticketStats.total} icon={<HiOutlineChatBubbleLeftEllipsis className="w-6 h-6" />} color="indigo" />
           </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
-                <XAxis dataKey="day" tick={{ fill: '#94a3b8' }} />
-                <YAxis tick={{ fill: '#94a3b8' }} allowDecimals={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                <Legend />
-                <Bar dataKey="tickets" name="Tickets Created" radius={[6, 6, 0, 0]} fill="#8b5cf6" />
-              </BarChart>
-            </ResponsiveContainer>
+
+          {/* Two Charts Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Attendance Chart */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Attendance Trend</h3>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days – Present vs Absent</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                  <HiOutlineClock className="text-indigo-600 dark:text-indigo-400 text-xl" />
+                </div>
+              </div>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                      cursor={{ fill: '#f8fafc' }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
+                    <Bar dataKey="present" name="Present" radius={[6, 6, 0, 0]} fill="#10b981" barSize={30} />
+                    <Bar dataKey="absent" name="Absent" radius={[6, 6, 0, 0]} fill="#ef4444" barSize={30} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Ticket Creation Chart */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Ticket Creation Trend</h3>
+                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days activity</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                  <HiOutlineChatBubbleLeftEllipsis className="text-violet-600 dark:text-violet-400 text-xl" />
+                </div>
+              </div>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                      cursor={{ fill: '#f8fafc' }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
+                    <Bar dataKey="tickets" name="Tickets Created" radius={[6, 6, 0, 0]} fill="#8b5cf6" barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -256,17 +276,17 @@ function StatCard({ title, value, icon, color }: { title: string; value: number;
   const colorClasses: Record<string, string> = {
     amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
     violet: 'from-violet-50 to-violet-100 dark:from-violet-950/30 dark:to-violet-900/20 text-violet-600 dark:text-violet-400',
-    green: 'from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/20 text-green-600 dark:text-green-400',
+    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
     indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
   };
   return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
+    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-3xl p-6 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-xl duration-300`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
-          <p className="text-3xl font-black mt-1">{value}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{title}</p>
+          <p className="text-4xl md:text-5xl font-black tracking-tighter">{value}</p>
         </div>
-        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
+        <div className="p-3 bg-white/40 dark:bg-black/20 rounded-2xl shadow-inner backdrop-blur-md">{icon}</div>
       </div>
     </div>
   );

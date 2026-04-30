@@ -496,7 +496,6 @@ export default function BookingsPage() {
             columns={dataGridColumns}
             getRowId={(row) => row._id}
             height="calc(100vh - 110px)"
-            title="Bookings List"
             rowCount={filteredBookings.length}
             onSearch={setSearchTerm}
             extraToolbarContent={

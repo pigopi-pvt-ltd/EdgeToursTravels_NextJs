@@ -63,22 +63,29 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function StatCard({ label, value, sub, gradient, Icon }: {
-  label: string; value: number; sub?: string; gradient: string; Icon: any;
+function StatCard({ label, value, sub, color, Icon }: {
+  label: string; value: number | string; sub?: string; color: string; Icon: any;
 }) {
+  const colorClasses: Record<string, string> = {
+    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+    rose: 'from-rose-50 to-rose-100 dark:from-rose-950/30 dark:to-rose-900/20 text-rose-600 dark:text-rose-400',
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+  };
   return (
-    <div className={`relative overflow-hidden rounded-2xl p-3 md:p-4 bg-gradient-to-br ${gradient} shadow-md`}>
-      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full border-4 border-white/20" />
-      <div className="absolute -bottom-6 -left-4 w-20 h-20 rounded-full border-4 border-white/10" />
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-black tracking-[0.2em] uppercase text-white/80">{label}</p>
-          <div className="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center">
-            <Icon className="text-white text-sm" />
+    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-3xl p-5 md:p-6 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-xl duration-300`}>
+      <div className="flex justify-between items-start">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 truncate">{label}</p>
+          <div className="flex items-baseline gap-1">
+            <p className="text-4xl md:text-5xl font-black tracking-tighter truncate">{value}</p>
+            {label === 'Rate' && <span className="text-xl font-bold opacity-60">%</span>}
           </div>
+          {sub && <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-2 uppercase tracking-wider truncate">{sub}</p>}
         </div>
-        <p className="text-4xl md:text-5xl font-black text-white leading-none">{value}</p>
-        {sub && <p className="text-[11px] text-white/70 font-bold mt-1">{sub}</p>}
+        <div className="p-3 bg-white/40 dark:bg-black/20 rounded-2xl shadow-inner backdrop-blur-md flex-shrink-0">
+          <Icon className="text-xl md:text-2xl" />
+        </div>
       </div>
     </div>
   );
@@ -158,203 +165,192 @@ export default function AdminAttendancePage() {
   }
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen p-6 space-y-6 transition-colors duration-300">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center shadow-md">
-              <HiCalendar className="text-white text-base" />
-            </div>
-            <p className="text-xs font-black tracking-wider text-indigo-600">ATTENDANCE</p>
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
+        {/* Header Toolbar matched to Bookings Page */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Attendance Management
+            </h2>
           </div>
-          <h1 className="text-3xl font-black text-gray-900">Attendance Management</h1>
-          <p className="text-gray-500 font-semibold mt-1">Track employee Attendance and performance</p>
-        </div>
-        <div className="flex gap-2">
-          <div className="bg-gray-100 rounded-xl p-1 flex gap-1">
-            {(['table', 'calendar'] as const).map(v => (
-              <button
-                key={v}
-                onClick={() => setViewMode(v)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  viewMode === v ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {v === 'table' ? '≡ Table' : '◫ Calendar'}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={fetchAttendance}
-            disabled={loading}
-            className={`p-2 rounded-xl bg-gray-100 text-indigo-600 hover:bg-indigo-50 transition ${loading ? 'animate-spin' : ''}`}
-          >
-            <HiRefresh className="text-base" />
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
-          {/* Employee picker */}
-          <div className="flex-1">
-            <label className="block text-[10px] font-black tracking-wider text-indigo-600 mb-1.5">EMPLOYEE</label>
-            {selectedEmp ? (
-              <div className="relative">
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <div className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-0.5 flex gap-0.5">
+              {(['table', 'calendar'] as const).map(v => (
                 <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="w-full flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-left hover:bg-gray-100"
+                  key={v}
+                  onClick={() => setViewMode(v)}
+                  className={`px-3 py-1 rounded-md text-[10px] md:text-xs font-bold transition-all ${
+                    viewMode === v ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+                  }`}
                 >
-                  <Avatar name={selectedEmp.name} size={7} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">{selectedEmp.name}</p>
-                    <p className="text-[10px] font-mono text-gray-500 truncate">{selectedEmp.email}</p>
-                  </div>
-                  <HiChevronDown className={`text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  {v === 'table' ? '≡ Table' : '◫ Calendar'}
                 </button>
-                {dropdownOpen && (
-                  <div className="absolute top-full mt-1 left-0 right-0 z-20 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg">
-                    {employees.map(emp => (
-                      <button
-                        key={emp._id}
-                        onClick={() => { setSelectedEmpId(emp._id); setDropdownOpen(false); }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 hover:bg-indigo-50 transition ${emp._id === selectedEmpId ? 'bg-indigo-50' : ''}`}
-                      >
-                        <Avatar name={emp.name} size={7} />
-                        <div className="flex-1 text-left">
-                          <p className="text-sm font-bold text-gray-900 truncate">{emp.name}</p>
-                          <p className="text-[10px] font-mono text-gray-500 truncate">{emp.email}</p>
-                        </div>
-                        {emp._id === selectedEmpId && <HiCheckCircle className="text-indigo-600" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
+              ))}
+            </div>
+            <button
+              onClick={fetchAttendance}
+              disabled={loading}
+              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            >
+              <HiRefresh className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-0">        {/* Filter Bar - Flush */}
+        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 md:p-6">
+          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-end">
+            {/* Employee picker */}
+            <div className="flex-1 w-full">
+              <label className="block text-[10px] font-black tracking-widest text-slate-400 uppercase mb-2">Select Employee</label>
+              {selectedEmp ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="w-full flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-inner"
+                  >
+                    <Avatar name={selectedEmp.name} size={8} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{selectedEmp.name}</p>
+                      <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">{selectedEmp.email}</p>
+                    </div>
+                    <HiChevronDown className={`text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {dropdownOpen && (
+                    <div className="absolute top-full mt-2 left-0 right-0 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-64 overflow-y-auto subtle-scrollbar">
+                      {employees.map(emp => (
+                        <button
+                          key={emp._id}
+                          onClick={() => { setSelectedEmpId(emp._id); setDropdownOpen(false); }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition ${emp._id === selectedEmpId ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}`}
+                        >
+                          <Avatar name={emp.name} size={7} />
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{emp.name}</p>
+                            <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">{emp.email}</p>
+                          </div>
+                          {emp._id === selectedEmpId && <HiCheckCircle className="text-indigo-600" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <select
+                  value={selectedEmpId}
+                  onChange={e => setSelectedEmpId(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                >
+                  {employees.map(e => <option key={e._id} value={e._id}>{e.name}</option>)}
+                </select>
+              )}
+            </div>
+
+            {/* Month */}
+            <div className="w-full lg:w-40">
+              <label className="block text-[10px] font-black tracking-widest text-slate-400 uppercase mb-2">Month</label>
               <select
-                value={selectedEmpId}
-                onChange={e => setSelectedEmpId(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-900"
+                value={selectedMonth}
+                onChange={e => setSelectedMonth(Number(e.target.value))}
+                className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               >
-                {employees.map(e => <option key={e._id} value={e._id}>{e.name}</option>)}
+                {MONTHS.map((m, i) => <option key={m} value={i+1}>{m}</option>)}
               </select>
-            )}
-          </div>
-
-          {/* Month */}
-          <div>
-            <label className="block text-[10px] font-black tracking-wider text-indigo-600 mb-1.5">MONTH</label>
-            <select
-              value={selectedMonth}
-              onChange={e => setSelectedMonth(Number(e.target.value))}
-              className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-900"
-            >
-              {MONTHS.map((m, i) => <option key={m} value={i+1}>{m}</option>)}
-            </select>
-          </div>
-
-          {/* Year */}
-          <div>
-            <label className="block text-[10px] font-black tracking-wider text-indigo-600 mb-1.5">YEAR</label>
-            <select
-              value={selectedYear}
-              onChange={e => setSelectedYear(Number(e.target.value))}
-              className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-900"
-            >
-              {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-          </div>
-
-          {/* View button */}
-          <button
-            onClick={fetchAttendance}
-            disabled={loading}
-            className="w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-black px-6 py-2.5 rounded-xl text-sm transition-all disabled:opacity-50 shadow-md"
-          >
-            {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" /> : 'View Report'}
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-rose-700 font-bold text-sm flex items-center gap-2">
-          <HiXCircle className="text-lg" /> {error}
-        </div>
-      )}
-
-      {/* Stats Cards – same bold gradients on white background */}
-      {attendance.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Present" value={stats.present} Icon={HiCheckCircle} gradient="from-emerald-600 to-teal-600" sub={`of ${stats.total} days`} />
-          <StatCard label="Absent" value={stats.absent} Icon={HiXCircle} gradient="from-rose-600 to-pink-600" sub={`of ${stats.total} days`} />
-          <StatCard label="Half Day" value={stats.halfDay} Icon={HiMinusSm} gradient="from-amber-500 to-orange-600" sub="partial days" />
-          <div className="bg-gray-50 rounded-2xl p-4 flex flex-col justify-between border border-gray-200">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-[10px] font-black tracking-wider text-indigo-600">ATTENDANCE RATE</p>
-              <HiTrendingUp className="text-indigo-600 text-base" />
             </div>
-            <p className="text-4xl md:text-5xl font-black text-gray-900">{pct}<span className="text-2xl">%</span></p>
-            <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+
+            {/* Year */}
+            <div className="w-full lg:w-32">
+              <label className="block text-[10px] font-black tracking-widest text-slate-400 uppercase mb-2">Year</label>
+              <select
+                value={selectedYear}
+                onChange={e => setSelectedYear(Number(e.target.value))}
+                className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              >
+                {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
             </div>
-            <p className="text-[11px] font-bold text-gray-500 mt-2">{stats.present}/{stats.total} days present</p>
+
+            {/* View button */}
+            <button
+              onClick={fetchAttendance}
+              disabled={loading}
+              className="w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 py-3.5 rounded-xl text-sm transition-all disabled:opacity-50 shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95"
+            >
+              {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" /> : 'View Report'}
+            </button>
           </div>
         </div>
-      )}
 
-      {selectedEmp && attendance.length > 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 flex flex-wrap items-center gap-3">
-          <Avatar name={selectedEmp.name} size={9} />
-          <div>
-            <p className="font-black text-gray-900 text-sm">{selectedEmp.name}</p>
-            <p className="text-[11px] font-mono text-gray-500">{selectedEmp.email}</p>
+        {error && (
+          <div className="m-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-4 text-rose-700 dark:text-rose-400 font-bold text-sm flex items-center gap-2 animate-in slide-in-from-top-2 duration-300">
+            <HiXCircle className="text-xl" /> {error}
           </div>
-          <div className="ml-auto flex gap-2">
-            <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full">
-              {MONTHS[selectedMonth-1]} {selectedYear}
-            </span>
-            <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-              {stats.total} Records
-            </span>
+        )}
+
+        {/* Stats Cards - Padded but flush containers */}
+        {attendance.length > 0 && (
+          <div className="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 border-b border-slate-200 dark:border-slate-800">
+            <StatCard label="Present" value={stats.present} Icon={HiCheckCircle} color="emerald" sub={`${stats.present}/${stats.total} Days`} />
+            <StatCard label="Absent" value={stats.absent} Icon={HiXCircle} color="rose" sub={`${stats.absent}/${stats.total} Days`} />
+            <StatCard label="Half Day" value={stats.halfDay} Icon={HiMinusSm} color="amber" sub="Partial Days" />
+            <StatCard label="Rate" value={pct} Icon={HiTrendingUp} color="indigo" sub="Monthly Average" />
           </div>
-        </div>
-      )}
+        )}
 
-      {loading && (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full" />
-        </div>
-      )}
-
-      {!loading && attendance.length === 0 && selectedEmpId && (
-        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-12 text-center">
-          <HiCalendar className="text-4xl text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-900 font-bold">No records found</p>
-          <p className="text-gray-500 text-sm mt-1">No attendance data for {MONTHS[selectedMonth-1]} {selectedYear}</p>
-        </div>
-      )}
-
-      {/* Table View */}
-      {!loading && attendance.length > 0 && viewMode === 'table' && (
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-            <p className="text-xs font-black tracking-wider text-indigo-600">DAILY RECORDS</p>
-            <p className="text-[10px] font-mono text-gray-500">{attendance.length} entries</p>
+        {selectedEmp && attendance.length > 0 && (
+          <div className="bg-slate-50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex flex-wrap items-center gap-4 animate-in fade-in duration-500">
+            <Avatar name={selectedEmp.name} size={10} />
+            <div className="flex-1 min-w-[200px]">
+              <p className="font-black text-slate-800 dark:text-white text-lg leading-tight uppercase tracking-tight">{selectedEmp.name}</p>
+              <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-1">{selectedEmp.email}</p>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 px-4 py-1.5 rounded-xl uppercase tracking-widest">
+                {MONTHS[selectedMonth-1]} {selectedYear}
+              </span>
+              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-xl uppercase tracking-widest">
+                {stats.total} Records
+              </span>
+            </div>
           </div>
+        )}
+
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full shadow-lg" />
+          </div>
+        )}
+
+        {!loading && attendance.length === 0 && selectedEmpId && (
+          <div className="m-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-16 text-center animate-in zoom-in-95 duration-300 shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <HiCalendar className="text-4xl text-slate-300 dark:text-slate-600" />
+            </div>
+            <p className="text-slate-800 dark:text-white font-black text-xl mb-2">No attendance data found</p>
+            <p className="text-slate-500 dark:text-slate-400 font-bold">There are no records for {MONTHS[selectedMonth-1]} {selectedYear}.</p>
+          </div>
+        )}
+
+        {/* Table View - Flush */}
+        {!loading && attendance.length > 0 && viewMode === 'table' && (
+          <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+              <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Daily Attendance Records</p>
+              <p className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 rounded-lg uppercase tracking-tighter">{attendance.length} Entries Loaded</p>
+            </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[550px]">
-              <thead className="bg-gray-50">
+            <table className="w-full min-w-[700px]">
+              <thead className="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
                   {['Date','Day','Check In','Check Out','Hours','Status'].map(h => (
-                    <th key={h} className="text-left py-3 px-4 text-[10px] font-black tracking-wider text-indigo-600">{h}</th>
+                    <th key={h} className="text-left py-4 px-6 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase border-r border-slate-100 dark:border-slate-800 last:border-r-0">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
-                {attendance.map((rec, i) => {
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {attendance.map((rec) => {
                   const { day, month, weekday } = formatDate(rec.date);
                   const isWeekend = weekday === 'Sat' || weekday === 'Sun';
                   let hours = '—';
@@ -363,103 +359,117 @@ export default function AdminAttendancePage() {
                     hours = `${diff.toFixed(1)}h`;
                   }
                   return (
-                    <tr key={rec._id} className="border-t border-gray-100 hover:bg-gray-50 transition">
-                      <td className="py-3 px-4">
+                    <tr key={rec._id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200">
+                      <td className="py-4 px-6 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center border shadow-sm ${isWeekend ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700' : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50'}`}>
+                            <span className={`text-[9px] font-black uppercase tracking-tighter ${isWeekend ? 'text-slate-400' : 'text-emerald-600'}`}>{month}</span>
+                            <span className={`text-base font-black ${isWeekend ? 'text-slate-600' : 'text-slate-900 dark:text-white'}`}>{day}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest ${isWeekend ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-800/50'}`}>{weekday}</span>
+                      </td>
+                      <td className="py-4 px-6 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
                         <div className="flex items-center gap-2">
-                          <div className={`w-9 h-9 rounded-xl flex flex-col items-center justify-center ${isWeekend ? 'bg-gray-100' : 'bg-indigo-50'}`}>
-                            <span className={`text-[10px] font-black ${isWeekend ? 'text-gray-500' : 'text-indigo-600'}`}>{month}</span>
-                            <span className={`text-base font-black ${isWeekend ? 'text-gray-600' : 'text-gray-900'}`}>{day}</span>
-                          </div>
+                          <HiClock className="text-emerald-500 text-sm" />
+                          <span className="text-sm font-bold text-slate-700 dark:text-slate-200 font-mono tracking-tighter">{formatTime(rec.checkIn)}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${isWeekend ? 'text-gray-500 bg-gray-100' : 'text-cyan-700 bg-cyan-50'}`}>{weekday}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5">
-                          <HiClock className="text-emerald-600 text-xs" />
-                          <span className="text-sm font-black text-emerald-700 font-mono">{formatTime(rec.checkIn)}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-6 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
                         {rec.checkOut ? (
-                          <div className="flex items-center gap-1.5">
-                            <HiClock className="text-rose-600 text-xs" />
-                            <span className="text-sm font-black text-rose-700 font-mono">{formatTime(rec.checkOut)}</span>
+                          <div className="flex items-center gap-2">
+                            <HiClock className="text-rose-500 text-sm" />
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 font-mono tracking-tighter">{formatTime(rec.checkOut)}</span>
                           </div>
-                        ) : <span className="text-sm text-gray-400 font-bold">—</span>}
+                        ) : <span className="text-sm text-slate-300 dark:text-slate-600 font-bold">—</span>}
                       </td>
-                      <td className="py-3 px-4">
-                        <span className={`text-sm font-black font-mono ${hours !== '—' ? 'text-amber-700' : 'text-gray-400'}`}>{hours}</span>
+                      <td className="py-4 px-6 border-r border-slate-100 dark:border-slate-800 last:border-r-0">
+                        <span className={`text-sm font-black font-mono tracking-tighter ${hours !== '—' ? 'text-amber-600 dark:text-amber-400' : 'text-slate-300 dark:text-slate-600'}`}>{hours}</span>
                       </td>
-                      <td className="py-3 px-4"><StatusPill status={rec.status} /></td>
+                      <td className="py-4 px-6"><StatusPill status={rec.status} /></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-          <div className="px-4 py-3 border-t border-gray-200 flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-xs font-bold text-gray-700"><span className="text-emerald-600">{stats.present}</span> Present</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-rose-500" /><span className="text-xs font-bold text-gray-700"><span className="text-rose-600">{stats.absent}</span> Absent</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-xs font-bold text-gray-700"><span className="text-amber-600">{stats.halfDay}</span> Half Day</span></div>
-            <span className="ml-auto text-[10px] font-bold text-gray-500 font-mono">{pct}% attendance rate</span>
+          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex flex-wrap gap-6 items-center">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stats.present} Present</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stats.absent} Absent</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm" />
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stats.halfDay} Half Day</span>
+            </div>
+            <span className="ml-auto text-[10px] font-black text-indigo-600 dark:text-indigo-400 font-mono uppercase tracking-[0.2em]">{pct}% Attendance Efficiency</span>
           </div>
         </div>
       )}
 
-      {/* Calendar View */}
+      {/* Calendar View - Flush */}
       {!loading && attendance.length > 0 && viewMode === 'calendar' && (
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-xs font-black tracking-wider text-indigo-600">{MONTHS[selectedMonth-1]} {selectedYear} — Calendar View</p>
+        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+            <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{MONTHS[selectedMonth-1]} {selectedYear} Overview</p>
+            <div className="flex gap-2">
+               {['Present', 'Absent', 'Half Day'].map((label, idx) => (
+                 <div key={label} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                   <div className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-emerald-500' : idx === 1 ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                   <span className="text-[9px] font-black text-slate-500 uppercase">{label}</span>
+                 </div>
+               ))}
+            </div>
           </div>
-          <div className="grid grid-cols-7 border-b border-gray-200">
+          <div className="grid grid-cols-7 border-b border-slate-100 dark:border-slate-800">
             {DAYS.map(d => (
-              <div key={d} className={`py-2 text-center text-[10px] font-black tracking-wider ${d === 'Sun' || d === 'Sat' ? 'text-rose-600' : 'text-indigo-600'}`}>
+              <div key={d} className={`py-3 text-center text-[10px] font-black tracking-[0.2em] uppercase ${d === 'Sun' || d === 'Sat' ? 'text-rose-500 bg-rose-50/30 dark:bg-rose-900/10' : 'text-slate-400 dark:text-slate-500'}`}>
                 {d}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7">
+          <div className="grid grid-cols-7 divide-x divide-y divide-slate-100 dark:divide-slate-800 border-l border-t border-slate-100 dark:border-slate-800">
             {calCells.map((day, idx) => {
-              if (!day) return <div key={`empty-${idx}`} className="aspect-square border-b border-r border-gray-200" />;
+              if (!day) return <div key={`empty-${idx}`} className="aspect-square bg-slate-50/30 dark:bg-slate-800/20" />;
               const rec = getRecordForDay(day);
               const today = new Date();
               const isToday = today.getDate() === day && today.getMonth()+1 === selectedMonth && today.getFullYear() === selectedYear;
               const colIdx = (firstDay + day - 1) % 7;
               const isWeekend = colIdx === 0 || colIdx === 6;
               const bgColor = rec
-                ? rec.status === 'present' ? 'bg-emerald-50' : rec.status === 'absent' ? 'bg-rose-50' : 'bg-amber-50'
+                ? rec.status === 'present' ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : rec.status === 'absent' ? 'bg-rose-50/50 dark:bg-rose-900/10' : 'bg-amber-50/50 dark:bg-amber-900/10'
                 : '';
               const dotColor = rec
                 ? rec.status === 'present' ? 'bg-emerald-500' : rec.status === 'absent' ? 'bg-rose-500' : 'bg-amber-500'
                 : '';
               return (
-                <div key={day} className={`aspect-square border-b border-r border-gray-200 p-1.5 flex flex-col ${bgColor}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isToday ? 'bg-indigo-600' : ''}`}>
-                    <span className={`text-xs font-black ${isToday ? 'text-white' : isWeekend ? 'text-rose-600' : 'text-gray-700'}`}>{day}</span>
+                <div key={day} className={`aspect-square p-2 flex flex-col group hover:z-10 hover:shadow-2xl hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 relative ${bgColor} ${isWeekend && !rec ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''}`}>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs transition-colors ${isToday ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : isWeekend ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400 group-hover:text-indigo-600'}`}>
+                    {day}
                   </div>
                   {rec && (
-                    <div className="flex-1 flex items-end justify-end">
-                      <span className="hidden md:block text-[9px] font-black px-1.5 py-0.5 rounded-md bg-opacity-20 text-emerald-700 bg-emerald-100">
-                        {rec.status === 'present' ? '✓ IN' : rec.status === 'absent' ? '✗ ABS' : '½ HD'}
+                    <div className="flex-1 flex flex-col items-center justify-center gap-1">
+                      <div className={`w-1.5 h-1.5 rounded-full shadow-sm animate-pulse ${dotColor}`} />
+                      <span className={`text-[8px] font-black uppercase tracking-tighter ${rec.status === 'present' ? 'text-emerald-600' : rec.status === 'absent' ? 'text-rose-600' : 'text-amber-600'}`}>
+                        {rec.status === 'present' ? 'Present' : rec.status === 'absent' ? 'Absent' : 'Half'}
                       </span>
-                      <span className={`md:hidden w-2 h-2 rounded-full ${dotColor}`} />
                     </div>
                   )}
+                  {isToday && <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-sm" />}
                 </div>
               );
             })}
           </div>
-          <div className="px-4 py-3 border-t border-gray-200 flex flex-wrap gap-4 justify-center">
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /><span className="text-[11px] font-bold text-gray-700">Present</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500" /><span className="text-[11px] font-bold text-gray-700">Absent</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="text-[11px] font-bold text-gray-700">Half Day</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-indigo-600" /><span className="text-[11px] font-bold text-gray-700">Today</span></div>
-          </div>
         </div>
       )}
+      </div>
+    </div>
     </div>
   );
-}
+}

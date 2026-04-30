@@ -280,15 +280,15 @@ export default function EmployeeBookingsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-white dark:bg-slate-800 border-b">
-                {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
                   <th key={i} className="px-4 py-3"><div className="h-3 w-20 bg-slate-200 rounded mx-auto"></div></th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {[1,2,3,4,5,6].map(row => (
+              {[1, 2, 3, 4, 5, 6].map(row => (
                 <tr key={row} className="border-b h-[72px]">
-                  {[1,2,3,4,5,6,7,8].map(col => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(col => (
                     <td key={col} className="px-4 py-3"><div className="h-3 w-full max-w-[100px] bg-slate-100 rounded mx-auto"></div></td>
                   ))}
                 </tr>
@@ -410,9 +410,8 @@ export default function EmployeeBookingsPage() {
                         <td
                           key={colId}
                           style={{ width: `${columnWidths[colId]}px`, minWidth: `${columnWidths[colId]}px` }}
-                          className={`px-6 py-1.5 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap truncate ${config.className || ''} ${
-                            ['status', 'actions', 'price', 'vehicle', 'driver', 'time', 'date'].includes(colId) ? 'text-center' : ''
-                          }`}
+                          className={`px-6 py-1.5 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap truncate ${config.className || ''} ${['status', 'actions', 'price', 'vehicle', 'driver', 'time', 'date'].includes(colId) ? 'text-center' : ''
+                            }`}
                         >
                           {config.render(booking)}
                         </td>

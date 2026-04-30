@@ -458,7 +458,6 @@ export default function CustomersPage() {
             columns={customerColumns}
             getRowId={(row) => row._id}
             height="calc(100vh - 110px)"
-            title="Customer Directory"
             rowCount={filtered.length}
             onSearch={setSearchTerm}
             extraToolbarContent={

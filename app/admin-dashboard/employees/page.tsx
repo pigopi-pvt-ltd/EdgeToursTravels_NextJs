@@ -428,7 +428,6 @@ export default function EmployeesPage() {
             columns={employeeTableColumns}
             getRowId={(row) => row._id}
             height="calc(100vh - 110px)"
-            title="Employees List"
             rowCount={filteredUsers.length}
             onSearch={setSearchTerm}
             extraToolbarContent={

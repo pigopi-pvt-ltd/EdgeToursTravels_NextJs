@@ -393,7 +393,6 @@ export default function VehiclesPage() {
           columns={vehicleColumns}
           getRowId={(row) => row._id}
           height="calc(100vh - 110px)"
-          title="Vehicles List"
           rowCount={filteredVehicles.length}
           onSearch={setSearchTerm}
           extraToolbarContent={

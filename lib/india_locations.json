@@ -1,0 +1,32 @@
+{
+  "states": [
+    {
+      "name": "Bihar",
+      "districts": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Purnia", "Darbhanga", "Ara", "Begusarai", "Katihar", "Munger"]
+    },
+    {
+      "name": "Maharashtra",
+      "districts": ["Mumbai", "Pune", "Nagpur", "Thane", "Pimpri-Chinchwad", "Nashik", "Kalyan-Dombivli", "Vasai-Virar", "Aurangabad", "Navi Mumbai"]
+    },
+    {
+      "name": "Uttar Pradesh",
+      "districts": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Meerut", "Varanasi", "Prayagraj", "Bareilly", "Aligarh", "Moradabad"]
+    },
+    {
+      "name": "Delhi",
+      "districts": ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"]
+    },
+    {
+      "name": "West Bengal",
+      "districts": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Maheshtala", "Rajpur Sonarpur", "Gopalpur", "Bhatpara", "Panihati"]
+    },
+    {
+      "name": "Karnataka",
+      "districts": ["Bengaluru", "Hubballi-Dharwad", "Mysuru", "Kalaburagi", "Belagavi", "Mangaluru", "Davanagere", "Ballari", "Vijayapura", "Shivamogga"]
+    },
+    {
+      "name": "Rajasthan",
+      "districts": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara", "Alwar", "Bharatpur", "Sikar"]
+    }
+  ]
+}

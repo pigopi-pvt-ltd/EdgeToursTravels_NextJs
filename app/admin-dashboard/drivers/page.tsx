@@ -634,7 +634,6 @@ export default function DriversPage() {
             columns={driverTableColumns}
             getRowId={(row) => row._id}
             height="calc(100vh - 110px)"
-            title="Drivers List"
             rowCount={filteredDrivers.length}
             onSearch={setSearchTerm}
             extraToolbarContent={

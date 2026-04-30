@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, useTheme, Typography, StyledEngineProvider, TextField, InputAdornment } from "@mui/material";
+import { Box, useTheme, Typography, TextField, InputAdornment, NoSsr } from "@mui/material";
 import { DataGrid, DataGridProps, gridClasses, GridToolbarContainer } from "@mui/x-data-grid";
 import { HiMagnifyingGlass } from 'react-icons/hi2';
 import './CustomTable.css';
@@ -51,38 +51,31 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
   ...props
 }) => {
   const theme = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const CustomToolbar = () => {
     return (
-      <GridToolbarContainer sx={{
-        p: '6px 16px',
-        borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-          <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Toolbar
-          </Typography>
-          {extraToolbarContent}
-        </Box>
-
+      <GridToolbarContainer
+        sx={{
+          p: 1.5,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 2,
+          borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(224, 224, 224, 0.5)",
+          flexWrap: 'wrap'
+        }}
+      >
         {onSearch && (
           <TextField
-            size="small"
-            placeholder="Search..."
             variant="outlined"
+            size="small"
+            placeholder="Search records..."
             onChange={(e) => onSearch(e.target.value)}
-            sx={{
-              width: 250,
-              '& .MuiOutlinedInput-root': {
-                fontSize: '12px',
-                height: '32px',
-                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff'
-              }
-            }}
             slotProps={{
               input: {
                 startAdornment: (
@@ -90,106 +83,126 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
                     <HiMagnifyingGlass className="text-slate-400" />
                   </InputAdornment>
                 ),
-              }
+              },
+            }}
+            sx={{
+              width: { xs: '100%', sm: 250 },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "8px",
+                backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#fff",
+                fontSize: "12px",
+                fontWeight: "bold",
+              },
             }}
           />
+        )}
+        {extraToolbarContent && (
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", ml: "auto" }}>
+            {extraToolbarContent}
+          </Box>
         )}
       </GridToolbarContainer>
     );
   };
 
+  if (!mounted) {
+    return (
+      <div className="w-full h-full animate-pulse bg-slate-50 dark:bg-slate-900 flex items-center justify-center min-h-[400px] rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Preparing Table...</div>
+      </div>
+    );
+  }
+
   return (
-    <StyledEngineProvider injectFirst>
-      <Box
-        sx={{
-          overflow: "hidden",
-          height: height ? height : "calc(100vh - 110px)",
-          backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#fff",
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        {title && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "8px 16px",
-              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
-              backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
+    <Box
+      sx={{
+        overflow: "hidden",
+        height: height ? height : "calc(100vh - 110px)",
+        backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#fff",
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      {title && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 16px",
+            borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
+            backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            component="div"
+            sx={{
+              fontWeight: 1600,
+              fontSize: '15px',
+              color: theme.palette.mode === "dark" ? "#fff" : "#333",
+              textTransform: 'uppercase',
+              letterSpacing: '-0.02em'
             }}
           >
-            <Typography
-              variant="subtitle1"
-              component="div"
-              sx={{
-                fontWeight: 1600,
-                fontSize: '15px',
-                color: theme.palette.mode === "dark" ? "#fff" : "#333",
-                textTransform: 'uppercase',
-                letterSpacing: '-0.02em'
-              }}
-            >
-              {title}{" "}
-              {(rowCount ?? rows.length) > 0 ? `(${(rowCount ?? rows.length)})` : ""}
-            </Typography>
-          </div>
-        )}
+            {title}{" "}
+            {(rowCount ?? rows.length) > 0 ? `(${(rowCount ?? rows.length)})` : ""}
+          </Typography>
+        </div>
+      )}
+      {mounted && (
         <DataGrid
           rows={rows}
           columns={columns}
           rowHeight={rowHeight}
           pagination
           paginationMode={paginationModel ? "server" : "client"}
-          rowCount={rowCount ?? rows.length}
+          {...(paginationModel ? { rowCount: rowCount ?? rows.length } : {})}
           paginationModel={paginationModel}
           onPaginationModelChange={onPaginationModelChange}
           sortingMode={sortModel ? "server" : "client"}
           sortModel={sortModel}
           onSortModelChange={onSortModelChange}
           pageSizeOptions={pageSizeOptions}
-          disableColumnMenu
           disableRowSelectionOnClick
-          className="custom-admin-datagrid"
           slots={{
-            noRowsOverlay: NoDataOverlay,
             toolbar: (onSearch || extraToolbarContent) ? CustomToolbar : undefined,
+            noRowsOverlay: NoDataOverlay,
             ...slots,
           }}
           sx={{
-            borderRadius: 0,
-            border: 'none',
-            backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#fff",
-            color: theme.palette.mode === "dark" ? "#fff" : "inherit",
-
-            "& .MuiDataGrid-columnHeader, & .MuiDataGrid-columnHeaderTitle, & .MuiDataGrid-columnHeaderTitleContainer, & .MuiDataGrid-columnHeaderTitleContainerContent": {
-              textDecoration: "none !important",
-              outline: "none !important",
-              boxShadow: "none !important",
+            flex: 1,
+            border: "none",
+            borderRadius: "0 0 16px 16px",
+            backgroundColor: theme.palette.mode === "dark" ? "#1A2236" : "#fff",
+            color: theme.palette.mode === "dark" ? "#fff" : "#333",
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: theme.palette.mode === "dark" ? "#111827" : "#f1f5f9",
+              color: theme.palette.mode === "dark" ? "#fff" : "#0f172a",
+              fontSize: "12px",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
             },
-
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: "bold",
-              textAlign: "center",
-              width: "100%",
+            "& .MuiDataGrid-cell": {
+              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid #f1f5f9",
+              fontSize: "13px",
+              fontWeight: 500,
             },
-
-            "& .MuiDataGrid-row": {
-              "&:hover": {
-                backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
-              },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "#f8fafc",
             },
-
-            [`& .${gridClasses.columnHeaders}`]: {
-              borderBottom: "none",
+            [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
+              outline: "none",
             },
-
-            ...props.sx,
+            [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]: {
+              outline: "none",
+            },
           }}
           {...props}
         />
-      </Box>
-    </StyledEngineProvider>
+      )}
+    </Box>
   );
 };
 
