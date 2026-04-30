@@ -75,7 +75,7 @@ function SettingsPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
         {/* Toast Notification */}
         {toast && (
           <div className={`fixed top-24 right-4 z-[100] px-5 py-3 rounded-xl shadow-lg text-white font-bold flex items-center gap-2 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} animate-in slide-in-from-right-8 duration-300`}>

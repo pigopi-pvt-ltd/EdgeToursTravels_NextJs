@@ -60,7 +60,7 @@ function ChangePasswordPage() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-slate-800 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300">
         {/* Toast Notification */}
         {toast && (
           <div className={`fixed top-0 left-1/2 -translate-x-1/2 z-[100] px-8 py-4 rounded-b-2xl shadow-2xl text-white font-extrabold flex items-center gap-3 ${toast.type === 'success' ? 'bg-green-600 shadow-green-500/20' : 'bg-red-600 shadow-red-500/20'} animate-in slide-in-from-top-full fade-in duration-500 whitespace-nowrap`}>
@@ -79,7 +79,7 @@ function ChangePasswordPage() {
         </div>
 
         <div className="p-0">
-          <div className="bg-white dark:bg-slate-900 py-6 md:py-8 transition-colors min-h-[calc(100vh-112px)] flex items-center justify-center">
+          <div className="bg-slate-50 dark:bg-[#0A1128] py-6 md:py-8 transition-colors min-h-[calc(100vh-112px)] flex items-center justify-center">
             <div className="w-full max-w-lg bg-white dark:bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl mx-4 animate-in zoom-in-95 duration-500">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">

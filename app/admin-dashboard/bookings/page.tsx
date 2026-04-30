@@ -7,6 +7,9 @@ import {
   HiChevronRight, HiChevronDown, HiArrowPath, HiXMark, HiMagnifyingGlass
 } from 'react-icons/hi2';
 import apiClient from '@/lib/apiClient';
+import CustomTable from '@/components/CustomTable';
+import { GridColDef } from '@mui/x-data-grid';
+import { Tooltip, IconButton, Chip } from '@mui/material';
 
 // --- Types -------------------------------------------------
 interface Booking {
@@ -66,20 +69,6 @@ export default function BookingsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-
-  // Column Drag & Drop state
-  const [columns, setColumns] = useState<string[]>([
-    'customer', 'contact', 'pickup', 'dropoff', 'date', 'time', 'price', 'driver', 'vehicle', 'status', 'response', 'actions'
-  ]);
-  const [draggedColumnIndex, setDraggedColumnIndex] = useState<number | null>(null);
-
-  // Column Resizing state
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
-    customer: 180, contact: 140, pickup: 200, dropoff: 200, date: 120, time: 100, price: 100, driver: 140, vehicle: 120, status: 120, response: 120, actions: 100
-  });
-  const [isResizing, setIsResizing] = useState<string | null>(null);
-  const [startX, setStartX] = useState(0);
-  const [startWidth, setStartWidth] = useState(0);
 
   // Assignment modal state
   const [assignModal, setAssignModal] = useState<{
@@ -227,176 +216,189 @@ export default function BookingsPage() {
     return matchesStatus && matchesSearch;
   });
 
-  // --- Column Reordering Handlers ---------------------------
-  const handleDragStart = (index: number) => {
-    setDraggedColumnIndex(index);
-  };
+  // --- DataGrid Columns Configuration ----------------------
+  const dataGridColumns: GridColDef[] = [
+    {
+      field: 'name',
+      headerName: 'CUSTOMER NAME',
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => (
+        <span className="font-bold text-slate-800 dark:text-slate-200">
+          {params.value}
+        </span>
+      ),
+    },
+    {
+      field: 'contact',
+      headerName: 'CONTACT NO',
+      width: 120,
+    },
+    {
+      field: 'from',
+      headerName: 'PICKUP',
+      width: 160,
+      renderCell: (params) => (
+        <div className="flex items-center gap-1.5 h-full">
+          <HiOutlineMapPin className="text-orange-400 text-lg" />
+          <span className="truncate">{params.value}</span>
+        </div>
+      ),
+    },
+    {
+      field: 'destination',
+      headerName: 'DROP OFF',
+      width: 160,
+      renderCell: (params) => (
+        <div className="flex items-center gap-1.5 h-full">
+          <HiOutlineMapPin className="text-blue-400 text-lg" />
+          <span className="truncate">{params.value}</span>
+        </div>
+      ),
+    },
+    {
+      field: 'dateTime',
+      headerName: 'DATE',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <div className="flex items-center gap-2 h-full justify-center">
+          <HiOutlineCalendar className="text-orange-500 dark:text-orange-400 text-[16px]" />
+          <span className="font-medium">{new Date(params.value).toLocaleDateString('en-GB')}</span>
+        </div>
+      ),
+    },
+    {
+      field: 'time',
+      headerName: 'TIME',
+      width: 120,
+      headerAlign: 'center',
+      align: 'center',
+      valueGetter: (value, row) => row.dateTime,
+      renderCell: (params) => (
+        <div className="flex items-center gap-2 h-full justify-center">
+          <HiOutlineClock className="text-blue-500 dark:text-blue-400 text-[16px]" />
+          <span className="font-medium">{new Date(params.value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+        </div>
+      ),
+    },
+    {
+      field: 'price',
+      headerName: 'PRICE',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
+          {params.value || 'Not Specified'}
+        </p>
+      ),
+    },
+    {
+      field: 'driverId',
+      headerName: 'DRIVER',
+      width: 150,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => params.value ? (
+        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{params.value.name}</span>
+      ) : (
+        <button
+          onClick={() => {
+            setAssignModal({ isOpen: true, bookingId: params.row._id });
+            setSelectedDriver('');
+            setSelectedVehicle('');
+          }}
+          className="text-indigo-600 dark:text-indigo-400 text-sm font-black hover:underline underline-offset-4"
+        >
+          + Assign
+        </button>
+      ),
+    },
+    {
+      field: 'vehicleId',
+      headerName: 'VEHICLE',
+      width: 120,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
+          {params.value?.cabNumber || '—'}
+        </span>
+      ),
+    },
+    {
+      field: 'status',
+      headerName: 'STATUS',
+      width: 140,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const status = params.value;
+        const colorClass =
+          status === 'confirmed' ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]' :
+            status === 'cancelled' ? 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]' :
+              status === 'completed' ? 'bg-[#F0F9FF] text-[#0EA5E9] border-[#E0F2FE]' :
+                'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]';
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (index: number) => {
-    if (draggedColumnIndex === null) return;
-    const newColumns = [...columns];
-    const draggedItem = newColumns.splice(draggedColumnIndex, 1)[0];
-    newColumns.splice(index, 0, draggedItem);
-    setColumns(newColumns);
-    setDraggedColumnIndex(null);
-  };
-
-  // --- Column Resizing Handlers ---------------------------
-  const handleResizeStart = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(id);
-    setStartX(e.pageX);
-    setStartWidth(columnWidths[id]);
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      const diff = e.pageX - startX;
-      setColumnWidths(prev => ({
-        ...prev,
-        [isResizing]: Math.max(80, startWidth + diff)
-      }));
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(null);
-    };
-
-    if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing, startX, startWidth]);
-
-  const getColumnConfig = (id: string) => {
-    const configs: Record<string, any> = {
-      customer: { label: 'Customer Name', render: (b: Booking) => b.name, className: 'font-bold' },
-      contact: { label: 'Contact No', render: (b: Booking) => b.contact },
-      pickup: {
-        label: 'Pickup', render: (b: Booking) => (
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
-            {b.from}
-          </div>
-        )
-      },
-      dropoff: {
-        label: 'Drop Off', render: (b: Booking) => (
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-            {b.destination}
-          </div>
-        )
-      },
-      date: {
-        label: 'Date', render: (b: Booking) => (
-          <div className="flex items-center gap-2">
-            <HiOutlineCalendar className="text-orange-500 dark:text-orange-400 text-[16px]" />
-            <span className="font-medium">{new Date(b.dateTime).toLocaleDateString('en-GB')}</span>
-          </div>
-        )
-      },
-      time: {
-        label: 'Time', render: (b: Booking) => (
-          <div className="flex items-center gap-2">
-            <HiOutlineClock className="text-blue-500 dark:text-blue-400 text-[16px]" />
-            <span className="font-medium">{new Date(b.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-          </div>
-        )
-      },
-      price: {
-        label: 'Price', render: (b: Booking) => (
-          <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
-            {b.price || 'Not Specified'}
-          </p>
-        )
-      },
-      driver: {
-        label: 'Driver', render: (b: Booking) => b.driverId ? (
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{b.driverId.name}</span>
-        ) : (
-          <button
-            onClick={() => {
-              setAssignModal({ isOpen: true, bookingId: b._id });
-              setSelectedDriver('');
-              setSelectedVehicle('');
-            }}
-            className="text-indigo-600 dark:text-indigo-400 text-sm font-black hover:underline underline-offset-4"
-          >
-            + Assign
-          </button>
-        )
-      },
-      vehicle: {
-        label: 'Vehicle', render: (b: Booking) => (
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            {b.vehicleId?.cabNumber || '—'}
+        return (
+          <span className={`px-2 py-0.5 rounded text-xs font-bold border inline-block min-w-[90px] text-center uppercase tracking-widest ${colorClass}`}>
+            {status}
           </span>
-        )
-      },
-      status: {
-        label: 'Status', render: (b: Booking) => (
-          <span className={`
-            px-2 py-0.5 rounded text-sm font-bold border inline-block min-w-[100px] text-center uppercase tracking-widest
-            ${b.status === 'confirmed' ? 'bg-[#F0FDF4] dark:bg-green-900/20 text-[#22C55E] border-[#DCFCE7] dark:border-green-900/30' :
-              b.status === 'cancelled' ? 'bg-[#FEF2F2] dark:bg-red-900/20 text-[#EF4444] border-[#FEE2E2] dark:border-red-900/30' :
-                b.status === 'completed' ? 'bg-[#F0F9FF] dark:bg-blue-900/20 text-[#0EA5E9] border-[#E0F2FE] dark:border-blue-900/30' :
-                  'bg-[#FFFCF0] dark:bg-yellow-900/20 text-[#EAB308] border-[#FEF08A] dark:border-yellow-900/30'}
-            `}>
-            {b.status}
-          </span>
-        )
-      },
-      response: {
-        label: 'Driver Resp.', render: (b: Booking) => b.driverResponse ? (
-          <span className={`inline-flex px-2 py-0.5 rounded border text-xs font-bold uppercase
-            ${b.driverResponse === 'accepted' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
-            {b.driverResponse}
-          </span>
-        ) : (
-          <span className="text-xs text-slate-400">—</span>
-        )
-      },
-      actions: {
-        label: 'Actions', render: (b: Booking) => (
-          <div className="flex items-center justify-center gap-2">
-            {(b.status === 'pending' || b.status === 'confirmed') && (
-              <button
-                onClick={() => updateStatus(b._id, b.status === 'pending' ? 'confirmed' : 'completed')}
-                disabled={updatingId === b._id}
-                className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm disabled:opacity-50"
-                title="Update Status"
-              >
-                {updatingId === b._id ? <HiArrowPath className="text-lg animate-spin" /> : <HiOutlineCheckCircle className="text-lg" />}
-              </button>
-            )}
-            {b.status !== 'cancelled' && b.status !== 'completed' && (
-              <button
-                onClick={() => updateStatus(b._id, 'cancelled')}
-                disabled={updatingId === b._id}
-                className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400 rounded-full hover:bg-red-600 hover:text-white transition-all shadow-sm disabled:opacity-50"
-                title="Cancel Booking"
-              >
-                <HiOutlineXCircle className="text-lg" />
-              </button>
-            )}
-          </div>
-        )
+        );
       }
-    };
-    return configs[id];
-  };
+    },
+    {
+      field: 'driverResponse',
+      headerName: 'DRIVER RESP.',
+      width: 120,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => params.value ? (
+        <span className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-bold uppercase
+          ${params.value === 'accepted' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+          {params.value}
+        </span>
+      ) : (
+        <span className="text-xs text-slate-400">—</span>
+      )
+    },
+    {
+      field: 'actions',
+      headerName: 'ACTIONS',
+      width: 100,
+      sortable: false,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <div className="flex items-center justify-center gap-2 h-full">
+          {(params.row.status === 'pending' || params.row.status === 'confirmed') && (
+            <IconButton
+              size="small"
+              onClick={() => updateStatus(params.row._id, params.row.status === 'pending' ? 'confirmed' : 'completed')}
+              disabled={updatingId === params.row._id}
+              className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+              title="Update Status"
+            >
+              {updatingId === params.row._id ? <HiArrowPath className="text-lg animate-spin" /> : <HiOutlineCheckCircle className="text-lg" />}
+            </IconButton>
+          )}
+          {params.row.status !== 'cancelled' && params.row.status !== 'completed' && (
+            <IconButton
+              size="small"
+              onClick={() => updateStatus(params.row._id, 'cancelled')}
+              disabled={updatingId === params.row._id}
+              className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400 rounded-full hover:bg-red-600 hover:text-white transition-all shadow-sm"
+              title="Cancel Booking"
+            >
+              <HiOutlineXCircle className="text-lg" />
+            </IconButton>
+          )}
+        </div>
+      )
+    }
+  ];
 
   // --- Loading & Error States -------------------------------
   if (isLoading) {
@@ -456,12 +458,12 @@ export default function BookingsPage() {
           {toast.message}
         </div>
       )}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
         {/* Header Toolbar */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
             <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
-              Ride Bookings <span className="text-black dark:text-white font-normal hidden sm:inline">({filteredBookings.length})</span>
+              Ride Bookings<span className="text-black dark:text-white font-normal font-bold pl-1 pr-1 hidden sm:inline">({filteredBookings.length})</span>
             </h2>
           </div>
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
@@ -483,108 +485,34 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm flex flex-wrap items-center justify-between gap-4">
-          <div className="relative max-w-md flex-1">
-            <HiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
-            <input
-              type="text"
-              placeholder="Search by name, contact or location..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-400 dark:focus:border-indigo-700 outline-none text-sm dark:text-white"
-            />
-          </div>
-          <div className="flex gap-2">
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm dark:text-white font-bold"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-
         {error ? (
           <div className="bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-900/30 p-4 text-red-600 dark:text-red-400 text-sm font-bold flex items-center gap-3">
             <HiOutlineXCircle className="text-xl" />
             {error}
           </div>
         ) : (
-          <div className="overflow-x-auto custom-scrollbar shadow-inner border-t border-slate-100 dark:border-slate-700/50">
-            <table className="w-full border-collapse min-w-[1200px] md:min-w-full">
-              <thead>
-                <tr className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  {columns.map((colId, index) => {
-                    const config = getColumnConfig(colId);
-                    return (
-                      <th
-                        key={colId}
-                        draggable={!isResizing}
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={handleDragOver}
-                        onDrop={() => handleDrop(index)}
-                        style={{ width: `${columnWidths[colId]}px`, minWidth: `${columnWidths[colId]}px` }}
-                        className={`px-6 py-2 text-center text-[11px] font-black text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 uppercase tracking-widest relative group transition-colors ${draggedColumnIndex === index ? 'opacity-30' : ''}`}
-                      >
-                        <div className="flex items-center justify-center gap-1 cursor-move">
-                          <span className="pointer-events-none truncate">{config.label}</span>
-                          <svg className="w-2.5 h-2.5 text-slate-400 pointer-events-none flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M7 7h2v2H7V7zm0 4h2v2H7v-2zm4-4h2v2h-2V7zm0 4h2v2h-2v-2zM7 15h2v2H7v-2zm4 0h2v2h-2v-2z" />
-                          </svg>
-                        </div>
-
-                        {/* Resize Handle */}
-                        <div
-                          onMouseDown={(e) => handleResizeStart(e, colId)}
-                          className={`absolute top-0 right-0 h-full w-1 cursor-col-resize hover:bg-indigo-500 transition-colors z-10 ${isResizing === colId ? 'bg-indigo-600' : ''}`}
-                        />
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {filteredBookings.length === 0 ? (
-                  <tr>
-                    <td colSpan={12} className="py-20 text-center">
-                      <div className="bg-slate-100 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <HiOutlineCalendar className="text-2xl text-slate-400 dark:text-slate-500" />
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-800 dark:text-white italic">No {statusFilter !== 'all' ? statusFilter : ''} bookings found</h3>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm">Try changing the status filter or refreshing data</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredBookings.map((booking) => (
-                    <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                      {columns.map((colId) => {
-                        const config = getColumnConfig(colId);
-                        return (
-                          <td
-                            key={colId}
-                            style={{ width: `${columnWidths[colId]}px`, minWidth: `${columnWidths[colId]}px`, maxWidth: `${columnWidths[colId]}px` }}
-                            className={`px-6 py-1.5 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap overflow-hidden text-ellipsis ${config.className || ''} ${colId === 'status' || colId === 'response' || colId === 'actions' || colId === 'price' || colId === 'vehicle' || colId === 'driver' || colId === 'time' || colId === 'date' ? 'text-center' : ''}`}
-                          >
-                            {config.render(booking)}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-
-            <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/30 text-xs text-slate-500 dark:text-slate-400 flex justify-between font-bold">
-              <span>Total bookings: {bookings.length}</span>
-              <span>Showing {filteredBookings.length} of {bookings.length}</span>
-            </div>
-          </div>
+          <CustomTable
+            rows={filteredBookings}
+            columns={dataGridColumns}
+            getRowId={(row) => row._id}
+            height="calc(100vh - 110px)"
+            title="Bookings List"
+            rowCount={filteredBookings.length}
+            onSearch={setSearchTerm}
+            extraToolbarContent={
+              <select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
+              >
+                <option value="all">ALL STATUS</option>
+                <option value="pending">PENDING</option>
+                <option value="confirmed">CONFIRMED</option>
+                <option value="completed">COMPLETED</option>
+                <option value="cancelled">CANCELLED</option>
+              </select>
+            }
+          />
         )}
       </div>
 

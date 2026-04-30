@@ -279,7 +279,7 @@ export default function AdminDashboard() {
     .slice(0, 5);
 
   return (
-    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300 font-roboto">
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 bg-slate-50 dark:bg-[#0A1128] min-h-screen transition-colors duration-300 font-sf">
       {/* Flush Dashboard Header matched to Bookings toolbar height */}
       <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
         <div className="min-w-0">
@@ -301,14 +301,16 @@ export default function AdminDashboard() {
           <StatCard
             title="Total Driver"
             value={drivers.length}
-            icon={<HiUserGroup className="w-6 h-6 text-orange-500" />}
+            icon={<HiUserGroup className="w-6 h-6" />}
+            color="indigo"
             trend="+2 this month"
             trendUp
           />
           <StatCard
             title="Total Vehicles"
             value={vehicles.length}
-            icon={<HiTruck className="w-6 h-6 text-blue-500" />}
+            icon={<HiTruck className="w-6 h-6" />}
+            color="blue"
             trend={`${vehicles.filter(v => v.status === 'active').length} active`}
             trendUp={true}
           />
@@ -316,14 +318,16 @@ export default function AdminDashboard() {
             title="Total Bookings"
             value={totalBookings}
             subtext={`${pendingBookings} pending`}
-            icon={<HiCalendar className="w-6 h-6 text-emerald-500" />}
+            icon={<HiCalendar className="w-6 h-6" />}
+            color="emerald"
             trend={`${unassignedBookings} unassigned`}
             trendUp={false}
           />
           <StatCard
             title="Total Employee"
             value={employees.length}
-            icon={<HiUserGroup className="w-6 h-6 text-indigo-500" />}
+            icon={<HiUserGroup className="w-6 h-6" />}
+            color="amber"
             trend="+1 this month"
             trendUp
           />
@@ -331,8 +335,11 @@ export default function AdminDashboard() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-            <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-4">📈 Bookings (Last 7 Days)</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+              Bookings (Last 7 Days)
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dailyBookings}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -348,8 +355,11 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
-            <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-4">📊 Booking Status Distribution</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              Booking Status Distribution
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -386,18 +396,21 @@ export default function AdminDashboard() {
 
         {/* Recent Bookings Table */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
-            <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300">🕒 Recent Bookings</h3>
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Recent Bookings
+            </h3>
           </div>
           <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-sm min-w-[1000px] md:min-w-full">
-              <thead className="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400">
+              <thead className="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400">
                 <tr>
-                  <th className="px-5 py-3 text-left font-medium">Customer</th>
-                  <th className="px-5 py-3 text-left font-medium">Route</th>
-                  <th className="px-5 py-3 text-left font-medium">Date & Time</th>
-                  <th className="px-5 py-3 text-left font-medium">Status</th>
-                  <th className="px-5 py-3 text-left font-medium">Driver</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Customer</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Route</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Date & Time</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Driver</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -416,7 +429,7 @@ export default function AdminDashboard() {
                         {new Date(booking.dateTime).toLocaleString()}
                       </td>
                       <td className="px-5 py-3">
-                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold capitalize
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
                           ${booking.status === 'pending' ? 'bg-amber-100 text-amber-700' : ''}
                           ${booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : ''}
                           ${booking.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : ''}
@@ -463,23 +476,30 @@ export default function AdminDashboard() {
     </div>
   );
 }
-function StatCard({ title, value, subtext, icon, trend, trendUp }: any) {
+function StatCard({ title, value, subtext, icon, trend, trendUp, color = 'indigo' }: any) {
+  const colorClasses = {
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+    blue: 'from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-600 dark:text-blue-400',
+    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+  };
+
   return (
-    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all group">
+    <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} p-6 rounded-2xl shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 group`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-slate-900 dark:text-white text-base font-bold">{title}</p>
-          <div className="flex items-baseline gap-2 mt-1">
-            <h3 className="text-2xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">{value}</h3>
-            {subtext && <span className="text-xs text-slate-400 dark:text-slate-500">{subtext}</span>}
+          <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">{title}</p>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <h3 className="text-4xl font-black tracking-tight">{value}</h3>
+            {subtext && <span className="text-sm font-bold text-slate-400">{subtext}</span>}
           </div>
         </div>
-        <div className="p-2 bg-slate-50 dark:bg-slate-700 rounded-lg group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20 transition">
+        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl transition">
           {icon}
         </div>
       </div>
       {trend && (
-        <p className={`text-xs font-medium mt-3 flex items-center gap-1 ${trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+        <p className={`text-xs font-bold mt-3 flex items-center gap-1 ${trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
           {trendUp ? '↑' : '↓'} {trend}
         </p>
       )}

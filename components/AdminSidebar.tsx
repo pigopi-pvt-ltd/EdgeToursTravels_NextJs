@@ -21,16 +21,16 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineLogout,
-   HiOutlineClock,        
-  HiOutlineChat,         
-  HiQuestionMarkCircle, 
+  HiOutlineClock,
+  HiOutlineChat,
+  HiQuestionMarkCircle,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
 // Admin menu items
 const adminItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
-   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
+  { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
   { name: "Drivers", icon: HiOutlineUsers, href: "/admin-dashboard/drivers" },
   { name: "Vehicles", icon: HiOutlineTruck, href: "/admin-dashboard/vehicles" },
   { name: "Availability", icon: HiOutlineCalendar, href: "/admin-dashboard/availability" },
@@ -39,13 +39,12 @@ const adminItems = [
   { name: "Price", icon: HiOutlineCurrencyDollar, href: "/admin-dashboard/price" },
   { name: "Customer", icon: HiOutlineBriefcase, href: "/admin-dashboard/type" },
   { name: "Attendance", icon: HiOutlineCalendar, href: "/admin-dashboard/attendance" },
-   { name: "Salary", icon: HiOutlineUserGroup, href: "/admin-dashboard/salary" },
-   { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
+  { name: "Master Data", icon: HiOutlineDatabase, href: "/admin-dashboard/master-data" },
 ];
 
 // Driver menu items
 const driverItems = [
-  { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
+  { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
 ];
 
@@ -53,7 +52,7 @@ const driverItems = [
 const employeeItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/employee-dashboard" },
   { name: "Manage Bookings", icon: HiOutlineCalendar, href: "/employee-dashboard/bookings" },
-    { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
+  { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
   { name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" },
   // { name: "Complaints", icon: HiOutlineChat, href: "/employee-dashboard/complaints" },
   { name: "Support", icon: HiOutlineSupport, href: "/employee-dashboard/support" },
@@ -110,7 +109,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
       <aside
         className={`
         fixed left-0 top-0 h-screen bg-white dark:bg-[#0A1128] text-black dark:text-white 
-        flex flex-col shadow-xl z-50 transition-all duration-300 border-r border-slate-200 dark:border-slate-800 font-roboto
+        flex flex-col shadow-xl z-50 transition-all duration-300 border-r border-slate-200 dark:border-slate-800 font-sf
         ${isCollapsed ? "w-20" : "w-64"}
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}
@@ -164,17 +163,17 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                       }
                     }}
                     className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${isActive
-                      ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-r-4 border-orange-500"
-                      : "text-black dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-[#1ABC9C] text-white shadow-lg shadow-teal-500/20"
+                      : "text-black dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/10 hover:text-[#1ABC9C] dark:hover:text-[#1ABC9C]"
                       }`}
                   >
                     <item.icon
-                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive ? "text-orange-600 dark:text-orange-400" : "text-black dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive ? "text-white" : "text-black dark:text-slate-400 group-hover:text-[#1ABC9C]"
                         }`}
                     />
                     {!isCollapsed && (
                       <div className="flex items-center justify-between w-full">
-                        <span className="font-bold text-[15px] tracking-tight whitespace-nowrap overflow-hidden">
+                        <span className="font-medium text-[15px] tracking-tight whitespace-nowrap overflow-hidden">
                           {item.name}
                         </span>
                         {item.name === "Dashboard" && (

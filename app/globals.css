@@ -18,7 +18,7 @@
   }
 
   body {
-    @apply bg-bg-light text-brand-primary font-outfit antialiased;
+    @apply bg-bg-light text-brand-primary font-sf antialiased;
   }
 
   button {
@@ -74,7 +74,7 @@
 }
 
 body {
-  @apply bg-white dark:bg-[#0A1128] text-[#171717] dark:text-white transition-colors duration-300 antialiased font-outfit;
+  @apply bg-white dark:bg-[#0A1128] text-[#171717] dark:text-white transition-colors duration-300 antialiased font-sf;
 }
 
 @keyframes pulse-whatsapp {

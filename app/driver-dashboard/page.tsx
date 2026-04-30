@@ -36,7 +36,7 @@ export default function DriverDashboard() {
   const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected'>('all');
 
   const { unreadCount, refresh: refreshNotifications } = useNotifications();
 
@@ -114,7 +114,11 @@ export default function DriverDashboard() {
     completed: bookings.filter(b => b.status === 'completed').length,
   };
 
-  const filteredBookings = bookings.filter(b => filterStatus === 'all' ? true : b.status === filterStatus);
+  const filteredBookings = bookings.filter(b => {
+    if (filterStatus === 'all') return true;
+    if (filterStatus === 'rejected') return b.driverResponse === 'rejected';
+    return b.status === filterStatus;
+  });
 
   const getStatusConfig = (status: string, driverResponse?: string | null) => {
     if (driverResponse === 'accepted') return { label: 'Accepted', color: 'green', icon: HiCheckCircle };
@@ -183,15 +187,14 @@ export default function DriverDashboard() {
       {/* Filter Tabs + Refresh Button */}
       <div className="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
         <div className="flex flex-wrap gap-2">
-          {(['all', 'pending', 'confirmed', 'completed'] as const).map((filter) => (
+          {(['all', 'pending', 'confirmed', 'completed', 'rejected'] as const).map((filter) => (
             <button
               key={filter}
               onClick={() => setFilterStatus(filter)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all capitalize ${
-                filterStatus === filter
-                  ? 'bg-orange-500 text-white shadow-md'
+              className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black transition-all uppercase tracking-widest ${filterStatus === filter
+                  ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               {filter}
             </button>
@@ -236,13 +239,12 @@ export default function DriverDashboard() {
                         <span className="font-bold text-base">{booking.destination}</span>
                       </div>
                     </div>
-                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                      statusConfig.color === 'green' ? 'bg-green-100 text-green-700' :
-                      statusConfig.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
-                      statusConfig.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                      statusConfig.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${statusConfig.color === 'green' ? 'bg-green-100 text-green-700' :
+                        statusConfig.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                          statusConfig.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                            statusConfig.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' :
+                              'bg-red-100 text-red-700'
+                      }`}>
                       <StatusIcon className="w-3.5 h-3.5" />
                       <span>{statusConfig.label}</span>
                     </div>
@@ -308,10 +310,10 @@ function StatCard({ title, value, icon, color }: { title: string; value: number;
     <div className={`bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider opacity-70">{title}</p>
-          <p className="text-3xl font-black mt-1">{value}</p>
+          <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">{title}</p>
+          <p className="text-4xl font-black tracking-tight">{value}</p>
         </div>
-        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
+        <div className="p-2.5 bg-white/30 dark:bg-black/20 rounded-xl shadow-inner">{icon}</div>
       </div>
     </div>
   );

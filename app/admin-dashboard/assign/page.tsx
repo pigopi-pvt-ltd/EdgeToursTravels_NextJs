@@ -195,7 +195,7 @@ export default function AssignPage() {
   };
 
   return (
-    <div className="bg-white min-h-screen p-4 md:p-6">
+    <div className="bg-slate-50 dark:bg-[#0A1128] min-h-screen p-4 md:p-6 transition-colors duration-300 font-sf">
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-lg text-white text-sm font-medium ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'}`}>
