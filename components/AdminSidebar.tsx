@@ -45,7 +45,6 @@ const adminItems = [
 // Driver menu items
 const driverItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
-  { name: "My Trips", icon: HiOutlineTruck, href: "/driver-dashboard/my-trips" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
 ];
 

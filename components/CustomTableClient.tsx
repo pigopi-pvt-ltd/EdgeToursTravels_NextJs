@@ -83,12 +83,14 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
                 backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#fff'
               }
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <HiMagnifyingGlass className="text-slate-400" />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <HiMagnifyingGlass className="text-slate-400" />
+                  </InputAdornment>
+                ),
+              }
             }}
           />
         )}
@@ -107,6 +109,32 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
           flexDirection: 'column'
         }}
       >
+        {title && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 16px",
+              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
+              backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
+            }}
+          >
+            <Typography
+              variant="subtitle1"
+              component="div"
+              sx={{
+                fontWeight: 1600,
+                fontSize: '15px',
+                color: theme.palette.mode === "dark" ? "#fff" : "#333",
+                textTransform: 'uppercase',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              {title}{" "}
+              {(rowCount ?? rows.length) > 0 ? `(${(rowCount ?? rows.length)})` : ""}
+            </Typography>
+          </div>
+        )}
         <DataGrid
           rows={rows}
           columns={columns}
@@ -126,32 +154,6 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
           slots={{
             noRowsOverlay: NoDataOverlay,
             toolbar: (onSearch || extraToolbarContent) ? CustomToolbar : undefined,
-            headerRow: () => (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "8px 16px",
-                  borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
-                  backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
-                }}
-              >
-                <Typography
-                  variant="subtitle1"
-                  component="div"
-                  sx={{
-                    fontWeight: 1600,
-                    fontSize: '15px',
-                    color: theme.palette.mode === "dark" ? "#fff" : "#333",
-                    textTransform: 'uppercase',
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  {title}{" "}
-                  {(rowCount ?? rows.length) > 0 ? `(${(rowCount ?? rows.length)})` : ""}
-                </Typography>
-              </div>
-            ),
             ...slots,
           }}
           sx={{
@@ -178,7 +180,7 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
               },
             },
 
-            [`& .${gridClasses.headerRow}`]: {
+            [`& .${gridClasses.columnHeaders}`]: {
               borderBottom: "none",
             },
 
