@@ -140,7 +140,7 @@ export default function ProfilePage() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              {/* <div className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full" title="Online"></div> */}
+              <div className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full" title="Online"></div>
             </div>
 
             <h1 className="text-2xl font-black text-slate-800 dark:text-white leading-tight">

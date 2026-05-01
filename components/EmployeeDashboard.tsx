@@ -12,6 +12,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineXCircle,
   HiOutlineUserCircle,
+  HiOutlineDocumentDuplicate,
 } from 'react-icons/hi2';
 import {
   BarChart,
@@ -54,6 +55,15 @@ interface Notification {
   createdAt: string;
   read: boolean;
 }
+interface LeaveApplication {
+  _id: string;
+  type: 'sick' | 'casual' | 'emergency' | 'other';
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -84,26 +94,22 @@ function buildWeekData(records: AttendanceRecord[]) {
   });
 }
 
-//  calendar grid for the current month
 function buildCalendarGrid(records: AttendanceRecord[]) {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
   const startWeekday = firstDayOfMonth.getDay(); 
-
   const startOffset = startWeekday === 0 ? 6 : startWeekday - 1;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = now.getDate();
 
   const cells: { day: number; status: string; isToday: boolean; isWeekend: boolean }[] = [];
 
-  // Empty cells before month starts
   for (let i = 0; i < startOffset; i++) {
     cells.push({ day: 0, status: 'empty', isToday: false, isWeekend: false });
   }
 
-  // Actual days of the month
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const date = new Date(year, month, d);
@@ -130,7 +136,6 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
     });
   }
 
-  // Fill remaining cells to complete the grid 
   const totalCells = Math.ceil(cells.length / 7) * 7;
   while (cells.length < totalCells) {
     cells.push({ day: 0, status: 'empty', isToday: false, isWeekend: false });
@@ -139,7 +144,7 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
   return cells;
 }
 
-/* ─── Sub-components  ─────────────────────── */
+/* ─── Sub-components  ───────────────────────────────────────────────────── */
 function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) {
   const colorClasses: Record<string, string> = {
     indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
@@ -225,7 +230,6 @@ function AttendanceBarChart({ data }: { data: ReturnType<typeof buildWeekData> }
 }
 
 function CalendarHeatmap({ cells }: { cells: ReturnType<typeof buildCalendarGrid> }) {
-  // Group cells into weeks (rows)
   const weeks: typeof cells[] = [];
   for (let i = 0; i < cells.length; i += 7) {
     weeks.push(cells.slice(i, i + 7));
@@ -244,7 +248,6 @@ function CalendarHeatmap({ cells }: { cells: ReturnType<typeof buildCalendarGrid
 
   return (
     <div className="space-y-1">
-      {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {WEEKDAYS.map(day => (
           <div key={day} className="text-center text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-wide">
@@ -252,7 +255,6 @@ function CalendarHeatmap({ cells }: { cells: ReturnType<typeof buildCalendarGrid
           </div>
         ))}
       </div>
-      {/* Calendar grid */}
       {weeks.map((week, weekIdx) => (
         <div key={weekIdx} className="grid grid-cols-7 gap-1">
           {week.map((cell, idx) => {
@@ -289,6 +291,7 @@ export default function EmployeeDashboard() {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [leaves, setLeaves] = useState<LeaveApplication[]>([]); // new
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -310,14 +313,15 @@ export default function EmployeeDashboard() {
     setRefreshing(true);
 
     try {
-      const [attRes, holRes, notifRes] = await Promise.all([
+      const [attRes, holRes, notifRes, leavesRes] = await Promise.all([
         fetch(`/api/attendance?month=${month}&year=${year}`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/holidays', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/notifications', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/leaves', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
-      const [attData, holData, notifData] = await Promise.all([
-        attRes.json(), holRes.json(), notifRes.json(),
+      const [attData, holData, notifData, leavesData] = await Promise.all([
+        attRes.json(), holRes.json(), notifRes.json(), leavesRes.json(),
       ]);
 
       if (attRes.ok && Array.isArray(attData)) setAttendance(attData);
@@ -325,6 +329,7 @@ export default function EmployeeDashboard() {
 
       if (holRes.ok && Array.isArray(holData)) setHolidays(holData);
       if (notifRes.ok && Array.isArray(notifData)) setNotifications(notifData);
+      if (leavesRes.ok && Array.isArray(leavesData)) setLeaves(leavesData);
       refreshNotifications();
     } catch {
       setMessage({ text: 'Network error', type: 'error' });
@@ -359,20 +364,28 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
-        {/* Header Toolbar matched to Admin Dashboard */}
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Title + Apply for Leave + Refresh + Bell */}
         <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
-            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
-              Employee Dashboard Overview
+            <h2 className="text-[13px] md:text-xl font-black text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
+              Employee Dashboard
             </h2>
           </div>
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <Link
+              href="/employee-dashboard/leave"
+              className="flex items-center gap-2 px-4 py-1.5 md:px-4 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition shadow-sm"
+            >
+              <HiOutlinePaperAirplane className="w-4 h-4" />
+              Apply for Leave
+            </Link>
             <button
-              onClick={fetchAllData}
+              onClick={fetchAll}
+              disabled={refreshing}
               className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
             >
-              <HiArrowPath className={`text-sm ${loading ? 'animate-spin' : ''}`} />
+              <HiArrowPath className={`text-sm ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <NotificationBell />
@@ -380,89 +393,168 @@ export default function EmployeeDashboard() {
         </div>
 
         <div className="p-4 md:p-6 lg:p-8 space-y-8">
-          {/* Ticket Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <StatCard title="Open Tickets" value={ticketStats.open} icon={<HiOutlineExclamationCircle className="w-6 h-6" />} color="amber" />
-            <StatCard title="In Progress" value={ticketStats.inProgress} icon={<HiOutlineClock className="w-6 h-6" />} color="violet" />
-            <StatCard title="Resolved" value={ticketStats.resolved} icon={<HiOutlineCheckCircle className="w-6 h-6" />} color="emerald" />
-            <StatCard title="Total Tickets" value={ticketStats.total} icon={<HiOutlineChatBubbleLeftEllipsis className="w-6 h-6" />} color="indigo" />
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard title="Working Days" value={stats.totalDays} icon={<HiOutlineCalendar className="w-5 h-5 md:w-6 md:h-6" />} color="indigo" />
+            <StatCard title="Present" value={stats.present} icon={<HiOutlineCheckCircle className="w-5 h-5 md:w-6 md:h-6" />} color="green" />
+            <StatCard title="Absent" value={stats.absent} icon={<HiOutlineXCircle className="w-5 h-5 md:w-6 md:h-6" />} color="red" />
+            <StatCard title="Attendance %" value={`${stats.percentage}%`} icon={<HiOutlineUserCircle className="w-5 h-5 md:w-6 md:h-6" />} color="amber" />
           </div>
 
-          {/* Two Charts Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Attendance Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Attendance Trend</h3>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days – Present vs Absent</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                  <HiOutlineClock className="text-indigo-600 dark:text-indigo-400 text-xl" />
-                </div>
+          {message && (
+            <div className={`p-3 rounded-xl text-sm font-bold ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+              {message.text}
+            </div>
+          )}
+
+          {/* Attendance Chart + Calendar Heatmap */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Last 7 Days Attendance</h2>
+                <span className="text-xs text-slate-400 font-bold">{monthLabel}</span>
               </div>
-              <div className="h-80">
+              <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={dailyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                  <BarChart data={weekData} margin={{ top: 10, right: 30, left: 0, bottom: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} allowDecimals={false} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
                     <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 700 }}
                       cursor={{ fill: '#f8fafc' }}
                     />
-                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
-                    <Bar dataKey="present" name="Present" radius={[6, 6, 0, 0]} fill="#10b981" barSize={30} />
-                    <Bar dataKey="absent" name="Absent" radius={[6, 6, 0, 0]} fill="#ef4444" barSize={30} />
+                    <Legend wrapperStyle={{ fontWeight: 700 }} />
+                    <Bar dataKey="present" name="Present" fill="#10b981" radius={[6, 6, 0, 0]} barSize={32} />
+                    <Bar dataKey="absent" name="Absent" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={32} />
+                    <Bar dataKey="half" name="Half Day" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={32} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Ticket Creation Chart */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Ticket Creation Trend</h3>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days activity</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                  <HiOutlineChatBubbleLeftEllipsis className="text-violet-600 dark:text-violet-400 text-xl" />
-                </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Monthly Heatmap</h2>
+                <span className="text-xs text-slate-400 font-bold">{monthLabel}</span>
               </div>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={dailyData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} allowDecimals={false} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
-                      cursor={{ fill: '#f8fafc' }}
-                    />
-                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 'black', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
-                    <Bar dataKey="tickets" name="Tickets Created" radius={[6, 6, 0, 0]} fill="#8b5cf6" barSize={40} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CalendarHeatmap cells={calendarCells} />
+              <div className="mt-6 flex flex-wrap gap-3">
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/50"></div><span className="text-xs font-bold">Present</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-red-100 dark:bg-red-900/50"></div><span className="text-xs font-bold">Absent</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/50"></div><span className="text-xs font-bold">Half Day</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-indigo-100 ring-1 ring-indigo-400"></div><span className="text-xs font-bold">Today</span></div>
               </div>
             </div>
           </div>
 
-function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
-  const colorClasses: Record<string, string> = {
-    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
-    violet: 'from-violet-50 to-violet-100 dark:from-violet-950/30 dark:to-violet-900/20 text-violet-600 dark:text-violet-400',
-    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
-  };
-  return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-3xl p-6 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-xl duration-300`}>
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{title}</p>
-          <p className="text-4xl md:text-5xl font-black tracking-tighter">{value}</p>
+          {/* Holidays + Notifications */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Holidays */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                  <HiOutlineGift className="w-5 h-5 text-amber-500" />
+                  <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Upcoming Holidays</h2>
+                </div>
+                <button onClick={fetchAll} className="text-slate-400 hover:text-indigo-500 transition">
+                  <HiArrowPath className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                {holidays.length === 0 ? (
+                  <p className="text-center text-slate-500 text-sm font-bold py-6">No upcoming holidays</p>
+                ) : (
+                  holidays.map(h => {
+                    const typeStyle: Record<string, string> = {
+                      public: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-bold',
+                      company: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-bold',
+                      optional: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 font-bold',
+                    };
+                    return (
+                      <div key={h._id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <span className="font-black text-sm text-slate-800 dark:text-slate-200">{h.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-500">
+                            {new Date(h.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${typeStyle[h.type] || 'bg-gray-100 text-gray-600'}`}>
+                            {h.type}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Notifications and Leave Applications */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                  <HiOutlineDocumentDuplicate className="w-5 h-5 text-emerald-500" />
+                  <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">My Leave Applications</h2>
+                </div>
+                {/* <Link
+                  href="/employee-dashboard/leave"
+                  className="flex items-center gap-1 px-1 py-0.5 md:px-4 md:py-2 bg-indigo-800 hover:bg-indigo-400 text-white rounded-lg text-sm font-bold transition shadow-sm"
+                >
+                  <HiOutlinePaperAirplane className="w-4 h-4" />
+                  Apply for Leave
+                </Link> */}
+              </div>
+              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                {leaves.length === 0 ? (
+                  <p className="text-center text-slate-500 text-sm font-bold py-6">No leave applications found</p>
+                ) : (
+                  leaves.slice(0, 10).map(leave => {
+                    const statusStyle = {
+                      pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                      approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                      rejected: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                    };
+                    const typeLabels = {
+                      sick: 'Sick Leave',
+                      casual: 'Casual Leave',
+                      emergency: 'Emergency Leave',
+                      other: 'Other',
+                    };
+                    return (
+                      <div key={leave._id} className="p-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                              {typeLabels[leave.type]}
+                            </span>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${statusStyle[leave.status]}`}>
+                              {leave.status.toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-400 dark:text-slate-500">
+                            Applied on {new Date(leave.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm font-black text-slate-800 dark:text-slate-200">
+                          {new Date(leave.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} 
+                          {leave.startDate !== leave.endDate && ` - ${new Date(leave.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+                        </p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-slate-400 mt-1 line-clamp-2">
+                          Reason: {leave.reason}
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+                {leaves.length > 10 && (
+                  <p className="text-center text-xs text-slate-400 font-bold mt-2">
+                    + {leaves.length - 10} more
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="p-3 bg-white/40 dark:bg-black/20 rounded-2xl shadow-inner backdrop-blur-md">{icon}</div>
       </div>
     </div>
   );
