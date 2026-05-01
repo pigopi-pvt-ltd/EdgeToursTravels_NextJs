@@ -233,7 +233,7 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
               pageSizeOptions={pageSizeOptions}
               disableRowSelectionOnClick
               slots={{
-                toolbar: onSearch || extraToolbarContent ? () => <CustomToolbar onSearch={onSearch} extraToolbarContent={extraToolbarContent} /> : undefined,
+                toolbar: onSearch || extraToolbarContent ? CustomToolbar : undefined,
                 noRowsOverlay: NoDataOverlay,
                 ...slots,
               }}
