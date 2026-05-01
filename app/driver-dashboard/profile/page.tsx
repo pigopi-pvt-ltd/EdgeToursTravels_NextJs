@@ -186,7 +186,7 @@ export default function ProfilePage() {
                 className="hidden"
               />
               <div
-                className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"
+                // className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"
                 title="Online"
               ></div>
             </div>
