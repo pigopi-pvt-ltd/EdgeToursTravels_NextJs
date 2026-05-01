@@ -3,8 +3,8 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-// Dynamically import the MUI-based table with SSR disabled to prevent
-// the ":first-child" pseudo-class warnings during server-side rendering.
+// Dynamically import the MUI-based table with SSR disabled and use NoSsr 
+// to prevent the ":first-child" pseudo-class warnings during server-side rendering.
 const CustomTableClient = dynamic(() => import('./CustomTableClient'), { 
   ssr: false,
   loading: () => (

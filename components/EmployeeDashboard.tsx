@@ -12,6 +12,9 @@ import {
   HiOutlineCheckCircle,
   HiOutlineXCircle,
   HiOutlineUserCircle,
+  HiOutlineExclamationCircle,
+  HiOutlineClock,
+  HiOutlineChatBubbleLeftEllipsis,
 } from 'react-icons/hi2';
 import {
   BarChart,
@@ -90,7 +93,7 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
   const year = now.getFullYear();
   const month = now.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
-  const startWeekday = firstDayOfMonth.getDay(); 
+  const startWeekday = firstDayOfMonth.getDay();
 
   const startOffset = startWeekday === 0 ? 6 : startWeekday - 1;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -140,25 +143,7 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
 }
 
 /* ─── Sub-components  ─────────────────────── */
-function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) {
-  const colorClasses: Record<string, string> = {
-    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
-    green: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-    red: 'from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 text-red-500 dark:text-red-400',
-    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
-  };
-  return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider opacity-70">{title}</p>
-          <p className="text-2xl md:text-3xl font-black mt-1">{value}</p>
-        </div>
-        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
-      </div>
-    </div>
-  );
-}
+
 
 function AttendanceBarChart({ data }: { data: ReturnType<typeof buildWeekData> }) {
   const maxVal = 1;
@@ -291,6 +276,7 @@ export default function EmployeeDashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [dashboardView, setDashboardView] = useState<'month' | 'week' | 'day'>('month');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const { refresh: refreshNotifications } = useNotifications();
@@ -300,10 +286,22 @@ export default function EmployeeDashboard() {
   const calendarCells = useMemo(() => buildCalendarGrid(attendance), [attendance]);
   const unread = notifications.filter(n => !n.read).length;
 
+  const ticketStats = {
+    open: 0,
+    inProgress: 0,
+    resolved: 0,
+    total: 0
+  };
+
+  const dailyData = useMemo(() => weekData.map(d => ({
+    ...d,
+    tickets: 0
+  })), [weekData]);
+
   const now = new Date();
   const monthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const fetchAll = async () => {
+  const fetchAllData = async () => {
     const token = getAuthToken();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
@@ -334,7 +332,7 @@ export default function EmployeeDashboard() {
     }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAllData(); }, []);
 
   if (loading) {
     return (
@@ -370,11 +368,30 @@ export default function EmployeeDashboard() {
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <button
               onClick={fetchAllData}
-              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+              className="w-[34px] md:w-10 h-[34px] md:h-10 flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 gap-1.5"
             >
               <HiArrowPath className={`text-sm ${loading ? 'animate-spin' : ''}`} />
-              Refresh
+              <span className="hidden md:inline">Refresh</span>
             </button>
+            <div className="flex items-center gap-1 md:gap-1.5 ml-1">
+              {['Month', 'Week', 'Day'].map((label) => {
+                const v = label.toLowerCase();
+                const isActive = dashboardView === v;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setDashboardView(v as any)}
+                    className={`px-3 md:px-5 h-[34px] md:h-10 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center ${
+                      isActive 
+                        ? 'bg-[#064e3b] text-white ring-1 ring-[#064e3b]' 
+                        : 'bg-[#10b981] text-white hover:bg-[#059669]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
             <NotificationBell />
           </div>
         </div>
@@ -447,8 +464,13 @@ export default function EmployeeDashboard() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-function StatCard({ title, value, icon, color }: { title: string; value: number; icon: React.ReactNode; color: string }) {
+function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) {
   const colorClasses: Record<string, string> = {
     amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
     violet: 'from-violet-50 to-violet-100 dark:from-violet-950/30 dark:to-violet-900/20 text-violet-600 dark:text-violet-400',

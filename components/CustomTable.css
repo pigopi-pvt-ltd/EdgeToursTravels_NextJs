@@ -1,68 +1,53 @@
-/* Premium Admin Table Styles */
 .custom-admin-datagrid {
-  border-radius: 0 !important;
+  flex: 1 !important;
   border: none !important;
+  border-radius: 0 0 16px 16px !important;
+  background-color: #fff !important;
+  color: #333 !important;
+}
+
+.dark .custom-admin-datagrid {
+  background-color: #1A2236 !important;
+  color: #fff !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-columnHeaders {
-  border-bottom: 1px solid rgba(224, 224, 224, 1) !important;
-  background-color: #f5f5f5 !important;
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
 .dark .custom-admin-datagrid .MuiDataGrid-columnHeaders {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-  background-color: #1e1e1e !important;
-}
-
-.custom-admin-datagrid .MuiDataGrid-columnHeaderTitle {
-  font-weight: bold !important;
-  text-align: center !important;
-  width: 100% !important;
-}
-
-.custom-admin-datagrid .MuiDataGrid-columnHeader {
-  display: flex !important;
-  align-items: center !important;
-  border-right: 1px solid rgba(224, 224, 224, 1) !important;
-}
-
-.dark .custom-admin-datagrid .MuiDataGrid-columnHeader {
-  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background-color: #111827 !important;
+  color: #fff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-cell {
-  border-right: 1px solid rgba(224, 224, 224, 1) !important;
-  border-bottom: 1px solid rgba(224, 224, 224, 1) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 .dark .custom-admin-datagrid .MuiDataGrid-cell {
-  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-
-.custom-admin-datagrid .MuiDataGrid-footerContainer {
-  height: auto !important;
-  min-height: 52px !important;
-  background-color: #f5f5f5 !important;
-  border-top: 1px solid rgba(224, 224, 224, 1) !important;
-}
-
-.dark .custom-admin-datagrid .MuiDataGrid-footerContainer {
-  background-color: #1e1e1e !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-
-.custom-admin-datagrid .MuiTablePagination-root {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  padding-right: 40px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-row:hover {
-  background-color: #f5f5f5 !important;
+  background-color: #f8fafc !important;
 }
 
 .dark .custom-admin-datagrid .MuiDataGrid-row:hover {
-  background-color: #1e1e1e !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.custom-admin-datagrid .MuiDataGrid-cell:focus,
+.custom-admin-datagrid .MuiDataGrid-cell:focus-within,
+.custom-admin-datagrid .MuiDataGrid-columnHeader:focus,
+.custom-admin-datagrid .MuiDataGrid-columnHeader:focus-within {
+  outline: none !important;
 }

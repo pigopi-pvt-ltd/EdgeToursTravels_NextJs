@@ -150,57 +150,30 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
         </div>
       )}
       {mounted && (
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          rowHeight={rowHeight}
-          pagination
-          paginationMode={paginationModel ? "server" : "client"}
-          {...(paginationModel ? { rowCount: rowCount ?? rows.length } : {})}
-          paginationModel={paginationModel}
-          onPaginationModelChange={onPaginationModelChange}
-          sortingMode={sortModel ? "server" : "client"}
-          sortModel={sortModel}
-          onSortModelChange={onSortModelChange}
-          pageSizeOptions={pageSizeOptions}
-          disableRowSelectionOnClick
-          slots={{
-            toolbar: (onSearch || extraToolbarContent) ? CustomToolbar : undefined,
-            noRowsOverlay: NoDataOverlay,
-            ...slots,
-          }}
-          sx={{
-            flex: 1,
-            border: "none",
-            borderRadius: "0 0 16px 16px",
-            backgroundColor: theme.palette.mode === "dark" ? "#1A2236" : "#fff",
-            color: theme.palette.mode === "dark" ? "#fff" : "#333",
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.mode === "dark" ? "#111827" : "#f1f5f9",
-              color: theme.palette.mode === "dark" ? "#fff" : "#0f172a",
-              fontSize: "12px",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid #f1f5f9",
-              fontSize: "13px",
-              fontWeight: 500,
-            },
-            "& .MuiDataGrid-row:hover": {
-              backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "#f8fafc",
-            },
-            [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
-              outline: "none",
-            },
-            [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]: {
-              outline: "none",
-            },
-          }}
-          {...props}
-        />
+        <NoSsr>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            rowHeight={rowHeight}
+            pagination
+            paginationMode={paginationModel ? "server" : "client"}
+            {...(paginationModel ? { rowCount: rowCount ?? rows.length } : {})}
+            paginationModel={paginationModel}
+            onPaginationModelChange={onPaginationModelChange}
+            sortingMode={sortModel ? "server" : "client"}
+            sortModel={sortModel}
+            onSortModelChange={onSortModelChange}
+            pageSizeOptions={pageSizeOptions}
+            disableRowSelectionOnClick
+            slots={{
+              toolbar: (onSearch || extraToolbarContent) ? CustomToolbar : undefined,
+              noRowsOverlay: NoDataOverlay,
+              ...slots,
+            }}
+            className="custom-admin-datagrid"
+            {...props}
+          />
+        </NoSsr>
       )}
     </Box>
   );
