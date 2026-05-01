@@ -243,8 +243,8 @@ export default function VehiclesPage() {
       width: 180,
       valueGetter: (value, row) => row.vendor?.vendorName,
       renderCell: (params: any) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold text-[10px] ring-1 ring-slate-100 dark:ring-slate-600">
+        <div className="flex items-center gap-3 h-full">
+          <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-700 dark:text-slate-300 font-black text-[11px] ring-1 ring-slate-100 dark:ring-slate-700 flex-shrink-0">
             {getInitials(params.value || 'V')}
           </div>
           <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{params.value || '-'}</span>

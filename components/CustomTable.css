@@ -7,7 +7,7 @@
 }
 
 .dark .custom-admin-datagrid {
-  background-color: #1A2236 !important;
+  background-color: #0A1128 !important;
   color: #fff !important;
 }
 
@@ -24,7 +24,7 @@
 .dark .custom-admin-datagrid .MuiDataGrid-columnHeaders {
   background-color: #111827 !important;
   color: #fff !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-cell {
@@ -34,7 +34,7 @@
 }
 
 .dark .custom-admin-datagrid .MuiDataGrid-cell {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-row:hover {
@@ -42,7 +42,7 @@
 }
 
 .dark .custom-admin-datagrid .MuiDataGrid-row:hover {
-  background-color: rgba(255, 255, 255, 0.02) !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .custom-admin-datagrid .MuiDataGrid-cell:focus,

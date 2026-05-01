@@ -335,7 +335,7 @@ export default function AdminDashboard() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+          <div className="bg-white dark:bg-[#0A1128]/60 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-orange-500"></span>
               Bookings (Last 7 Days)

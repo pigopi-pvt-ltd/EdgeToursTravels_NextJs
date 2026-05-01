@@ -396,7 +396,7 @@ export default function AvailabilityPage() {
       )}
 
       {/* Sticky Header Toolbar */}
-      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-[#0A1128]/80 backdrop-blur-md py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 transition-colors">
         <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
           Vehicle Availability <span className="text-black dark:text-white font-normal hidden sm:inline">({events.length})</span>
         </h2>
