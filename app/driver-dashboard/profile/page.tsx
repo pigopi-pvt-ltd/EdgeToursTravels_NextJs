@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState, useRef } from "react";
 import {
@@ -49,6 +49,10 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = getAuthToken();
 
+  // Availability state
+  const [availability, setAvailability] = useState('unavailable');
+  const [updatingAvail, setUpdatingAvail] = useState(false);
+
   const fetchProfile = async () => {
     try {
       const res = await fetch("/api/user/profile", {
@@ -58,6 +62,8 @@ export default function ProfilePage() {
       if (res.ok) {
         setUser(data);
         setEditName(data.name || "");
+        // Load availability status from driverDetails
+        setAvailability(data.driverDetails?.availabilityStatus || 'unavailable');
       }
     } catch (err) {
       console.error("Failed to load profile", err);
@@ -119,6 +125,29 @@ export default function ProfilePage() {
       }
     } catch (err) {
       setMessage("Something went wrong");
+    }
+  };
+
+  const toggleAvailability = async () => {
+    const newStatus = availability === 'available' ? 'unavailable' : 'available';
+    setUpdatingAvail(true);
+    try {
+      const res = await fetch("/api/user/availability", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setAvailability(newStatus);
+        setMessage(`You are now ${newStatus}`);
+        setTimeout(() => setMessage(""), 3000);
+      } else {
+        setMessage("Failed to update availability");
+      }
+    } catch (err) {
+      setMessage("Error updating availability");
+    } finally {
+      setUpdatingAvail(false);
     }
   };
 
@@ -227,6 +256,24 @@ export default function ProfilePage() {
                   >
                     KYC: {user.kycStatus || "N/A"}
                   </span>
+                </div>
+
+                {/* AVAILABILITY TOGGLE */}
+                <div className="flex justify-between items-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 mb-4">
+                  <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                    Availability Status
+                  </span>
+                  <button
+                    onClick={toggleAvailability}
+                    disabled={updatingAvail}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${
+                      availability === 'available'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {updatingAvail ? 'Updating...' : availability === 'available' ? '✅ Available' : '⛔ Unavailable'}
+                  </button>
                 </div>
 
                 <button 

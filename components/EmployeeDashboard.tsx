@@ -102,8 +102,7 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
   const year = now.getFullYear();
   const month = now.getMonth();
   const firstDayOfMonth = new Date(year, month, 1);
-  const startWeekday = firstDayOfMonth.getDay();
-
+  const startWeekday = firstDayOfMonth.getDay(); 
   const startOffset = startWeekday === 0 ? 6 : startWeekday - 1;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = now.getDate();
@@ -148,8 +147,26 @@ function buildCalendarGrid(records: AttendanceRecord[]) {
   return cells;
 }
 
-/* ─── Sub-components  ─────────────────────── */
-
+/* ─── Sub-components  ───────────────────────────────────────────────────── */
+function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) {
+  const colorClasses: Record<string, string> = {
+    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
+    green: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+    red: 'from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/20 text-red-500 dark:text-red-400',
+    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
+  };
+  return (
+    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-5 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105`}>
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider opacity-70">{title}</p>
+          <p className="text-2xl md:text-3xl font-black mt-1">{value}</p>
+        </div>
+        <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl">{icon}</div>
+      </div>
+    </div>
+  );
+}
 
 function AttendanceBarChart({ data }: { data: ReturnType<typeof buildWeekData> }) {
   const maxVal = 1;
@@ -280,7 +297,6 @@ export default function EmployeeDashboard() {
   const [leaves, setLeaves] = useState<LeaveApplication[]>([]); // new
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [dashboardView, setDashboardView] = useState<'month' | 'week' | 'day'>('month');
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const { refresh: refreshNotifications } = useNotifications();
@@ -290,22 +306,10 @@ export default function EmployeeDashboard() {
   const calendarCells = useMemo(() => buildCalendarGrid(attendance), [attendance]);
   const unread = notifications.filter(n => !n.read).length;
 
-  const ticketStats = {
-    open: 0,
-    inProgress: 0,
-    resolved: 0,
-    total: 0
-  };
-
-  const dailyData = useMemo(() => weekData.map(d => ({
-    ...d,
-    tickets: 0
-  })), [weekData]);
-
   const now = new Date();
   const monthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const fetchAllData = async () => {
+  const fetchAll = async () => {
     const token = getAuthToken();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
@@ -338,7 +342,7 @@ export default function EmployeeDashboard() {
     }
   };
 
-  useEffect(() => { fetchAllData(); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   if (loading) {
     return (
@@ -363,9 +367,9 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300 font-sf">
-        {/* Header Toolbar matched to Admin Dashboard */}
-        <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md transition-colors">
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Title + Apply for Leave + Refresh + Bell */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
           <div className="min-w-0">
             <h2 className="text-[13px] md:text-xl font-black text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">
               Employee Dashboard
@@ -383,28 +387,9 @@ export default function EmployeeDashboard() {
               onClick={fetchAllData}
               className="w-[34px] md:w-auto h-[34px] md:h-10 px-0 md:px-4 flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 gap-1.5"
             >
-              <HiArrowPath className={`text-sm ${loading ? 'animate-spin' : ''}`} />
-              <span className="hidden md:inline">Refresh</span>
+              <HiArrowPath className={`text-sm ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
             </button>
-            <div className="flex items-center gap-1 md:gap-1.5 ml-1">
-              {['Month', 'Week', 'Day'].map((label) => {
-                const v = label.toLowerCase();
-                const isActive = dashboardView === v;
-                return (
-                  <button
-                    key={v}
-                    onClick={() => setDashboardView(v as any)}
-                    className={`px-3 md:px-5 h-[34px] md:h-10 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center ${
-                      isActive 
-                        ? 'bg-[#064e3b] text-white ring-1 ring-[#064e3b]' 
-                        : 'bg-[#10b981] text-white hover:bg-[#059669]'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
             <NotificationBell />
           </div>
         </div>
@@ -418,18 +403,18 @@ export default function EmployeeDashboard() {
             <StatCard title="Attendance %" value={`${stats.percentage}%`} icon={<HiOutlineUserCircle className="w-5 h-5 md:w-6 md:h-6" />} color="amber" />
           </div>
 
-          {/* Two Charts Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Attendance Chart */}
-            <div className="bg-white dark:bg-[#0A1128]/60 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Attendance Trend</h3>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days – Present vs Absent</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                  <HiOutlineClock className="text-indigo-600 dark:text-indigo-400 text-xl" />
-                </div>
+          {message && (
+            <div className={`p-3 rounded-xl text-sm font-bold ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+              {message.text}
+            </div>
+          )}
+
+          {/* Attendance Chart + Calendar Heatmap */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Last 7 Days Attendance</h2>
+                <span className="text-xs text-slate-400 font-bold">{monthLabel}</span>
               </div>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -450,12 +435,29 @@ export default function EmployeeDashboard() {
               </div>
             </div>
 
-            {/* Ticket Creation Chart */}
-            <div className="bg-white dark:bg-[#0A1128]/60 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Ticket Creation Trend</h3>
-                  <p className="text-[10px] font-bold text-slate-400 mt-1">Last 7 days activity</p>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Monthly Heatmap</h2>
+                <span className="text-xs text-slate-400 font-bold">{monthLabel}</span>
+              </div>
+              <CalendarHeatmap cells={calendarCells} />
+              <div className="mt-6 flex flex-wrap gap-3">
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/50"></div><span className="text-xs font-bold">Present</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-red-100 dark:bg-red-900/50"></div><span className="text-xs font-bold">Absent</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/50"></div><span className="text-xs font-bold">Half Day</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-indigo-100 ring-1 ring-indigo-400"></div><span className="text-xs font-bold">Today</span></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Holidays + Notifications */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Holidays */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-2">
+                  <HiOutlineGift className="w-5 h-5 text-amber-500" />
+                  <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Upcoming Holidays</h2>
                 </div>
                 <button onClick={fetchAllData} className="text-slate-400 hover:text-indigo-500 transition">
                   <HiArrowPath className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -554,25 +556,6 @@ export default function EmployeeDashboard() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) {
-  const colorClasses: Record<string, string> = {
-    amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
-    violet: 'from-violet-50 to-violet-100 dark:from-violet-950/30 dark:to-violet-900/20 text-violet-600 dark:text-violet-400',
-    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
-  };
-  return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} rounded-3xl p-6 shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-[1.02] hover:shadow-xl duration-300`}>
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">{title}</p>
-          <p className="text-4xl md:text-5xl font-black tracking-tighter">{value}</p>
         </div>
       </div>
     </div>
