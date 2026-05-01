@@ -152,18 +152,16 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
                         e.preventDefault();
                       }
                     }}
-                    className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${
-                      isActive
+                    className={`flex items-center gap-4 px-6 py-3.5 transition-all duration-200 group relative ${isActive
                         ? "bg-[#1ABC9C] text-white shadow-lg shadow-teal-500/20"
                         : "text-black dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-900/10 hover:text-[#1ABC9C] dark:hover:text-[#1ABC9C]"
-                    }`}
+                      }`}
                   >
                     <item.icon
-                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                        isActive
+                      className={`text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110 ${isActive
                           ? "text-white"
                           : "text-black dark:text-slate-400 group-hover:text-[#1ABC9C]"
-                      }`}
+                        }`}
                     />
                     {!isCollapsed && (
                       <div className="flex items-center justify-between w-full">
