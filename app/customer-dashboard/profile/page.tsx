@@ -182,7 +182,7 @@ export default function ProfilePage() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <div className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"></div>
+              {/* <div className="absolute -bottom-2 -left-2 bg-emerald-500 border-4 border-white dark:border-slate-900 w-8 h-8 rounded-full"></div> */}
             </div>
 
             {editing ? (
