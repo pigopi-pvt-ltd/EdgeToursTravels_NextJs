@@ -12,6 +12,9 @@ import {
   HiOutlineCheckCircle,
   HiOutlineXCircle,
   HiOutlineUserCircle,
+  HiOutlineExclamationCircle,
+  HiOutlineClock,
+  HiOutlineChatBubbleLeftEllipsis,
   HiOutlineDocumentDuplicate,
 } from 'react-icons/hi2';
 import {
@@ -375,15 +378,14 @@ export default function EmployeeDashboard() {
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
             <Link
               href="/employee-dashboard/leave"
-              className="flex items-center gap-2 px-4 py-1.5 md:px-4 md:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition shadow-sm"
+              className="flex items-center gap-2 px-4 h-[34px] md:h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold border border-transparent transition shadow-sm"
             >
               <HiOutlinePaperAirplane className="w-4 h-4" />
               Apply for Leave
             </Link>
             <button
-              onClick={fetchAll}
-              disabled={refreshing}
-              className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+              onClick={fetchAllData}
+              className="w-[34px] md:w-auto h-[34px] md:h-10 px-0 md:px-4 flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 gap-1.5"
             >
               <HiArrowPath className={`text-sm ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -457,8 +459,8 @@ export default function EmployeeDashboard() {
                   <HiOutlineGift className="w-5 h-5 text-amber-500" />
                   <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Upcoming Holidays</h2>
                 </div>
-                <button onClick={fetchAll} className="text-slate-400 hover:text-indigo-500 transition">
-                  <HiArrowPath className="w-4 h-4" />
+                <button onClick={fetchAllData} className="text-slate-400 hover:text-indigo-500 transition">
+                  <HiArrowPath className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
               </div>
               <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
