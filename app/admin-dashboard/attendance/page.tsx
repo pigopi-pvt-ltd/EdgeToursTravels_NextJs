@@ -158,8 +158,47 @@ export default function AdminAttendancePage() {
 
   if (empLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] bg-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="flex gap-2">
+            <div className="h-9 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+            <div className="h-9 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+          </div>
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-20 bg-slate-100 dark:bg-slate-800 rounded"></div>
+            <div className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+          </div>
+          <div className="w-full lg:w-40 space-y-2">
+            <div className="h-3 w-16 bg-slate-100 dark:bg-slate-800 rounded"></div>
+            <div className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+          </div>
+          <div className="w-full lg:w-32 space-y-2">
+            <div className="h-3 w-12 bg-slate-100 dark:bg-slate-800 rounded"></div>
+            <div className="h-12 w-full bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+          </div>
+          <div className="w-full lg:w-32 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl self-end"></div>
+        </div>
+
+        {/* Stats Skeleton */}
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-32 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800"></div>
+          ))}
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="mx-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="h-12 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800"></div>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-16 border-b border-slate-50 dark:border-slate-800/50 mx-4"></div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -318,8 +357,29 @@ export default function AdminAttendancePage() {
         )}
 
         {loading && (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin h-12 w-12 border-4 border-indigo-600 border-t-transparent rounded-full shadow-lg" />
+          <div className="p-6 space-y-6 animate-pulse">
+            {/* Stats Cards Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-32 bg-white/50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800"></div>
+              ))}
+            </div>
+
+            {/* Content Skeleton (Table) */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div className="h-12 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 px-6 flex items-center">
+                <div className="h-3 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              </div>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="h-16 border-b border-slate-50 dark:border-slate-800/50 mx-6 flex items-center justify-between gap-4">
+                  <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>
+                  <div className="h-3 flex-1 bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                  <div className="h-3 w-24 bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                  <div className="h-3 w-24 bg-slate-50 dark:bg-slate-800/50 rounded"></div>
+                  <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

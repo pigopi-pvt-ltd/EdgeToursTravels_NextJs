@@ -3,13 +3,18 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
-// Dynamically import the MUI-based table with SSR disabled to prevent
-// the ":first-child" pseudo-class warnings during server-side rendering.
+// Dynamically import the MUI-based table with SSR disabled and use NoSsr 
+// to prevent the ":first-child" pseudo-class warnings during server-side rendering.
 const CustomTableClient = dynamic(() => import('./CustomTableClient'), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-full animate-pulse bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-      <div className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading Table...</div>
+    <div className="w-full h-full animate-pulse bg-white dark:bg-[#0A1128] border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col min-h-[400px]">
+      <div className="h-14 border-b border-slate-100 dark:border-slate-800 flex items-center px-6">
+        <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+      </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Initializing Table Architecture...</div>
+      </div>
     </div>
   )
 });

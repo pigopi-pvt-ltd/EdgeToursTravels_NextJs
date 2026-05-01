@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -56,6 +56,7 @@ export default function AvailabilityPage() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [dashboardView, setDashboardView] = useState<'month' | 'week' | 'day'>('month');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -354,6 +355,17 @@ export default function AvailabilityPage() {
     maintenance: events.filter((e) => e.status === 'maintenance').length,
   };
 
+  const calendarRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const api = calendarRef.current.getApi();
+      if (dashboardView === 'month') api.changeView('dayGridMonth');
+      else if (dashboardView === 'week') api.changeView('timeGridWeek');
+      else if (dashboardView === 'day') api.changeView('timeGridDay');
+    }
+  }, [dashboardView]);
+
   if (loading && events.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
@@ -384,20 +396,39 @@ export default function AvailabilityPage() {
       )}
 
       {/* Sticky Header Toolbar */}
-      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700">
+      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-[#0A1128]/80 backdrop-blur-md py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 transition-colors">
         <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
           Vehicle Availability <span className="text-black dark:text-white font-normal hidden sm:inline">({events.length})</span>
         </h2>
         <div className="flex items-center gap-2">
           <button
             onClick={fetchEvents}
-            className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
+            className="w-[34px] md:w-10 h-[34px] md:h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
           >
             <HiArrowPath className="w-5 h-5" />
           </button>
+          <div className="flex items-center gap-1 md:gap-1.5 ml-1">
+            {['Month', 'Week', 'Day'].map((label) => {
+              const v = label.toLowerCase();
+              const isActive = dashboardView === v;
+              return (
+                <button
+                  key={v}
+                  onClick={() => setDashboardView(v as any)}
+                  className={`px-3 md:px-5 h-[34px] md:h-10 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center ${
+                    isActive 
+                      ? 'bg-[#064e3b] text-white ring-1 ring-[#064e3b]' 
+                      : 'bg-[#10b981] text-white hover:bg-[#059669]'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
           <button
             onClick={() => setIsBulkModalOpen(true)}
-            className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition"
+            className="px-3 md:px-5 h-[34px] md:h-10 bg-indigo-600 text-white rounded-lg text-[10px] md:text-sm font-bold hover:bg-indigo-700 transition flex items-center justify-center"
           >
             Bulk
           </button>
@@ -407,7 +438,7 @@ export default function AvailabilityPage() {
               setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition"
+            className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3 md:px-5 h-[34px] md:h-10 rounded-lg text-[10px] md:text-sm font-bold transition whitespace-nowrap"
           >
             <HiPlus className="text-lg" /> New Slot
           </button>
@@ -470,33 +501,41 @@ export default function AvailabilityPage() {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-5 flex justify-between items-center">
+        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 p-6 rounded-2xl shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 group flex justify-between items-start">
           <div>
-            <p className="text-xs font-bold uppercase text-emerald-600">Total Slots</p>
-            <p className="text-3xl font-black mt-1">{stats.total}</p>
+            <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Total Slots</p>
+            <h3 className="text-4xl font-black tracking-tight">{stats.total}</h3>
           </div>
-          <HiCalendar className="text-emerald-500 text-3xl" />
+          <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl transition">
+            <HiCalendar className="text-indigo-600 dark:text-indigo-400 w-6 h-6" />
+          </div>
         </div>
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl p-5 flex justify-between items-center">
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20 p-6 rounded-2xl shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 group flex justify-between items-start">
           <div>
-            <p className="text-xs font-bold uppercase text-green-600">Available</p>
-            <p className="text-3xl font-black mt-1">{stats.available}</p>
+            <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Available</p>
+            <h3 className="text-4xl font-black tracking-tight">{stats.available}</h3>
           </div>
-          <HiCheckCircle className="text-green-500 text-3xl" />
+          <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl transition">
+            <HiCheckCircle className="text-emerald-600 dark:text-emerald-400 w-6 h-6" />
+          </div>
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-5 flex justify-between items-center">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 p-6 rounded-2xl shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 group flex justify-between items-start">
           <div>
-            <p className="text-xs font-bold uppercase text-blue-600">Booked</p>
-            <p className="text-3xl font-black mt-1">{stats.booked}</p>
+            <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Booked</p>
+            <h3 className="text-4xl font-black tracking-tight">{stats.booked}</h3>
           </div>
-          <HiUserGroup className="text-blue-500 text-3xl" />
+          <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl transition">
+            <HiUserGroup className="text-blue-600 dark:text-blue-400 w-6 h-6" />
+          </div>
         </div>
-        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-5 flex justify-between items-center">
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 p-6 rounded-2xl shadow-sm border border-white/20 backdrop-blur-sm transition-all hover:scale-105 group flex justify-between items-start">
           <div>
-            <p className="text-xs font-bold uppercase text-amber-600">Maintenance</p>
-            <p className="text-3xl font-black mt-1">{stats.maintenance}</p>
+            <p className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Maintenance</p>
+            <h3 className="text-4xl font-black tracking-tight">{stats.maintenance}</h3>
           </div>
-          <HiWrench className="text-amber-500 text-3xl" />
+          <div className="p-2 bg-white/30 dark:bg-black/20 rounded-xl transition">
+            <HiWrench className="text-amber-600 dark:text-amber-400 w-6 h-6" />
+          </div>
         </div>
       </div>
 
@@ -526,22 +565,22 @@ export default function AvailabilityPage() {
           }
           .fc .fc-button {
             margin: 0 !important;
-            background-color: #059669 !important;
+            background-color: transparent !important;
             border: none !important;
             border-radius: 8px !important;
             font-size: 13px !important;
             font-weight: 600 !important;
             text-transform: capitalize !important;
             padding: 8px 16px !important;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
             transition: all 0.2s ease !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: white !important;
+            color: #059669 !important;
+            box-shadow: none !important;
           }
           .fc .fc-button:hover {
-            background-color: #047857 !important;
+            background-color: rgba(5, 150, 105, 0.1) !important;
             transform: translateY(-1px);
           }
           .fc .fc-button:active {
@@ -551,12 +590,14 @@ export default function AvailabilityPage() {
             background-color: #34d399 !important;
             opacity: 1 !important;
             color: #064e3b !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
           }
           .fc .fc-today-button:hover {
             background-color: #10b981 !important;
           }
           .fc .fc-button-primary:not(:disabled).fc-button-active {
             background-color: #064e3b !important;
+            color: white !important;
             box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
           }
           .fc .fc-button-group {
@@ -571,10 +612,10 @@ export default function AvailabilityPage() {
             color: #34d399 !important;
           }
           .dark .fc .fc-button {
-            background-color: #065f46 !important;
+            color: #34d399 !important;
           }
           .dark .fc .fc-button:hover {
-            background-color: #047857 !important;
+            background-color: rgba(52, 211, 153, 0.1) !important;
           }
           .dark .fc .fc-today-button {
             background-color: #059669 !important;
@@ -642,7 +683,7 @@ export default function AvailabilityPage() {
           .fc-daygrid-event-harness {
             margin: 1px 4px !important;
           }
-
+ 
           /* Dark Mode Grid */
           .dark .fc {
             --fc-border-color: #1e293b !important;
@@ -666,11 +707,12 @@ export default function AvailabilityPage() {
           }
         `}} />
         <FullCalendar
+          ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           headerToolbar={{ 
             left: 'prev title next today', 
             center: '', 
-            right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+            right: '' 
           }}
           initialView="dayGridMonth"
           editable={true}
@@ -692,6 +734,7 @@ export default function AvailabilityPage() {
           height="auto"
         />
       </div>
+
 
       {/* Modal for Create/Edit */}
       {isModalOpen && (

@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Box, useTheme, Typography, TextField, InputAdornment, NoSsr } from "@mui/material";
+import { Box, useTheme, Typography, TextField, InputAdornment, NoSsr, ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material";
 import { DataGrid, DataGridProps, gridClasses, GridToolbarContainer } from "@mui/x-data-grid";
+import { useTheme as useAppTheme } from "@/context/ThemeContext";
 import { HiMagnifyingGlass } from 'react-icons/hi2';
 import './CustomTable.css';
 
@@ -33,6 +34,50 @@ const NoDataOverlay = () => {
   );
 };
 
+const TableSkeleton = ({ height }: { height?: string | number }) => {
+  const { theme: appMode } = useAppTheme();
+  return (
+    <div
+      style={{ height: height || "calc(100vh - 110px)" }}
+      className="w-full bg-white dark:bg-[#0A1128] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
+    >
+      {/* Header Skeleton */}
+      <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 flex items-center justify-between">
+        <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+        <div className="h-4 w-12 bg-slate-50 dark:bg-slate-800/30 rounded animate-pulse"></div>
+      </div>
+
+      {/* Toolbar Skeleton */}
+      <div className="p-3 border-b border-slate-50 dark:border-slate-800/30 flex items-center gap-4">
+        <div className="h-9 w-64 bg-slate-50 dark:bg-slate-900/50 rounded-lg animate-pulse"></div>
+        <div className="ml-auto flex gap-2">
+          <div className="h-8 w-20 bg-slate-50 dark:bg-slate-900/50 rounded animate-pulse"></div>
+          <div className="h-8 w-8 bg-slate-50 dark:bg-slate-900/50 rounded animate-pulse"></div>
+        </div>
+      </div>
+
+      {/* Rows Skeleton */}
+      <div className="flex-1 p-0">
+        {[...Array(10)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-slate-50 dark:border-slate-800/20">
+            <div className="h-4 w-8 bg-slate-50 dark:bg-slate-800/30 rounded animate-pulse"></div>
+            <div className="h-4 flex-1 bg-slate-100/50 dark:bg-slate-800/40 rounded animate-pulse"></div>
+            <div className="h-4 w-24 bg-slate-50 dark:bg-slate-800/30 rounded animate-pulse"></div>
+            <div className="h-4 w-32 bg-slate-50 dark:bg-slate-800/30 rounded animate-pulse"></div>
+            <div className="h-4 w-16 bg-slate-50 dark:bg-slate-800/30 rounded animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer Skeleton */}
+      <div className="p-4 bg-slate-50/50 dark:bg-slate-900/20 border-t border-slate-100 dark:border-slate-800/50 flex justify-end gap-2">
+        <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+        <div className="h-4 w-8 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse"></div>
+      </div>
+    </div>
+  );
+};
+
 const CustomTableClient: React.FC<CustomTableProps> = ({
   rows = [],
   columns = [],
@@ -51,7 +96,25 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
   ...props
 }) => {
   const theme = useTheme();
+  const { theme: appMode } = useAppTheme();
   const [mounted, setMounted] = React.useState(false);
+
+  const muiTheme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: appMode as "light" | "dark",
+          primary: {
+            main: "#1ABC9C",
+          },
+          background: {
+            default: appMode === "dark" ? "#0A1128" : "#fff",
+            paper: appMode === "dark" ? "#111827" : "#fff",
+          },
+        },
+      }),
+    [appMode]
+  );
 
   React.useEffect(() => {
     setMounted(true);
@@ -66,8 +129,9 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
           justifyContent: "space-between",
           alignItems: "center",
           gap: 2,
-          borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(224, 224, 224, 0.5)",
-          flexWrap: 'wrap'
+          borderBottom: appMode === "dark" ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid rgba(224, 224, 224, 0.5)",
+          flexWrap: 'wrap',
+          backgroundColor: appMode === "dark" ? "rgba(10, 17, 40, 0.4)" : "transparent"
         }}
       >
         {onSearch && (
@@ -89,9 +153,10 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
               width: { xs: '100%', sm: 250 },
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
-                backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#fff",
-                fontSize: "12px",
-                fontWeight: "bold",
+                backgroundColor: theme.palette.mode === "dark" ? "rgba(0, 0, 0, 0.2)" : "#fff",
+                "& fieldset": {
+                  borderColor: appMode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.23)",
+                },
               },
             }}
           />
@@ -106,103 +171,79 @@ const CustomTableClient: React.FC<CustomTableProps> = ({
   };
 
   if (!mounted) {
-    return (
-      <div className="w-full h-full animate-pulse bg-slate-50 dark:bg-slate-900 flex items-center justify-center min-h-[400px] rounded-2xl border border-slate-200 dark:border-slate-800">
-        <div className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Preparing Table...</div>
-      </div>
-    );
+    return <TableSkeleton height={height} />;
   }
 
   return (
-    <Box
-      sx={{
-        overflow: "hidden",
-        height: height ? height : "calc(100vh - 110px)",
-        backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#fff",
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
-      {title && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "8px 16px",
-            borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.2)" : "1px solid rgba(224, 224, 224, 1)",
-            backgroundColor: theme.palette.mode === "dark" ? "#1e1e1e" : "#f5f5f5",
-          }}
-        >
-          <Typography
-            variant="subtitle1"
-            component="div"
-            sx={{
-              fontWeight: 1600,
-              fontSize: '15px',
-              color: theme.palette.mode === "dark" ? "#fff" : "#333",
-              textTransform: 'uppercase',
-              letterSpacing: '-0.02em'
+    <MuiThemeProvider theme={muiTheme}>
+      <Box
+        sx={{
+          overflow: "hidden",
+          height: height ? height : "calc(100vh - 110px)",
+          backgroundColor: appMode === "dark" ? "#0A1128" : "#fff",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {title && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "12px 16px",
+              borderBottom: appMode === "dark" ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid rgba(224, 224, 224, 1)",
+              backgroundColor: appMode === "dark" ? "rgba(10, 17, 40, 0.6)" : "#f5f5f5",
+              backdropFilter: "blur(8px)",
             }}
           >
-            {title}{" "}
-            {(rowCount ?? rows.length) > 0 ? `(${(rowCount ?? rows.length)})` : ""}
-          </Typography>
-        </div>
-      )}
-      {mounted && (
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          rowHeight={rowHeight}
-          pagination
-          paginationMode={paginationModel ? "server" : "client"}
-          {...(paginationModel ? { rowCount: rowCount ?? rows.length } : {})}
-          paginationModel={paginationModel}
-          onPaginationModelChange={onPaginationModelChange}
-          sortingMode={sortModel ? "server" : "client"}
-          sortModel={sortModel}
-          onSortModelChange={onSortModelChange}
-          pageSizeOptions={pageSizeOptions}
-          disableRowSelectionOnClick
-          slots={{
-            toolbar: (onSearch || extraToolbarContent) ? CustomToolbar : undefined,
-            noRowsOverlay: NoDataOverlay,
-            ...slots,
-          }}
-          sx={{
-            flex: 1,
-            border: "none",
-            borderRadius: "0 0 16px 16px",
-            backgroundColor: theme.palette.mode === "dark" ? "#1A2236" : "#fff",
-            color: theme.palette.mode === "dark" ? "#fff" : "#333",
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.mode === "dark" ? "#111827" : "#f1f5f9",
-              color: theme.palette.mode === "dark" ? "#fff" : "#0f172a",
-              fontSize: "12px",
-              fontWeight: 800,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: theme.palette.mode === "dark" ? "1px solid rgba(255,255,255,0.05)" : "1px solid #f1f5f9",
-              fontSize: "13px",
-              fontWeight: 500,
-            },
-            "& .MuiDataGrid-row:hover": {
-              backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "#f8fafc",
-            },
-            [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
-              outline: "none",
-            },
-            [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]: {
-              outline: "none",
-            },
-          }}
-          {...props}
-        />
-      )}
-    </Box>
+            <Typography
+              variant="subtitle1"
+              component="div"
+              sx={{
+                fontWeight: 1600,
+                fontSize: "15px",
+                color: appMode === "dark" ? "#fff" : "#333",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {title}{" "}
+              {(rowCount ?? rows.length) > 0 ? (
+                <span style={{ opacity: 0.6, marginLeft: "4px", fontWeight: 500 }}>({rowCount ?? rows.length})</span>
+              ) : (
+                ""
+              )}
+            </Typography>
+          </div>
+        )}
+        {mounted && (
+          <NoSsr>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              rowHeight={rowHeight}
+              pagination
+              paginationMode={paginationModel ? "server" : "client"}
+              {...(paginationModel ? { rowCount: rowCount ?? rows.length } : {})}
+              paginationModel={paginationModel}
+              onPaginationModelChange={onPaginationModelChange}
+              sortingMode={sortModel ? "server" : "client"}
+              sortModel={sortModel}
+              onSortModelChange={onSortModelChange}
+              pageSizeOptions={pageSizeOptions}
+              disableRowSelectionOnClick
+              slots={{
+                toolbar: onSearch || extraToolbarContent ? CustomToolbar : undefined,
+                noRowsOverlay: NoDataOverlay,
+                ...slots,
+              }}
+              className="custom-admin-datagrid"
+              {...props}
+            />
+          </NoSsr>
+        )}
+      </Box>
+    </MuiThemeProvider>
   );
 };
 
