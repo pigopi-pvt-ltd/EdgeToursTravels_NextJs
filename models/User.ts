@@ -23,6 +23,7 @@ export interface IDriverDetails extends IAddress {
   kycStatus?: "pending" | "submitted" | "approved" | "rejected";
   rejectionReason?: string;
   kycDocuments?: Record<string, string>;
+ availabilityStatus?: 'available' | 'unavailable';
 }
 
 export interface IEmployeeDetails extends IAddress {
@@ -86,6 +87,7 @@ const DriverDetailsSchema = new Schema<IDriverDetails>({
   },
   rejectionReason: String,
   kycDocuments: { type: Map, of: String },
+  availabilityStatus: { type: String, enum: ['available', 'unavailable'], default: 'unavailable' },
 });
 
 const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
