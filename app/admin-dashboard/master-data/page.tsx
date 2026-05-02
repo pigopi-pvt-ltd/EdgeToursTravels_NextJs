@@ -8,7 +8,7 @@ export default function MasterDataPage() {
       <div className="bg-white dark:bg-[#0A1128] min-h-[calc(100vh-64px)] border-b border-slate-200 dark:border-slate-800 transition-colors">
         {/* Sticky header */}
         <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-16 z-30 min-h-[56px] backdrop-blur-md transition-colors">
-          <h1 className="text-sm md:text-xl font-extrabold text-orange-600 uppercase tracking-tighter">
+          <h1 className="text-sm md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
             Master Data Management <span className="text-black dark:text-white font-normal">(5)</span>
           </h1>
         </div>

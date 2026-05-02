@@ -12,8 +12,17 @@ import {
   HiOutlineCash,
   HiOutlineTrendingUp,
   HiOutlineTrendingDown,
+  HiSearch,
+  HiX,
+  HiOutlineEye,
+  HiPencil,
 } from 'react-icons/hi';
+import { HiArrowPath } from 'react-icons/hi2';
+import CustomTable from '@/components/CustomTable';
+import { GridColDef } from '@mui/x-data-grid';
+import { IconButton } from '@mui/material';
 
+// --- Types -------------------------------------------------
 interface Employee {
   _id: string;
   name: string;
@@ -27,12 +36,14 @@ interface LineItem {
 
 interface Salary {
   _id?: string;
-  userId: string;
+  userId: any; // Can be object or string depending on context
   month: string;
   year: number;
   earnings: LineItem[];
   deductions: LineItem[];
   netPayable: number;
+  employeeName?: string;
+  createdAt?: string;
 }
 
 const defaultEarnings = [
@@ -48,6 +59,13 @@ const defaultDeductions = [
 
 export default function AdminSalary() {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [salaries, setSalaries] = useState<Salary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Form/Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [monthYear, setMonthYear] = useState(() => {
     const now = new Date();
@@ -62,20 +80,45 @@ export default function AdminSalary() {
     netPayable: 33000,
   });
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [loadingEmployee, setLoadingEmployee] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   useEffect(() => {
-    fetchEmployees();
+    fetchInitialData();
   }, []);
+
+  const fetchInitialData = async () => {
+    setLoading(true);
+    await Promise.all([fetchEmployees(), fetchSalaries()]);
+    setLoading(false);
+  };
 
   const fetchEmployees = async () => {
     const token = getAuthToken();
-    const res = await fetch('/api/admin/employees?role=employee', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setEmployees(Array.isArray(data) ? data : []);
+    try {
+      const res = await fetch('/api/admin/employees?role=employee', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch employees');
+    }
+  };
+
+  const fetchSalaries = async () => {
+    const token = getAuthToken();
+    try {
+      const res = await fetch('/api/admin/salary', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSalaries(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch salaries');
+    }
   };
 
   const loadSalary = async (empId: string, ym: string) => {
@@ -111,7 +154,7 @@ export default function AdminSalary() {
         year: parseInt(year),
         earnings: defaultEarnings,
         deductions: defaultDeductions,
-        netPayable: defaultEarnings.reduce((a,b)=>a+b.amount,0) - defaultDeductions.reduce((a,b)=>a+b.amount,0),
+        netPayable: defaultEarnings.reduce((a, b) => a + b.amount, 0) - defaultDeductions.reduce((a, b) => a + b.amount, 0),
       });
     } catch (err) {
       console.error(err);
@@ -161,12 +204,12 @@ export default function AdminSalary() {
   const removeEarning = (idx: number) => {
     const newEarnings = salary.earnings.filter((_, i) => i !== idx);
     const totalEarnings = newEarnings.reduce((s, i) => s + i.amount, 0);
-    setSalary({ ...salary, earnings: newEarnings, netPayable: totalEarnings - salary.deductions.reduce((s,i)=>s+i.amount,0) });
+    setSalary({ ...salary, earnings: newEarnings, netPayable: totalEarnings - salary.deductions.reduce((s, i) => s + i.amount, 0) });
   };
   const removeDeduction = (idx: number) => {
     const newDeductions = salary.deductions.filter((_, i) => i !== idx);
     const totalDeductions = newDeductions.reduce((s, i) => s + i.amount, 0);
-    setSalary({ ...salary, deductions: newDeductions, netPayable: salary.earnings.reduce((s,i)=>s+i.amount,0) - totalDeductions });
+    setSalary({ ...salary, deductions: newDeductions, netPayable: salary.earnings.reduce((s, i) => s + i.amount, 0) - totalDeductions });
   };
 
   const saveSalary = async () => {
@@ -180,7 +223,11 @@ export default function AdminSalary() {
       });
       if (res.ok) {
         setMessage({ text: 'Salary saved successfully', type: 'success' });
-        setTimeout(() => setMessage(null), 3000);
+        fetchSalaries();
+        setTimeout(() => {
+          setMessage(null);
+          setIsModalOpen(false);
+        }, 1500);
       } else {
         const err = await res.json();
         setMessage({ text: err.error || 'Error saving salary', type: 'error' });
@@ -192,212 +239,460 @@ export default function AdminSalary() {
     }
   };
 
+  const resetForm = () => {
+    setSelectedEmployee('');
+    setMonthYear(() => {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    });
+    setSalary({
+      userId: '',
+      month: '',
+      year: new Date().getFullYear(),
+      earnings: defaultEarnings,
+      deductions: defaultDeductions,
+      netPayable: 33000,
+    });
+    setIsReadOnly(false);
+  };
+
   const totalEarnings = salary.earnings.reduce((s, i) => s + i.amount, 0);
   const totalDeductions = salary.deductions.reduce((s, i) => s + i.amount, 0);
 
-  return (
-    <div className="space-y-6 p-4 md:p-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white tracking-tight">
-            Salary Management
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Define monthly earnings and deductions for employees
-          </p>
-        </div>
-        {message && (
-          <div className={`px-4 py-2 rounded-lg text-sm font-bold shadow-sm ${
-            message.type === 'success' 
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
-            {message.text}
-          </div>
-        )}
-      </div>
+  const filteredSalaries = salaries.filter(s => {
+    const name = s.employeeName || s.userId?.name || '';
+    return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           s.month.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
-      {/* Main Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-        {/* Selection Bar */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-900/20">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <HiOutlineUserGroup className="inline mr-1.5 w-3.5 h-3.5" /> Employee
-            </label>
-            <select
-              value={selectedEmployee}
-              onChange={e => handleEmployeeChange(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm font-medium focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
-            >
-              <option value="">Select employee</option>
-              {employees.map(emp => (
-                <option key={emp._id} value={emp._id}>{emp.name} – {emp.email}</option>
+  const salaryColumns: GridColDef[] = [
+    {
+      field: 'employeeName',
+      headerName: 'NAME',
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <div className="flex items-center gap-3 h-full">
+          <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-black text-[10px] ring-1 ring-emerald-200 dark:ring-emerald-800 flex-shrink-0">
+            {params.row.employeeName?.[0] || params.row.userId?.name?.[0] || 'E'}
+          </div>
+          <span className="text-sm font-bold text-slate-900 dark:text-white truncate">
+            {params.row.employeeName || params.row.userId?.name || '-'}
+          </span>
+        </div>
+      ),
+    },
+    {
+      field: 'email',
+      headerName: 'EMAIL ADDRESS',
+      width: 220,
+      renderCell: (params) => (
+        <span className="text-sm font-bold text-slate-900 dark:text-white lowercase">
+          {params.row.userId?.email || '-'}
+        </span>
+      ),
+    },
+    {
+      field: 'month',
+      headerName: 'PERIOD',
+      width: 150,
+      renderCell: (params) => (
+        <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">
+          {params.value}
+        </span>
+      ),
+    },
+    {
+      field: 'netPayable',
+      headerName: 'NET PAYABLE',
+      width: 150,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+          ₹{params.value?.toLocaleString() || '0'}
+        </span>
+      ),
+    },
+    {
+      field: 'createdAt',
+      headerName: 'RELEASED ON',
+      width: 150,
+      renderCell: (params) => (
+        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
+          {params.value ? new Date(params.value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+        </span>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'ACTIONS',
+      width: 100,
+      headerAlign: 'center',
+      align: 'center',
+      sortable: false,
+      renderCell: (params) => (
+        <div className="flex items-center justify-center gap-2 h-full">
+          <IconButton
+            size="small"
+            onClick={() => {
+              const sal = params.row;
+              setSalary({
+                userId: sal.userId._id,
+                month: sal.month,
+                year: sal.year,
+                earnings: sal.earnings,
+                deductions: sal.deductions,
+                netPayable: sal.netPayable,
+              });
+              setSelectedEmployee(sal.userId._id);
+              const parts = sal.month.split(' ');
+              if (parts.length === 2) {
+                const mIdx = new Date(`${parts[0]} 1, 2000`).getMonth() + 1;
+                setMonthYear(`${parts[1]}-${String(mIdx).padStart(2, '0')}`);
+              }
+              setIsReadOnly(true);
+              setIsModalOpen(true);
+            }}
+            className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+          >
+            <HiOutlineEye className="text-lg" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => {
+              const sal = params.row;
+              setSalary({
+                userId: sal.userId._id,
+                month: sal.month,
+                year: sal.year,
+                earnings: sal.earnings,
+                deductions: sal.deductions,
+                netPayable: sal.netPayable,
+              });
+              setSelectedEmployee(sal.userId._id);
+              const parts = sal.month.split(' ');
+              if (parts.length === 2) {
+                const mIdx = new Date(`${parts[0]} 1, 2000`).getMonth() + 1;
+                setMonthYear(`${parts[1]}-${String(mIdx).padStart(2, '0')}`);
+              }
+              setIsReadOnly(false);
+              setIsModalOpen(true);
+            }}
+            className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+          >
+            <HiPencil className="text-lg" />
+          </IconButton>
+        </div>
+      ),
+    },
+  ];
+
+  if (loading && salaries.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        {/* Sticky Header Toolbar Skeleton */}
+        <div className="sticky top-16 h-14 bg-[#f8f9fa] dark:bg-[#0A1128]/80 px-4 md:px-6 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 z-30 backdrop-blur-md">
+          <div className="h-6 w-48 md:w-64 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+          <div className="flex items-center gap-2">
+             <div className="hidden md:block h-9 w-28 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></div>
+             <div className="h-9 w-32 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg"></div>
+          </div>
+        </div>
+
+        {/* Table Content Skeleton */}
+        <div className="p-0">
+           {/* Table Header Area */}
+           <div className="h-14 bg-white dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-800 flex items-center px-6 gap-4">
+              <div className="h-4 w-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-4 w-40 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded ml-auto"></div>
+           </div>
+           
+           {/* Table Rows */}
+           <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="h-16 bg-white dark:bg-[#0A1128]/40 flex items-center px-6 gap-4">
+                   <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+                   <div className="space-y-2 flex-1 max-w-[200px]">
+                      <div className="h-3.5 w-full bg-slate-200 dark:bg-slate-800 rounded"></div>
+                      <div className="h-2.5 w-24 bg-slate-100 dark:bg-slate-900 rounded"></div>
+                   </div>
+                   <div className="h-4 w-32 bg-slate-100 dark:bg-slate-900 rounded hidden md:block"></div>
+                   <div className="h-4 w-24 bg-slate-100 dark:bg-slate-900 rounded"></div>
+                   <div className="h-4 w-24 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-full ml-auto"></div>
+                </div>
               ))}
-            </select>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Sticky Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md transition-colors">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+              Salary Management <span className="text-black dark:text-white font-normal hidden sm:inline">({salaries.length} Slips)</span>
+            </h2>
           </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-              <HiOutlineCalendar className="inline mr-1.5 w-3.5 h-3.5" /> Month / Year
-            </label>
-            <input
-              type="month"
-              value={monthYear}
-              onChange={e => handleMonthChange(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm font-medium focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
-            />
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchSalaries}
+              className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
+            <button
+              onClick={() => {
+                resetForm();
+                setIsModalOpen(true);
+              }}
+              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap"
+            >
+              <HiOutlinePlus className="text-lg md:hidden" />
+              <span className="hidden md:inline">Release New Salary</span>
+              <span className="md:hidden">New</span>
+            </button>
           </div>
         </div>
 
-        {selectedEmployee && (
-          <div className="p-5 space-y-6">
-            {loadingEmployee && (
-              <div className="flex justify-center py-8">
-                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        {/* Main Content */}
+        <div className="p-0">
+          <CustomTable
+            rows={filteredSalaries}
+            columns={salaryColumns}
+            getRowId={(row) => row._id || Math.random().toString()}
+            height="calc(100vh - 110px)"
+            onSearch={setSearchTerm}
+            extraToolbarContent={
+              <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  Total Released: ₹{salaries.reduce((acc, s) => acc + s.netPayable, 0).toLocaleString()}
+                </div>
               </div>
-            )}
+            }
+          />
+        </div>
 
-            {!loadingEmployee && (
-              <>
-                {/* Earnings & Deductions Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Earnings Column */}
-                  <div className="bg-slate-50/40 dark:bg-slate-900/30 rounded-xl p-4 border border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                          Earnings
-                        </h3>
-                      </div>
-                      <button
-                        onClick={addEarning}
-                        className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 transition"
+        {/* Modal for Salary Processing */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto subtle-scrollbar" onClick={() => setIsModalOpen(false)}>
+            <div className="bg-white dark:bg-slate-900 rounded-[0.5rem] shadow-2xl w-full max-w-5xl animate-in slide-in-from-top-10 duration-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                  {isReadOnly ? 'View Salary Slip' : (salary._id ? 'Edit Salary Slip' : 'Process New Salary')}
+                </h2>
+                <button onClick={() => setIsModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                  <HiX size={24} />
+                </button>
+              </div>
+
+              <div className="p-8 space-y-8">
+                 {/* Selection Section */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">
+                        <HiOutlineUserGroup className="inline mr-1.5 w-3.5 h-3.5" /> Select Employee
+                      </label>
+                      <select
+                        value={selectedEmployee}
+                        disabled={isReadOnly}
+                        onChange={e => handleEmployeeChange(e.target.value)}
+                        className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none dark:text-white ${isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}`}
                       >
-                        <HiOutlinePlus className="w-3.5 h-3.5" /> Add
-                      </button>
+                        <option value="">Choose employee...</option>
+                        {employees.map(emp => (
+                          <option key={emp._id} value={emp._id}>{emp.name} – {emp.email}</option>
+                        ))}
+                      </select>
                     </div>
-                    <div className="space-y-2">
-                      {salary.earnings.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-2 shadow-sm border border-slate-100 dark:border-slate-700">
-                          <input
-                            type="text"
-                            value={item.label}
-                            onChange={e => updateEarnings(idx, 'label', e.target.value)}
-                            className="flex-1 text-sm font-medium bg-transparent border-0 focus:ring-0 p-1.5 outline-none dark:text-white"
-                            placeholder="Label"
-                          />
-                          <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
-                            <input
-                              type="number"
-                              value={item.amount}
-                              onChange={e => updateEarnings(idx, 'amount', Number(e.target.value))}
-                              className="w-28 pl-6 pr-2 py-1.5 text-sm text-right border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900"
-                            />
-                          </div>
-                          <button onClick={() => removeEarning(idx)} className="text-red-400 hover:text-red-600 p-1">
-                            <HiOutlineTrash className="w-4 h-4" />
-                          </button>
+                    <div>
+                      <label className="block text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">
+                        <HiOutlineCalendar className="inline mr-1.5 w-3.5 h-3.5" /> Payment Period
+                      </label>
+                      <input
+                        type="month"
+                        value={monthYear}
+                        disabled={isReadOnly}
+                        onChange={e => handleMonthChange(e.target.value)}
+                        className={`w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none dark:text-white ${isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      />
+                    </div>
+                 </div>
+
+                 {selectedEmployee ? (
+                   <div className="space-y-8 animate-in fade-in duration-300">
+                      {loadingEmployee ? (
+                        <div className="space-y-8 animate-pulse">
+                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                              {[1, 2].map(col => (
+                                <div key={col} className="bg-slate-50/40 dark:bg-slate-900/40 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/50">
+                                   <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-6"></div>
+                                   <div className="space-y-4">
+                                      {[1, 2, 3].map(row => (
+                                        <div key={row} className="h-12 w-full bg-white dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800"></div>
+                                      ))}
+                                   </div>
+                                   <div className="h-8 w-full bg-slate-200 dark:bg-slate-800 rounded-xl mt-6"></div>
+                                </div>
+                              ))}
+                           </div>
+                           <div className="h-32 w-full bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800"></div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
-                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Total Earnings</span>
-                      <span className="text-lg font-black text-emerald-600">₹{totalEarnings.toLocaleString()}</span>
-                    </div>
-                  </div>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            {/* Earnings */}
+                            <div className="bg-slate-50/40 dark:bg-slate-900/40 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/50 shadow-sm">
+                              <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Earnings</h3>
+                                </div>
+                                {!isReadOnly && (
+                                  <button onClick={addEarning} className="px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-200 transition-all active:scale-95">
+                                    Add Line
+                                  </button>
+                                )}
+                              </div>
+                              <div className="space-y-3">
+                                {salary.earnings.map((item, idx) => (
+                                  <div key={idx} className="flex items-center gap-3 bg-white dark:bg-slate-800/50 rounded-xl p-2 border border-slate-100 dark:border-slate-700 transition-all hover:border-emerald-200">
+                                    <input
+                                      type="text"
+                                      value={item.label}
+                                      disabled={isReadOnly}
+                                      onChange={e => updateEarnings(idx, 'label', e.target.value)}
+                                      className={`flex-1 text-sm font-bold bg-transparent border-0 focus:ring-0 p-1.5 outline-none dark:text-white ${isReadOnly ? 'cursor-default' : ''}`}
+                                    />
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-black">₹</span>
+                                      <input
+                                        type="number"
+                                        value={item.amount}
+                                        disabled={isReadOnly}
+                                        onChange={e => updateEarnings(idx, 'amount', Number(e.target.value))}
+                                        className={`w-32 pl-7 pr-3 py-2 text-sm text-right font-black border border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-900 outline-none ${isReadOnly ? 'cursor-default' : 'focus:bg-white focus:ring-2 focus:ring-emerald-500/20'}`}
+                                      />
+                                    </div>
+                                    {!isReadOnly && (
+                                      <button onClick={() => removeEarning(idx)} className="text-slate-300 hover:text-rose-500 p-2 transition-colors">
+                                        <HiOutlineTrash className="w-5 h-5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex justify-between items-center pt-5 mt-5 border-t border-slate-200 dark:border-slate-700">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Gross Amount</span>
+                                <span className="text-2xl font-black text-emerald-600">₹{totalEarnings.toLocaleString()}</span>
+                              </div>
+                            </div>
 
-                  {/* Deductions Column */}
-                  <div className="bg-slate-50/40 dark:bg-slate-900/30 rounded-xl p-4 border border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                          Deductions
-                        </h3>
-                      </div>
-                      <button
-                        onClick={addDeduction}
-                        className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-lg hover:bg-rose-100 transition"
-                      >
-                        <HiOutlinePlus className="w-3.5 h-3.5" /> Add
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {salary.deductions.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-2 shadow-sm border border-slate-100 dark:border-slate-700">
-                          <input
-                            type="text"
-                            value={item.label}
-                            onChange={e => updateDeductions(idx, 'label', e.target.value)}
-                            className="flex-1 text-sm font-medium bg-transparent border-0 focus:ring-0 p-1.5 outline-none dark:text-white"
-                            placeholder="Label"
-                          />
-                          <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">₹</span>
-                            <input
-                              type="number"
-                              value={item.amount}
-                              onChange={e => updateDeductions(idx, 'amount', Number(e.target.value))}
-                              className="w-28 pl-6 pr-2 py-1.5 text-sm text-right border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900"
-                            />
+                            {/* Deductions */}
+                            <div className="bg-slate-50/40 dark:bg-slate-900/40 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/50 shadow-sm">
+                              <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-rose-600 dark:text-rose-400">Deductions</h3>
+                                </div>
+                                {!isReadOnly && (
+                                  <button onClick={addDeduction} className="px-4 py-2 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-200 transition-all active:scale-95">
+                                    Add Line
+                                  </button>
+                                )}
+                              </div>
+                              <div className="space-y-3">
+                                {salary.deductions.map((item, idx) => (
+                                  <div key={idx} className="flex items-center gap-3 bg-white dark:bg-slate-800/50 rounded-xl p-2 border border-slate-100 dark:border-slate-700 transition-all hover:border-rose-200">
+                                    <input
+                                      type="text"
+                                      value={item.label}
+                                      disabled={isReadOnly}
+                                      onChange={e => updateDeductions(idx, 'label', e.target.value)}
+                                      className={`flex-1 text-sm font-bold bg-transparent border-0 focus:ring-0 p-1.5 outline-none dark:text-white ${isReadOnly ? 'cursor-default' : ''}`}
+                                    />
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-black">₹</span>
+                                      <input
+                                        type="number"
+                                        value={item.amount}
+                                        disabled={isReadOnly}
+                                        onChange={e => updateDeductions(idx, 'amount', Number(e.target.value))}
+                                        className={`w-32 pl-7 pr-3 py-2 text-sm text-right font-black border border-slate-100 dark:border-slate-700 rounded-lg bg-slate-50/50 dark:bg-slate-900 outline-none ${isReadOnly ? 'cursor-default' : 'focus:bg-white focus:ring-2 focus:ring-rose-500/20'}`}
+                                      />
+                                    </div>
+                                    {!isReadOnly && (
+                                      <button onClick={() => removeDeduction(idx)} className="text-slate-300 hover:text-rose-500 p-2 transition-colors">
+                                        <HiOutlineTrash className="w-5 h-5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex justify-between items-center pt-5 mt-5 border-t border-slate-200 dark:border-slate-700">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Deduct</span>
+                                <span className="text-2xl font-black text-rose-500">₹{totalDeductions.toLocaleString()}</span>
+                              </div>
+                            </div>
                           </div>
-                          <button onClick={() => removeDeduction(idx)} className="text-red-400 hover:text-red-600 p-1">
-                            <HiOutlineTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
-                      <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Total Deductions</span>
-                      <span className="text-lg font-black text-rose-500">₹{totalDeductions.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Net Payable Card - styled like stat card */}
-                <div className="bg-gradient-to-br from-indigo-50 to-slate-50 dark:from-indigo-950/30 dark:to-slate-800/50 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800/30">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                        <HiOutlineCash className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                          <div className="relative group p-8 bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-8 shadow-sm overflow-hidden">
+                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-indigo-600 opacity-[0.03]"></div>
+                             <div className="flex items-center gap-6 relative">
+                                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl flex items-center justify-center">
+                                   <HiOutlineCurrencyRupee className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <div>
+                                   <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Final Net Payable</p>
+                                   <h3 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">₹{salary.netPayable.toLocaleString()}</h3>
+                                </div>
+                             </div>
+                             <div className="flex items-center gap-6 relative">
+                                <button
+                                  onClick={() => setIsModalOpen(false)}
+                                  className="px-6 py-3 font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                                >
+                                  {isReadOnly ? 'Close' : 'Discard'}
+                                </button>
+                                {!isReadOnly && (
+                                  <button
+                                    onClick={saveSalary}
+                                    disabled={saving}
+                                    className="px-10 py-4 bg-slate-900 dark:bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50"
+                                  >
+                                    {saving ? 'Processing...' : (salary._id ? 'Update Salary Slip' : 'Release Salary Slip')}
+                                  </button>
+                                )}
+                             </div>
+                          </div>
+                        </>
+                      )}
+                   </div>
+                 ) : (
+                   <div className="py-24 text-center">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-slate-300">
+                         <HiOutlineTrendingUp className="text-4xl rotate-45" />
                       </div>
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Net Payable</p>
-                        <p className="text-2xl md:text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                          ₹{salary.netPayable.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Earnings – Deductions</p>
-                        <p className="text-sm font-mono">₹{totalEarnings.toLocaleString()} – ₹{totalDeductions.toLocaleString()}</p>
-                      </div>
-                      <button
-                        onClick={saveSalary}
-                        disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-md transition-all disabled:opacity-50"
-                      >
-                        <HiOutlineSave className="w-4 h-4" />
-                        {saving ? 'Saving...' : 'Save Salary'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+                      <h3 className="text-lg font-black text-slate-400 uppercase tracking-widest">Select an employee to continue</h3>
+                   </div>
+                 )}
 
-        {!selectedEmployee && (
-          <div className="p-12 text-center">
-            <div className="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-3">
-              <HiOutlineUserGroup className="text-2xl text-slate-400" />
+                 {message && (
+                    <div className={`p-4 rounded-xl text-center text-xs font-black uppercase tracking-widest border animate-in slide-in-from-bottom-2 ${
+                      message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'
+                    }`}>
+                      {message.text}
+                    </div>
+                 )}
+              </div>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Select an employee to manage salary</p>
           </div>
         )}
       </div>

@@ -309,7 +309,7 @@ export default function EmployeeDashboard() {
   const now = new Date();
   const monthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  const fetchAll = async () => {
+  const fetchAllData = async () => {
     const token = getAuthToken();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
@@ -342,7 +342,7 @@ export default function EmployeeDashboard() {
     }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAllData(); }, []);
 
   if (loading) {
     return (

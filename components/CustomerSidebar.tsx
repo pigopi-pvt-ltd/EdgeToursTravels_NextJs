@@ -9,7 +9,6 @@ import {
   HiOutlineTruck,
   HiOutlineUser,
   HiOutlineCog,
-  HiOutlineLogout,
   HiOutlineX,
   HiOutlineChevronLeft,
   HiOutlinePlusCircle,
@@ -39,10 +38,7 @@ export default function CustomerSidebar({ isOpen, onClose, isCollapsed, setIsCol
     setUser(stored);
   }, []);
 
-  const handleLogout = () => {
-    clearAuthData();
-    router.push("/login");
-  };
+
 
   return (
     <>

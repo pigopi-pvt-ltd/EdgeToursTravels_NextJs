@@ -36,15 +36,15 @@ interface Vehicle {
 type SortCol = 'name' | 'from' | 'destination' | 'dateTime' | 'contact' | 'status' | null;
 
 const STATUS_BADGE: Record<string, string> = {
-  pending:   'bg-amber-100 text-amber-800',
-  confirmed: 'bg-indigo-100 text-indigo-800',
-  completed: 'bg-emerald-100 text-emerald-800',
-  cancelled: 'bg-rose-100 text-rose-800',
+  confirmed: 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]',
+  cancelled: 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]',
+  completed: 'bg-[#F0F9FF] text-[#0EA5E9] border-[#E0F2FE]',
+  pending: 'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]',
 };
 
 const RESP_BADGE: Record<string, string> = {
-  accepted: 'bg-emerald-100 text-emerald-800',
-  rejected:  'bg-rose-100 text-rose-800',
+  accepted: 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]',
+  rejected: 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]',
 };
 
 export default function AssignPage() {
@@ -317,16 +317,18 @@ export default function AssignPage() {
                     </td>
                     <td className="px-4 py-2.5 text-gray-700">{b.vehicleId?.cabNumber || '—'}</td>
                     <td className="px-4 py-2.5">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_BADGE[b.status]}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border inline-block min-w-[90px] text-center uppercase tracking-widest ${STATUS_BADGE[b.status]}`}>
                         {b.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5">
+                    <td className="px-4 py-2.5 text-center">
                       {b.driverResponse ? (
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize ${RESP_BADGE[b.driverResponse]}`}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border inline-block min-w-[90px] text-center uppercase tracking-widest ${RESP_BADGE[b.driverResponse]}`}>
                           {b.driverResponse}
                         </span>
-                      ) : '—'}
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <div className="flex justify-center gap-2">

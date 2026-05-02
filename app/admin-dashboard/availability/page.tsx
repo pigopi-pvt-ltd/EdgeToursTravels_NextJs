@@ -396,18 +396,28 @@ export default function AvailabilityPage() {
       )}
 
       {/* Sticky Header Toolbar */}
-      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-[#0A1128]/80 backdrop-blur-md py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 transition-colors">
-        <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
-          Vehicle Availability <span className="text-black dark:text-white font-normal hidden sm:inline">({events.length})</span>
-        </h2>
-        <div className="flex items-center gap-2">
+      <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-[#0A1128]/80 backdrop-blur-md py-3 md:py-2 px-4 md:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-200 dark:border-slate-700 transition-colors">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <h2 className="text-base md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
+            Vehicle Availability <span className="text-black dark:text-white font-normal sm:inline">({events.length})</span>
+          </h2>
           <button
             onClick={fetchEvents}
-            className="w-[34px] md:w-10 h-[34px] md:h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+            className="sm:hidden w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
           >
             <HiArrowPath className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-1 md:gap-1.5 ml-1">
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <button
+            onClick={fetchEvents}
+            className="hidden sm:flex w-10 h-10 items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+          >
+            <HiArrowPath className="w-5 h-5" />
+          </button>
+          
+          <div className="flex items-center gap-1.5 min-w-max">
             {['Month', 'Week', 'Day'].map((label) => {
               const v = label.toLowerCase();
               const isActive = dashboardView === v;
@@ -415,7 +425,7 @@ export default function AvailabilityPage() {
                 <button
                   key={v}
                   onClick={() => setDashboardView(v as any)}
-                  className={`px-3 md:px-5 h-[34px] md:h-10 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center ${
+                  className={`px-3 md:px-5 h-9 md:h-10 rounded-lg font-bold text-[11px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                     isActive 
                       ? 'bg-[#064e3b] text-white ring-1 ring-[#064e3b]' 
                       : 'bg-[#10b981] text-white hover:bg-[#059669]'
@@ -426,22 +436,25 @@ export default function AvailabilityPage() {
               );
             })}
           </div>
-          <button
-            onClick={() => setIsBulkModalOpen(true)}
-            className="px-3 md:px-5 h-[34px] md:h-10 bg-indigo-600 text-white rounded-lg text-[10px] md:text-sm font-bold hover:bg-indigo-700 transition flex items-center justify-center"
-          >
-            Bulk
-          </button>
-          <button
-            onClick={() => {
-              setEditingEvent(null);
-              setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
-              setIsModalOpen(true);
-            }}
-            className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-3 md:px-5 h-[34px] md:h-10 rounded-lg text-[10px] md:text-sm font-bold transition whitespace-nowrap"
-          >
-            <HiPlus className="text-lg" /> New Slot
-          </button>
+
+          <div className="flex items-center gap-2 min-w-max">
+            <button
+              onClick={() => setIsBulkModalOpen(true)}
+              className="px-4 md:px-5 h-9 md:h-10 bg-indigo-600 text-white rounded-lg text-[11px] md:text-sm font-bold hover:bg-indigo-700 transition flex items-center justify-center whitespace-nowrap"
+            >
+              Bulk
+            </button>
+            <button
+              onClick={() => {
+                setEditingEvent(null);
+                setFormData({ title: '', start: '', end: '', status: 'available', vehicleId: '', driverId: '', notes: '' });
+                setIsModalOpen(true);
+              }}
+              className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 md:px-5 h-9 md:h-10 rounded-lg text-[11px] md:text-sm font-bold transition whitespace-nowrap"
+            >
+              <HiPlus className="text-lg" /> New Slot
+            </button>
+          </div>
         </div>
       </div>
 

@@ -36,14 +36,14 @@ export default function EmployeeLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] flex transition-colors duration-300">
       <AdminSidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       />
-      <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} min-h-screen`}>
+      <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} min-h-screen relative overflow-hidden backdrop-blur-3xl`}>
         <Header user={user} role="employee" onMenuClick={() => setIsSidebarOpen(true)} />
         <div className="p-4 sm:p-8">
           {children}

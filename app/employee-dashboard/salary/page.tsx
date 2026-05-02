@@ -194,7 +194,6 @@ export default function SalaryPage() {
           {/* Earnings column */}
           <div className="px-6 py-5">
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Earnings
               </span>
@@ -225,7 +224,6 @@ export default function SalaryPage() {
           {/* Deductions column */}
           <div className="px-6 py-5">
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Deductions
               </span>

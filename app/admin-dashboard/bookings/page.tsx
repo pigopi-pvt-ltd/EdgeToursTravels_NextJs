@@ -9,7 +9,7 @@ import {
 import apiClient from '@/lib/apiClient';
 import CustomTable from '@/components/CustomTable';
 import { GridColDef } from '@mui/x-data-grid';
-import { Tooltip, IconButton, Chip } from '@mui/material';
+import { Tooltip, IconButton, Chip, Select, MenuItem, FormControl, Box } from '@mui/material';
 
 // --- Types -------------------------------------------------
 interface Booking {
@@ -67,6 +67,7 @@ export default function BookingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [driverResponseFilter, setDriverResponseFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
@@ -208,12 +209,13 @@ export default function BookingsPage() {
   // --- Filtering --------------------------------------------
   const filteredBookings = bookings.filter(booking => {
     const matchesStatus = statusFilter === 'all' ? true : booking.status === statusFilter;
+    const matchesDriverResp = driverResponseFilter === 'all' ? true : booking.driverResponse === driverResponseFilter;
     const matchesSearch =
       booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.contact.includes(searchTerm) ||
       booking.from.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesDriverResp && matchesSearch;
   });
 
   // --- DataGrid Columns Configuration ----------------------
@@ -334,6 +336,59 @@ export default function BookingsPage() {
       width: 140,
       headerAlign: 'center',
       align: 'center',
+      renderHeader: () => (
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            displayEmpty
+            variant="standard"
+            disableUnderline
+            renderValue={(selected) => {
+              if (selected === 'all') return <span className="font-extrabold text-slate-500 dark:text-slate-400 text-[14px] uppercase tracking-wider">Status</span>;
+              return <span className="font-extrabold text-indigo-600 dark:text-indigo-400 text-[14px] uppercase tracking-wider">{selected}</span>;
+            }}
+            sx={{
+              height: 30,
+              ".MuiSelect-select": {
+                padding: '0 !important',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 800
+              },
+              "& .MuiSelect-icon": {
+                right: -4,
+                color: 'currentColor'
+              }
+            }}
+            MenuProps={{
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 1,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    borderRadius: '12px',
+                    '& .MuiMenuItem-root': {
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      py: 1
+                    }
+                  }
+                }
+              }
+            }}
+          >
+            <MenuItem value="all">ALL STATUS</MenuItem>
+            <MenuItem value="pending">PENDING</MenuItem>
+            <MenuItem value="confirmed">CONFIRMED</MenuItem>
+            <MenuItem value="completed">COMPLETED</MenuItem>
+            <MenuItem value="cancelled">CANCELLED</MenuItem>
+          </Select>
+        </FormControl>
+      ),
       renderCell: (params) => {
         const status = params.value;
         const colorClass =
@@ -352,17 +407,75 @@ export default function BookingsPage() {
     {
       field: 'driverResponse',
       headerName: 'DRIVER RESP.',
-      width: 120,
+      width: 140,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => params.value ? (
-        <span className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-bold uppercase
-          ${params.value === 'accepted' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
-          {params.value}
-        </span>
-      ) : (
-        <span className="text-xs text-slate-400">—</span>
-      )
+      renderHeader: () => (
+        <FormControl size="small" sx={{ minWidth: 100 }}>
+          <Select
+            value={driverResponseFilter}
+            onChange={(e) => setDriverResponseFilter(e.target.value)}
+            displayEmpty
+            variant="standard"
+            disableUnderline
+            renderValue={(selected) => {
+              if (selected === 'all') return <span className="font-extrabold text-slate-500 dark:text-slate-400 text-[14px] uppercase tracking-wider text-center">Driver Resp</span>;
+              return <span className="font-extrabold text-indigo-600 dark:text-indigo-400 text-[14px] uppercase tracking-wider">{selected}</span>;
+            }}
+            sx={{
+              height: 30,
+              ".MuiSelect-select": {
+                padding: '0 !important',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 800
+              },
+              "& .MuiSelect-icon": {
+                right: -4,
+                color: 'currentColor'
+              }
+            }}
+            MenuProps={{
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 1,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    borderRadius: '12px',
+                    '& .MuiMenuItem-root': {
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      py: 1
+                    }
+                  }
+                }
+              }
+            }}
+          >
+            <MenuItem value="all">ALL RESPONSES</MenuItem>
+            <MenuItem value="accepted">ACCEPTED</MenuItem>
+            <MenuItem value="rejected">REJECTED</MenuItem>
+          </Select>
+        </FormControl>
+      ),
+      renderCell: (params) => {
+        const value = params.value;
+        if (!value) return <span className="text-xs text-slate-400">—</span>;
+
+        const colorClass =
+          value === 'accepted' ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]' :
+            value === 'rejected' ? 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]' :
+              'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]';
+
+        return (
+          <span className={`px-2 py-0.5 rounded text-xs font-bold border inline-block min-w-[100px] text-center uppercase tracking-widest ${colorClass}`}>
+            {value}
+          </span>
+        );
+      }
     },
     {
       field: 'actions',
@@ -481,19 +594,6 @@ export default function BookingsPage() {
             height="calc(100vh - 110px)"
             rowCount={filteredBookings.length}
             onSearch={setSearchTerm}
-            extraToolbarContent={
-              <select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
-              >
-                <option value="all">ALL STATUS</option>
-                <option value="pending">PENDING</option>
-                <option value="confirmed">CONFIRMED</option>
-                <option value="completed">COMPLETED</option>
-                <option value="cancelled">CANCELLED</option>
-              </select>
-            }
           />
         )}
       </div>
