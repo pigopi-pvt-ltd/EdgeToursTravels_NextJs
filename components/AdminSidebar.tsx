@@ -17,7 +17,6 @@ import {
   HiOutlineTruck,
   HiOutlineDatabase,
   HiOutlineChevronLeft,
-  HiOutlineLogout,
   HiOutlineClock,
   HiOutlinePaperAirplane,
 } from "react-icons/hi";
@@ -86,10 +85,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
     }
   }, []);
 
-  const handleLogout = () => {
-    clearAuthData();
-    router.push("/login");
-  };
+
 
   if (items.length === 0) return null;
 
@@ -192,16 +188,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           </ul>
         </nav>
 
-        {/* Logout button (stays at bottom) */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 w-full rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-all group"
-          >
-            <HiOutlineLogout className="text-xl transition-transform group-hover:scale-110" />
-            {!isCollapsed && <span className="font-bold text-sm">Logout</span>}
-          </button>
-        </div>
+
       </aside>
     </>
   );
