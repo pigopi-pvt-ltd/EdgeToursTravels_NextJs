@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { getAuthToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { HiOutlineArrowLeft, HiOutlinePaperAirplane, HiOutlineCalendar } from 'react-icons/hi2';
+import { HiOutlineArrowLeft, HiOutlinePaperAirplane, HiOutlineCalendar, HiArrowPath } from 'react-icons/hi2';
 
 export default function ApplyLeavePage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function ApplyLeavePage() {
     }
     setLoading(true);
     const token = getAuthToken();
-    
+
     try {
       const res = await fetch('/api/leaves', {
         method: 'POST',
@@ -49,13 +49,32 @@ export default function ApplyLeavePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 mb-6 transition"
-      >
-        <HiOutlineArrowLeft className="w-5 h-5" /> Back to Dashboard
-      </button>
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      {/* Header Toolbar */}
+      <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md transition-colors">
+        <div className="min-w-0">
+          <h2 className="text-[14px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tight truncate">
+            LEAVE MANAGEMENT
+          </h2>
+        </div>
+        <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 w-9 h-9 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="Refresh"
+          >
+            <HiArrowPath className="text-lg" />
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto py-8 px-4">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 mb-6 transition font-bold text-sm"
+        >
+          <HiOutlineArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700">
@@ -140,6 +159,7 @@ export default function ApplyLeavePage() {
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );

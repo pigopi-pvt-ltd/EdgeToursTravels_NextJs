@@ -365,15 +365,17 @@ export default function BookingsPage() {
               }
             }}
             MenuProps={{
-              PaperProps: {
-                sx: {
-                  mt: 1,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                  borderRadius: '12px',
-                  '& .MuiMenuItem-root': {
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    py: 1
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 1,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    borderRadius: '12px',
+                    '& .MuiMenuItem-root': {
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      py: 1
+                    }
                   }
                 }
               }
@@ -437,15 +439,17 @@ export default function BookingsPage() {
               }
             }}
             MenuProps={{
-              PaperProps: {
-                sx: {
-                  mt: 1,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                  borderRadius: '12px',
-                  '& .MuiMenuItem-root': {
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    py: 1
+              slotProps: {
+                paper: {
+                  sx: {
+                    mt: 1,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    borderRadius: '12px',
+                    '& .MuiMenuItem-root': {
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      py: 1
+                    }
                   }
                 }
               }
