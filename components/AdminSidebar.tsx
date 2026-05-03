@@ -26,6 +26,7 @@ import { clearAuthData, getStoredUser } from "@/lib/auth";
 const adminItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
+  { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/admin-dashboard/long-term-rentals" },
   { name: "Drivers", icon: HiOutlineUsers, href: "/admin-dashboard/drivers" },
   { name: "Vehicles", icon: HiOutlineTruck, href: "/admin-dashboard/vehicles" },
   { name: "Availability", icon: HiOutlineCalendar, href: "/admin-dashboard/availability" },
@@ -43,6 +44,7 @@ const adminItems = [
 const driverItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
+  { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/driver-dashboard/long-term-rentals" },
 ];
 
 interface SidebarProps {
