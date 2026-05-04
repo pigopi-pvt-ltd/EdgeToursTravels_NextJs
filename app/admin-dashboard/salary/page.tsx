@@ -338,14 +338,14 @@ export default function AdminSalary() {
             onClick={() => {
               const sal = params.row;
               setSalary({
-                userId: sal.userId._id,
+                userId: sal.userId?._id || '',
                 month: sal.month,
                 year: sal.year,
                 earnings: sal.earnings,
                 deductions: sal.deductions,
                 netPayable: sal.netPayable,
               });
-              setSelectedEmployee(sal.userId._id);
+              setSelectedEmployee(sal.userId?._id || '');
               const parts = sal.month.split(' ');
               if (parts.length === 2) {
                 const mIdx = new Date(`${parts[0]} 1, 2000`).getMonth() + 1;
@@ -363,14 +363,14 @@ export default function AdminSalary() {
             onClick={() => {
               const sal = params.row;
               setSalary({
-                userId: sal.userId._id,
+                userId: sal.userId?._id || '',
                 month: sal.month,
                 year: sal.year,
                 earnings: sal.earnings,
                 deductions: sal.deductions,
                 netPayable: sal.netPayable,
               });
-              setSelectedEmployee(sal.userId._id);
+              setSelectedEmployee(sal.userId?._id || '');
               const parts = sal.month.split(' ');
               if (parts.length === 2) {
                 const mIdx = new Date(`${parts[0]} 1, 2000`).getMonth() + 1;
