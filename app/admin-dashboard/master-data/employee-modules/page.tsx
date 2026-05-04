@@ -76,8 +76,8 @@ export default function EmployeeModulesPage() {
     }
   };
 
-  const toggleModule = (employee: Employee, moduleName: 'bookings' | 'support') => {
-    const current = employee.employeeDetails.modules || [];
+  const toggleModule = (employee: Employee, moduleName: string) => {
+    const current = employee.employeeDetails?.modules || [];
     const newModules = current.includes(moduleName)
       ? current.filter(m => m !== moduleName)
       : [...current, moduleName];
@@ -122,15 +122,17 @@ export default function EmployeeModulesPage() {
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                   <th className="px-6 py-4 text-left text-[13px] font-black text-slate-700 uppercase tracking-widest">Employee</th>
-                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Manage Bookings</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Bookings</th>
                   <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Support</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Drivers</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Employees</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Customer</th>
+                  <th className="px-6 py-4 text-center text-[13px] font-black text-slate-700 uppercase tracking-widest">Vehicles</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {employees.map((emp) => {
                   const modules = emp.employeeDetails?.modules || [];
-                  const hasBookings = modules.includes('bookings');
-                  const hasSupport = modules.includes('support');
                   const isSaving = saving[emp._id];
                   return (
                     <tr key={emp._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
@@ -139,37 +141,55 @@ export default function EmployeeModulesPage() {
                           <p className="font-bold text-slate-800 dark:text-white">{emp.employeeDetails?.fullName || emp.name}</p>
                           <p className="text-xs text-slate-500">{emp.email} | {emp.mobileNumber}</p>
                         </div>
-                        </td>
+                       </td>
                       <td className="px-6 py-4 text-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hasBookings}
-                            onChange={() => toggleModule(emp, 'bookings')}
-                            disabled={isSaving}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                        </td>
+                        <ToggleSwitch
+                          checked={modules.includes('bookings')}
+                          onChange={() => toggleModule(emp, 'bookings')}
+                          disabled={isSaving}
+                        />
+                      </td>
                       <td className="px-6 py-4 text-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={hasSupport}
-                            onChange={() => toggleModule(emp, 'support')}
-                            disabled={isSaving}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                        </td>
+                        <ToggleSwitch
+                          checked={modules.includes('support')}
+                          onChange={() => toggleModule(emp, 'support')}
+                          disabled={isSaving}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <ToggleSwitch
+                          checked={modules.includes('drivers')}
+                          onChange={() => toggleModule(emp, 'drivers')}
+                          disabled={isSaving}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <ToggleSwitch
+                          checked={modules.includes('employees')}
+                          onChange={() => toggleModule(emp, 'employees')}
+                          disabled={isSaving}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <ToggleSwitch
+                          checked={modules.includes('customer')}
+                          onChange={() => toggleModule(emp, 'customer')}
+                          disabled={isSaving}
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <ToggleSwitch
+                          checked={modules.includes('vehicles')}
+                          onChange={() => toggleModule(emp, 'vehicles')}
+                          disabled={isSaving}
+                        />
+                      </td>
                     </tr>
                   );
                 })}
                 {employees.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="py-12 text-center text-slate-500">No employees found</td>
+                    <td colSpan={7} className="py-12 text-center text-slate-500">No employees found</td>
                   </tr>
                 )}
               </tbody>
@@ -180,3 +200,17 @@ export default function EmployeeModulesPage() {
     </div>
   );
 }
+
+// Reusable toggle component
+const ToggleSwitch = ({ checked, onChange, disabled }: any) => (
+  <label className="relative inline-flex items-center cursor-pointer">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      disabled={disabled}
+      className="sr-only peer"
+    />
+    <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+  </label>
+);
