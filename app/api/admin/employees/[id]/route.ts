@@ -22,6 +22,23 @@ function parseDate(dateStr: string): Date | null {
   return null;
 }
 
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await verifyAdmin(req);
+  if (!admin) return unauthorizedResponse();
+  if (admin.role !== 'admin' && admin.role !== 'employee') return forbiddenResponse();
+
+  await connectToDatabase();
+  const { id } = await params;
+  
+  try {
+    const user = await User.findById(id).select('-password');
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json(user);
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
+  }
+}
+
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const admin = await verifyAdmin(req);
   if (!admin) return unauthorizedResponse();

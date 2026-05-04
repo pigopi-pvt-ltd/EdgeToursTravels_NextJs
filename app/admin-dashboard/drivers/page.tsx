@@ -466,7 +466,7 @@ export default function DriversPage() {
     {
       field: 'actions',
       headerName: 'ACTIONS',
-      width: 120,
+      width: 180,
       headerAlign: 'center',
       renderCell: (params: any) => (
         <div className="flex items-center justify-center gap-2">
@@ -656,8 +656,8 @@ export default function DriversPage() {
       {/* KYC Review Modal */}
       {kycModalDriver && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10" onClick={() => setKycModalDriver(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+          <div className="bg-white dark:bg-slate-900 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto subtle-scrollbar" style={{ borderRadius: '0.5rem' }} onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center z-10">
               <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                 KYC Review – {kycModalDriver.name}
               </h2>

@@ -16,6 +16,7 @@ import {
   HiOutlineCheckBadge,
   HiCurrencyRupee,
 } from 'react-icons/hi2';
+import { BookingDetailSkeleton } from '@/components/CustomerSkeletons';
 import Link from 'next/link';
 
 interface Booking {
@@ -76,11 +77,7 @@ export default function BookingDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    );
+    return <BookingDetailSkeleton />;
   }
 
   if (error || !booking) {
@@ -98,178 +95,161 @@ export default function BookingDetailPage() {
   const StatusIcon = statusConfig.icon;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0A1128] p-4 flex items-center justify-center font-sf">
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Back button & title */}
-        <div className="flex items-center gap-4 mb-5">
-          <Link
-            href="/customer-dashboard/bookings"
-            className="flex items-center gap-2 px-3 py-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl shadow-md hover:shadow-lg transition"
-          >
-            <HiArrowLeft className="w-5 h-5 text-slate-600" />
-            <span className="text-sm font-medium text-slate-700">Back</span>
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
-            Trip Details
-          </h1>
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 font-sf">
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
+          <div className="min-w-0 flex items-center gap-2 md:gap-4">
+            <Link
+              href="/customer-dashboard/bookings"
+              className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+            >
+              <HiArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+            </Link>
+            <h2 className="text-sm md:text-xl font-black text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tight truncate">
+              Trip Details
+            </h2>
+          </div>
         </div>
 
-        {/* Main card – two columns on desktop */}
-        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 dark:border-slate-700/50 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-700">
-            {/* Left column: Journey & Status */}
-            <div className="p-6 space-y-5">
-              {/* Status chip */}
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Status</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    {StatusIcon && <StatusIcon className="text-xl" />}
-                    <span className="text-xl font-bold text-slate-800 dark:text-white">
-                      {statusConfig.label}
-                    </span>
-                  </div>
-                </div>
-                <div className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${statusConfig.bg}`}>
-                  {statusConfig.label}
-                </div>
-              </div>
-
-              {/* Journey path */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 rounded-full bg-orange-500 ring-2 ring-orange-200"></div>
-                    <div className="w-0.5 h-10 bg-gradient-to-b from-orange-300 to-blue-300 my-1"></div>
-                    <div className="w-3 h-3 rounded-full bg-blue-500 ring-2 ring-blue-200"></div>
-                  </div>
-                  <div className="flex-1 space-y-4">
+        <div className="flex-1">
+          <div className="w-full">
+            {/* Main Details Card (Matches Image Design) */}
+            <div className="bg-white dark:bg-slate-900 shadow-xl border-b border-slate-200 dark:border-slate-700 overflow-hidden min-h-[calc(100vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 h-full divide-y lg:divide-y-0 lg:divide-x divide-slate-100 dark:divide-slate-800">
+                
+                {/* Left Section: Status & Journey */}
+                <div className="p-8 space-y-8 relative">
+                  {/* Status Section */}
+                  <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pickup</p>
-                      <p className="text-base font-semibold text-slate-800 dark:text-white">{booking.from}</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Current Status</p>
+                      <div className="flex items-center gap-3">
+                        <HiOutlineClock className="text-2xl text-slate-800 dark:text-white" />
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-white leading-none capitalize">{booking.status}</h3>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Dropoff</p>
-                      <p className="text-base font-semibold text-slate-800 dark:text-white">{booking.destination}</p>
+                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm bg-amber-100 text-amber-700`}>
+                      {booking.status}
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Date & Time & Price */}
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700/40 rounded-xl">
-                  <HiOutlineCalendar className="w-4 h-4 text-orange-500" />
-                  <span className="text-sm font-medium">
-                    {new Date(booking.dateTime).toLocaleDateString(undefined, {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700/40 rounded-xl">
-                  <HiOutlineClock className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium">
-                    {new Date(booking.dateTime).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
-                  </span>
-                </div>
-              </div>
-
-              {booking.price && (
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl">
-                  <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Total Fare</span>
-                  <span className="text-2xl font-black text-emerald-600 flex items-center gap-1">
-                    <HiCurrencyRupee className="w-5 h-5" /> {booking.price.toLocaleString()}
-                  </span>
-                </div>
-              )}
-
-              {/* Driver response badge (if exists) */}
-              {booking.driverResponse && (
-                <div className={`mt-2 text-center py-2 rounded-xl text-sm font-bold ${
-                  booking.driverResponse === 'accepted' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                  {booking.driverResponse === 'accepted' ? '✅ Driver accepted the trip' : '❌ Driver rejected the trip'}
-                </div>
-              )}
-            </div>
-
-            {/* Right column: Driver & Booking Info */}
-            <div className="p-6 space-y-5">
-              {/* Driver Info (if assigned) */}
-              {booking.driverId && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                    <HiOutlineUser className="w-4 h-4" /> Driver Details
-                  </h3>
-                  <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-md">
-                      <HiOutlineUser className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 dark:text-white">{booking.driverId.name}</p>
-                      {booking.driverId.mobileNumber && (
-                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
-                          <HiOutlinePhone className="w-3 h-3" />
-                          <span>{booking.driverId.mobileNumber}</span>
+                  {/* Journey Section */}
+                  <div className="space-y-6 pt-2">
+                    <div className="relative pl-8">
+                      {/* Vertical line with dots */}
+                      <div className="absolute left-[3px] top-[10px] bottom-[10px] w-[1.5px] bg-slate-200 dark:bg-slate-700"></div>
+                      <div className="absolute left-0 top-[2px] w-2 h-2 rounded-full bg-[#FF6B00]"></div>
+                      <div className="absolute left-0 bottom-[2px] w-2 h-2 rounded-full bg-[#007AFF]"></div>
+                      
+                      <div className="space-y-8">
+                        <div>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Pickup</p>
+                          <p className="text-lg font-bold text-slate-800 dark:text-white leading-tight">{booking.from}</p>
                         </div>
+                        <div>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Dropoff</p>
+                          <p className="text-lg font-bold text-slate-800 dark:text-white leading-tight">{booking.destination}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Date & Time Section */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                      <HiOutlineCalendar className="text-xl text-orange-500" />
+                      <span className="text-sm font-black text-slate-700 dark:text-slate-200">
+                        {new Date(booking.dateTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                      <HiOutlineClock className="text-xl text-blue-500" />
+                      <span className="text-sm font-black text-slate-700 dark:text-slate-200">
+                        {new Date(booking.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Section: Details */}
+                <div className="p-8 space-y-8">
+                  {/* Driver Details */}
+                  <div className="space-y-4">
+                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <HiOutlineUser className="text-base" /> Driver Details
+                    </h4>
+                    <div className="p-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                      {booking.driverId ? (
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#00C2A0] rounded-full flex items-center justify-center text-white shadow-md">
+                            <HiOutlineUser className="text-2xl" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-black text-slate-800 dark:text-white leading-none mb-1.5">{booking.driverId.name}</p>
+                            <p className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                              <HiOutlinePhone className="text-sm" /> {booking.driverId.mobileNumber}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-bold text-slate-400 italic py-2">No driver assigned yet</p>
                       )}
                     </div>
                   </div>
-                </div>
-              )}
 
-              {/* Vehicle Info (if assigned) */}
-              {booking.vehicleId && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                    <HiOutlineTruck className="w-4 h-4" /> Vehicle Details
-                  </h3>
-                  <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-md">
-                      <HiOutlineTruck className="w-6 h-6 text-white" />
+                  {/* Vehicle Details */}
+                  <div className="space-y-4">
+                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <HiOutlineTruck className="text-base" /> Vehicle Details
+                    </h4>
+                    <div className="p-4 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                      {booking.vehicleId ? (
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#4A72FF] rounded-full flex items-center justify-center text-white shadow-md">
+                            <HiOutlineTruck className="text-2xl" />
+                          </div>
+                          <div>
+                            <p className="text-lg font-black text-slate-800 dark:text-white leading-none mb-1.5">{booking.vehicleId.cabNumber}</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{booking.vehicleId.modelName}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-bold text-slate-400 italic py-2">No vehicle assigned yet</p>
+                      )}
                     </div>
-                    <div>
-                      <p className="font-bold text-slate-800 dark:text-white">{booking.vehicleId.cabNumber}</p>
-                      <p className="text-xs text-slate-500">{booking.vehicleId.modelName}</p>
+                  </div>
+
+                  {/* Booking Info */}
+                  <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Booking Info</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-400">Booking ID</span>
+                        <span className="font-mono font-black text-slate-800 dark:text-white opacity-80">{booking._id.slice(-8)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-400">Customer Name</span>
+                        <span className="font-black text-slate-800 dark:text-white uppercase">{booking.name}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-400">Contact</span>
+                        <span className="font-black text-slate-800 dark:text-white">{booking.contact}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-400">Created On</span>
+                        <span className="font-black text-slate-800 dark:text-white">{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString('en-GB') : 'N/A'}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
 
-              {/* Booking Metadata */}
-              <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-700">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Booking Info</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Booking ID</span>
-                    <span className="font-mono text-slate-800 dark:text-white">{booking._id.slice(-8)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Customer Name</span>
-                    <span className="font-medium text-slate-800 dark:text-white">{booking.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Contact</span>
-                    <span className="font-medium text-slate-800 dark:text-white">{booking.contact}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Created On</span>
-                    <span className="text-slate-800 dark:text-white">
-                      {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}
-                    </span>
+                  {/* Help Link */}
+                  <div className="text-center pt-4">
+                    <p className="text-[11px] font-bold text-slate-400">
+                      Need help? <button className="text-[#FF6B00] hover:underline">Contact Support</button>
+                    </p>
                   </div>
                 </div>
-              </div>
-
-              {/* Action suggestion (optional) */}
-              <div className="text-center text-xs text-slate-400 pt-2">
-                Need help? <button className="text-orange-500 hover:underline">Contact Support</button>
               </div>
             </div>
           </div>
