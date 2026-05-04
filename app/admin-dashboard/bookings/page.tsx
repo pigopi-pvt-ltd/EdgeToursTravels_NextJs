@@ -107,7 +107,7 @@ export default function BookingsPage() {
 
   const fetchDrivers = async () => {
     try {
-      const data = await apiClient('/api/admin/employees?role=driver', { method: 'GET' });
+      const data = await apiClient('/api/admin/drivers?role=driver', { method: 'GET' });
       setDrivers(Array.isArray(data) ? data : []);
     } catch (err) { console.error(err); }
   };

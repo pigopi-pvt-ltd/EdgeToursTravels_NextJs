@@ -74,9 +74,24 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
         if (modules.includes('bookings')) {
           employeeBase.push({ name: "Manage Bookings", icon: HiOutlineCalendar, href: "/employee-dashboard/bookings" });
         }
-        employeeBase.push({ name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" });
-        employeeBase.push({ name: "Leave Request", icon: HiOutlinePaperAirplane, href: "/employee-dashboard/leave" });
-        employeeBase.push({ name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" });
+        if (modules.includes('drivers')) {
+          employeeBase.push({ name: "Drivers", icon: HiOutlineUsers, href: "/employee-dashboard/drivers" });
+        }
+        if (modules.includes('employees')) {
+          employeeBase.push({ name: "Manage Employee", icon: HiOutlineUserGroup, href: "/employee-dashboard/employees" });
+        }
+        if (modules.includes('customer')) {
+          employeeBase.push({ name: "Customer Types", icon: HiOutlineBriefcase, href: "/employee-dashboard/customer-types" });
+        }
+        if (modules.includes('vehicles')) {
+          employeeBase.push({ name: "Vehicles", icon: HiOutlineTruck, href: "/employee-dashboard/vehicles" });
+        }
+        // Always show these
+        employeeBase.push(
+          { name: "Attendance", icon: HiOutlineClock, href: "/employee-dashboard/attendance" },
+          { name: "Leave Request", icon: HiOutlinePaperAirplane, href: "/employee-dashboard/leave" },
+          { name: "Salary", icon: HiOutlineCurrencyDollar, href: "/employee-dashboard/salary" }
+        );
         if (modules.includes('support')) {
           employeeBase.push({ name: "Support", icon: HiOutlineSupport, href: "/employee-dashboard/support" });
         }
@@ -86,8 +101,6 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
       }
     }
   }, []);
-
-
 
   if (items.length === 0) return null;
 
@@ -189,8 +202,6 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
             })}
           </ul>
         </nav>
-
-
       </aside>
     </>
   );
