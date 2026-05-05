@@ -3,36 +3,34 @@
 import React, { useEffect, useState } from 'react';
 import {
   HiOutlineCalendar, HiOutlineMapPin, HiOutlineUser, HiOutlinePhone,
-  HiOutlineClock, HiOutlineCheckCircle, HiOutlineXCircle, HiChevronLeft,
-  HiChevronRight, HiChevronDown, HiArrowPath, HiXMark, HiMagnifyingGlass
+  HiOutlineClock, HiOutlineCheckCircle, HiOutlineXCircle, HiArrowPath,
+  HiXMark
 } from 'react-icons/hi2';
 import apiClient from '@/lib/apiClient';
 import CustomTable from '@/components/CustomTable';
 import { GridColDef } from '@mui/x-data-grid';
-import { Tooltip, IconButton, Chip, Select, MenuItem, FormControl, Box } from '@mui/material';
+import { IconButton, FormControl, Select, MenuItem } from '@mui/material';
 
-// --- Types -------------------------------------------------
+// --- types -----------------
 interface Booking {
   _id: string;
   from: string;
   destination: string;
-  dateTime: string;
+  dateTime?: string;         
+  startDate?: string;      
+  endDate?: string;           
+  durationDays?: number;      
   name: string;
   contact: string;
-  price?: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  price?: string | number;
+  status: 'pending' | 'confirmed' | 'assigned' | 'completed' | 'cancelled';
   createdAt: string;
   driverResponse?: 'accepted' | 'rejected' | null;
   driverId?: { _id: string; name: string } | null;
   vehicleId?: { _id: string; cabNumber: string; modelName: string } | null;
   userId?: { _id: string; name: string; email: string } | null;
-}
-
-interface Column {
-  id: string;
-  label: string;
-  accessor: (booking: Booking) => React.ReactNode;
-  className?: string;
+  type: 'oneTime' | 'longTerm';
+  notes?: string;
 }
 
 interface Driver {
@@ -48,19 +46,37 @@ interface Vehicle {
   modelName: string;
 }
 
-// --- Helper: status badge colours ---------------------------
+//  format date & time 
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-GB');
+};
+
+const formatTime = (dateTimeStr?: string) => {
+  if (!dateTimeStr) return '—';
+  const d = new Date(dateTimeStr);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+};
+
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'confirmed': return 'bg-blue-50 text-blue-600 border-blue-100';
-    case 'completed': return 'bg-green-50 text-green-600 border-green-100';
-    case 'cancelled': return 'bg-red-50 text-red-600 border-red-100';
-    default: return 'bg-yellow-50 text-yellow-600 border-yellow-100';
+    case 'confirmed':
+    case 'assigned':
+      return 'bg-blue-50 text-blue-600 border-blue-100';
+    case 'completed':
+      return 'bg-green-50 text-green-600 border-green-100';
+    case 'cancelled':
+      return 'bg-red-50 text-red-600 border-red-100';
+    default:
+      return 'bg-yellow-50 text-yellow-600 border-yellow-100';
   }
 };
 
 // --- Main Component -----------------------------------------
 export default function BookingsPage() {
-  // Data states
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -68,35 +84,60 @@ export default function BookingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [driverResponseFilter, setDriverResponseFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // Assignment modal state
   const [assignModal, setAssignModal] = useState<{
     isOpen: boolean;
     bookingId: string | null;
+    bookingType?: 'oneTime' | 'longTerm';
   }>({ isOpen: false, bookingId: null });
   const [selectedDriver, setSelectedDriver] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Add Booking modal state
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newBooking, setNewBooking] = useState({
-    from: '',
-    destination: '',
-    dateTime: '',
-    name: '',
-    contact: '',
-    price: 'Start from ₹12/km'
+    from: '', destination: '', dateTime: '', name: '', contact: '', price: 'Start from ₹12/km'
   });
 
   // --- API Calls --------------------------------------------
   const fetchBookings = async () => {
     setIsLoading(true);
     try {
-      const data = await apiClient('/api/bookings', { method: 'GET' });
-      setBookings(Array.isArray(data) ? data : []);
+      const oneTimeData = await apiClient('/api/bookings', { method: 'GET' });
+      const oneTimeBookings = (Array.isArray(oneTimeData) ? oneTimeData : []).map((b: any) => ({
+        ...b,
+        type: 'oneTime',
+        status: b.status || 'pending',
+      }));
+
+      const longTermData = await apiClient('/api/long-term-rentals', { method: 'GET' });
+      const longTermBookings = (Array.isArray(longTermData) ? longTermData : []).map((r: any) => ({
+        _id: r._id,
+        from: r.from,
+        destination: r.destination,
+        name: r.name,
+        contact: r.contact,
+        price: r.price,
+        status: r.status || 'pending',
+        createdAt: r.createdAt,
+        driverId: r.driverId,
+        vehicleId: r.vehicleId,
+        userId: r.userId,
+        startDate: r.startDate,
+        endDate: r.endDate,
+        durationDays: r.durationDays,
+        notes: r.notes,
+        type: 'longTerm',
+        driverResponse: null,
+      }));
+
+      const merged = [...oneTimeBookings, ...longTermBookings].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setBookings(merged);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch bookings');
@@ -135,14 +176,18 @@ export default function BookingsPage() {
       return;
     }
     try {
-      await apiClient(`/api/admin/bookings/${assignModal.bookingId}/assign`, {
+      const endpoint = assignModal.bookingType === 'longTerm'
+        ? `/api/long-term-rentals/${assignModal.bookingId}/assign`
+        : `/api/admin/bookings/${assignModal.bookingId}/assign`;
+
+      await apiClient(endpoint, {
         method: 'POST',
         body: JSON.stringify({
           driverId: selectedDriver,
           vehicleId: selectedVehicle || undefined,
         }),
       });
-      showToast('Driver & vehicle assigned successfully', 'success');
+      showToast('Assigned successfully', 'success');
       fetchBookings();
       setAssignModal({ isOpen: false, bookingId: null });
       setSelectedDriver('');
@@ -152,13 +197,21 @@ export default function BookingsPage() {
     }
   };
 
-  const updateStatus = async (bookingId: string, newStatus: string) => {
-    setUpdatingId(bookingId);
+  // --- Status Update ----------------------------------------
+  const updateStatus = async (booking: Booking, newStatus: string) => {
+    setUpdatingId(booking._id);
     try {
-      await apiClient('/api/bookings', {
-        method: 'PATCH',
-        body: JSON.stringify({ id: bookingId, status: newStatus }),
-      });
+      if (booking.type === 'longTerm') {
+        await apiClient(`/api/long-term-rentals/${booking._id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: newStatus }),
+        });
+      } else {
+        await apiClient('/api/bookings', {
+          method: 'PATCH',
+          body: JSON.stringify({ id: booking._id, status: newStatus }),
+        });
+      }
       showToast(`Booking ${newStatus}`, 'success');
       fetchBookings();
     } catch (err: any) {
@@ -168,15 +221,13 @@ export default function BookingsPage() {
     }
   };
 
+  // --- Add one‑time booking --------------------------------
   const handleAddBooking = async () => {
     if (!newBooking.from || !newBooking.destination || !newBooking.dateTime || !newBooking.name || !newBooking.contact) {
       showToast('Please fill all required fields', 'error');
       return;
     }
-
-    // Contact number validation (10 digits)
-    const contactRegex = /^\d{10}$/;
-    if (!contactRegex.test(newBooking.contact)) {
+    if (!/^\d{10}$/.test(newBooking.contact)) {
       showToast('Contact number must be exactly 10 digits', 'error');
       return;
     }
@@ -188,12 +239,7 @@ export default function BookingsPage() {
       showToast('Booking added successfully', 'success');
       setAddModalOpen(false);
       setNewBooking({
-        from: '',
-        destination: '',
-        dateTime: '',
-        name: '',
-        contact: '',
-        price: 'Start from ₹12/km'
+        from: '', destination: '', dateTime: '', name: '', contact: '', price: 'Start from ₹12/km'
       });
       fetchBookings();
     } catch (err: any) {
@@ -210,15 +256,16 @@ export default function BookingsPage() {
   const filteredBookings = bookings.filter(booking => {
     const matchesStatus = statusFilter === 'all' ? true : booking.status === statusFilter;
     const matchesDriverResp = driverResponseFilter === 'all' ? true : booking.driverResponse === driverResponseFilter;
+    const matchesType = typeFilter === 'all' ? true : booking.type === typeFilter;
     const matchesSearch =
       booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.contact.includes(searchTerm) ||
       booking.from.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesDriverResp && matchesSearch;
+    return matchesStatus && matchesDriverResp && matchesType && matchesSearch;
   });
 
-  // --- DataGrid Columns Configuration ----------------------
+  // --- DataGrid Columns  ---
   const dataGridColumns: GridColDef[] = [
     {
       field: 'name',
@@ -226,9 +273,7 @@ export default function BookingsPage() {
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
-        <span className="font-bold text-slate-800 dark:text-slate-200">
-          {params.value}
-        </span>
+        <span className="font-bold text-slate-800 dark:text-slate-200">{params.value}</span>
       ),
     },
     {
@@ -258,32 +303,76 @@ export default function BookingsPage() {
         </div>
       ),
     },
+    // PICKUP DATE column
     {
-      field: 'dateTime',
-      headerName: 'DATE',
+      field: 'pickupDate',
+      headerName: 'PICKUP DATE',
       width: 130,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => (
-        <div className="flex items-center gap-2 h-full justify-center">
-          <HiOutlineCalendar className="text-orange-500 dark:text-orange-400 text-[16px]" />
-          <span className="font-medium">{new Date(params.value).toLocaleDateString('en-GB')}</span>
-        </div>
-      ),
+      renderCell: (params) => {
+        const booking = params.row;
+        let dateStr = null;
+        if (booking.type === 'oneTime') dateStr = booking.dateTime;
+        else dateStr = booking.startDate;
+        return (
+          <div className="flex items-center gap-2 justify-center">
+            <HiOutlineCalendar className="text-orange-500 text-[16px]" />
+            <span className="font-medium text-sm">{formatDate(dateStr)}</span>
+          </div>
+        );
+      },
     },
+    // DROP OFF DATE column
+    {
+      field: 'dropoffDate',
+      headerName: 'DROP OFF DATE',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const booking = params.row;
+        if (booking.type === 'oneTime') return <span className="text-slate-400">—</span>;
+        return (
+          <div className="flex items-center gap-2 justify-center">
+            <HiOutlineCalendar className="text-orange-500 text-[16px]" />
+            <span className="font-medium text-sm">{formatDate(booking.endDate)}</span>
+          </div>
+        );
+      },
+    },
+    // DAYS column
+    {
+      field: 'days',
+      headerName: 'DAYS',
+      width: 80,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const booking = params.row;
+        if (booking.type === 'oneTime') return <span className="text-slate-400">—</span>;
+        const days = booking.durationDays ||
+          Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 3600 * 24));
+        return <span className="font-medium">{days}</span>;
+      },
+    },
+    // TIME column
     {
       field: 'time',
       headerName: 'TIME',
-      width: 120,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
-      valueGetter: (value, row) => row.dateTime,
-      renderCell: (params) => (
-        <div className="flex items-center gap-2 h-full justify-center">
-          <HiOutlineClock className="text-blue-500 dark:text-blue-400 text-[16px]" />
-          <span className="font-medium">{new Date(params.value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-        </div>
-      ),
+      renderCell: (params) => {
+        const booking = params.row;
+        if (booking.type === 'longTerm') return <span className="text-slate-400">—</span>;
+        return (
+          <div className="flex items-center gap-2 justify-center">
+            <HiOutlineClock className="text-blue-500 text-[16px]" />
+            <span className="font-medium text-sm">{formatTime(booking.dateTime)}</span>
+          </div>
+        );
+      },
     },
     {
       field: 'price',
@@ -293,7 +382,7 @@ export default function BookingsPage() {
       align: 'center',
       renderCell: (params) => (
         <p className="text-[11px] font-black text-[#EB664E] uppercase tracking-wider">
-          {params.value || 'Not Specified'}
+          {typeof params.value === 'number' ? `₹${params.value.toLocaleString()}` : (params.value || 'Not Specified')}
         </p>
       ),
     },
@@ -308,7 +397,7 @@ export default function BookingsPage() {
       ) : (
         <button
           onClick={() => {
-            setAssignModal({ isOpen: true, bookingId: params.row._id });
+            setAssignModal({ isOpen: true, bookingId: params.row._id, bookingType: params.row.type });
             setSelectedDriver('');
             setSelectedVehicle('');
           }}
@@ -384,6 +473,7 @@ export default function BookingsPage() {
             <MenuItem value="all">ALL STATUS</MenuItem>
             <MenuItem value="pending">PENDING</MenuItem>
             <MenuItem value="confirmed">CONFIRMED</MenuItem>
+            <MenuItem value="assigned">ASSIGNED</MenuItem>
             <MenuItem value="completed">COMPLETED</MenuItem>
             <MenuItem value="cancelled">CANCELLED</MenuItem>
           </Select>
@@ -391,12 +481,7 @@ export default function BookingsPage() {
       ),
       renderCell: (params) => {
         const status = params.value;
-        const colorClass =
-          status === 'confirmed' ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]' :
-            status === 'cancelled' ? 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]' :
-              status === 'completed' ? 'bg-[#F0F9FF] text-[#0EA5E9] border-[#E0F2FE]' :
-                'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]';
-
+        const colorClass = getStatusColor(status);
         return (
           <span className={`px-2 py-0.5 rounded text-xs font-bold border inline-block min-w-[90px] text-center uppercase tracking-widest ${colorClass}`}>
             {status}
@@ -419,7 +504,7 @@ export default function BookingsPage() {
             variant="standard"
             disableUnderline
             renderValue={(selected) => {
-              if (selected === 'all') return <span className="font-extrabold text-slate-500 dark:text-slate-400 text-[14px] uppercase tracking-wider text-center">Driver Resp</span>;
+              if (selected === 'all') return <span className="font-extrabold text-slate-500 dark:text-slate-400 text-[14px] uppercase tracking-wider">Driver Resp</span>;
               return <span className="font-extrabold text-indigo-600 dark:text-indigo-400 text-[14px] uppercase tracking-wider">{selected}</span>;
             }}
             sx={{
@@ -464,12 +549,9 @@ export default function BookingsPage() {
       renderCell: (params) => {
         const value = params.value;
         if (!value) return <span className="text-xs text-slate-400">—</span>;
-
-        const colorClass =
-          value === 'accepted' ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]' :
-            value === 'rejected' ? 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]' :
-              'bg-[#FFFCF0] text-[#EAB308] border-[#FEF08A]';
-
+        const colorClass = value === 'accepted'
+          ? 'bg-[#F0FDF4] text-[#22C55E] border-[#DCFCE7]'
+          : 'bg-[#FEF2F2] text-[#EF4444] border-[#FEE2E2]';
         return (
           <span className={`px-2 py-0.5 rounded text-xs font-bold border inline-block min-w-[100px] text-center uppercase tracking-widest ${colorClass}`}>
             {value}
@@ -486,10 +568,10 @@ export default function BookingsPage() {
       align: 'center',
       renderCell: (params) => (
         <div className="flex items-center justify-center gap-2 h-full">
-          {(params.row.status === 'pending' || params.row.status === 'confirmed') && (
+          {(params.row.status === 'pending' || params.row.status === 'confirmed' || params.row.status === 'assigned') && (
             <IconButton
               size="small"
-              onClick={() => updateStatus(params.row._id, params.row.status === 'pending' ? 'confirmed' : 'completed')}
+              onClick={() => updateStatus(params.row, params.row.status === 'pending' ? 'confirmed' : 'completed')}
               disabled={updatingId === params.row._id}
               className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm"
               title="Update Status"
@@ -500,7 +582,7 @@ export default function BookingsPage() {
           {params.row.status !== 'cancelled' && params.row.status !== 'completed' && (
             <IconButton
               size="small"
-              onClick={() => updateStatus(params.row._id, 'cancelled')}
+              onClick={() => updateStatus(params.row, 'cancelled')}
               disabled={updatingId === params.row._id}
               className="p-1.5 bg-red-50 dark:bg-red-900/30 text-red-400 dark:text-red-400 rounded-full hover:bg-red-600 hover:text-white transition-all shadow-sm"
               title="Cancel Booking"
@@ -513,11 +595,10 @@ export default function BookingsPage() {
     }
   ];
 
-  // --- Loading & Error States -------------------------------
+  // --- Loading skeleton  ----------
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        {/* Precise Header Skeleton (56px) */}
         <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="flex gap-2">
@@ -525,7 +606,6 @@ export default function BookingsPage() {
             <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
           </div>
         </div>
-
         <div className="p-4 md:p-8">
           <div className="bg-white dark:bg-[#0A1128] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-pulse">
             <div className="h-[56px] border-b border-slate-100 dark:border-slate-800 flex items-center px-6">
@@ -545,6 +625,7 @@ export default function BookingsPage() {
     );
   }
 
+  // --- Main render ------------------------------------------
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
       {/* Toast Notification */}
@@ -563,6 +644,15 @@ export default function BookingsPage() {
             </h2>
           </div>
           <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+          className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <option value="all">All types</option>
+              <option value="oneTime">One‑time</option>
+              <option value="longTerm">Long‑term</option>
+            </select>
             <button
               onClick={fetchAllData}
               className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
@@ -640,7 +730,7 @@ export default function BookingsPage() {
         </div>
       )}
 
-      {/* Add Booking Modal - Image Inspired Design */}
+      {/* Add Booking Modal */}
       {addModalOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto subtle-scrollbar animate-in fade-in duration-300" onClick={() => setAddModalOpen(false)}>
           <div
@@ -662,6 +752,7 @@ export default function BookingsPage() {
 
             <div className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Form fields  */}
                 <div className="space-y-2">
                   <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
                     From (City / Airport) <span className="text-red-500">*</span>
