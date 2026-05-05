@@ -22,11 +22,11 @@ import {
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
-// Admin menu items (all features)
+// Admin menu items 
 const adminItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/admin-dashboard" },
   { name: "Bookings", icon: HiOutlineCalendar, href: "/admin-dashboard/bookings" },
-  { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/admin-dashboard/long-term-rentals" },
+  // { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/admin-dashboard/long-term-rentals" },
   { name: "Drivers", icon: HiOutlineUsers, href: "/admin-dashboard/drivers" },
   { name: "Vehicles", icon: HiOutlineTruck, href: "/admin-dashboard/vehicles" },
   { name: "Availability", icon: HiOutlineCalendar, href: "/admin-dashboard/availability" },
@@ -81,7 +81,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, setIsCollap
           employeeBase.push({ name: "Manage Employee", icon: HiOutlineUserGroup, href: "/employee-dashboard/employees" });
         }
         if (modules.includes('customer')) {
-          employeeBase.push({ name: "Customer Types", icon: HiOutlineBriefcase, href: "/employee-dashboard/customer-types" });
+          employeeBase.push({ name: "Customer", icon: HiOutlineBriefcase, href: "/employee-dashboard/customer-types" });
         }
         if (modules.includes('vehicles')) {
           employeeBase.push({ name: "Vehicles", icon: HiOutlineTruck, href: "/employee-dashboard/vehicles" });
