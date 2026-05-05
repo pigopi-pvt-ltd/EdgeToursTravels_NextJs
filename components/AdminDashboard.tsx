@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,7 +8,7 @@ import {
 } from 'recharts';
 import { HiArrowPath, HiUserGroup, HiTruck, HiCalendar, HiCurrencyDollar } from 'react-icons/hi2';
 
-// Types with proper union handling
+// Types
 interface Employee {
   _id: string;
   name: string;
@@ -52,25 +51,17 @@ const COLORS = {
   cancelled: '#ef4444',
 };
 
-// Helper to extract driver name safely
-const getDriverName = (driver: DriverInfo): string => {
+// Helper to extract driver ID only
+const getDriverId = (driver: DriverInfo): string => {
   if (!driver) return '—';
-  if (typeof driver === 'object') return driver.name;
-  return `Driver ${driver}`; // fallback for string ID
+  if (typeof driver === 'object') return driver._id;
+  return driver; // already a string ID
 };
 
-// Helper to extract vehicle cab number safely
-const getVehicleCab = (vehicle: VehicleInfo): string => {
-  if (!vehicle) return '—';
-  if (typeof vehicle === 'object') return vehicle.cabNumber;
-  return `Vehicle ${vehicle}`;
-};
-
-// Helper to get vehicle ID safely
-const getVehicleId = (vehicle: VehicleInfo): string | undefined => {
-  if (!vehicle) return undefined;
-  if (typeof vehicle === 'object') return vehicle._id;
-  return vehicle;
+// Helper to format date for X-axis
+const formatChartDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 };
 
 export default function AdminDashboard() {
@@ -120,7 +111,6 @@ export default function AdminDashboard() {
       bookings = bookings.map((b: any) => ({
         ...b,
         price: typeof b.price === 'number' ? b.price : (b.price ? parseFloat(b.price) : 0),
-        // Keep driverId and vehicleId as they are (could be string or object)
         driverId: b.driverId || null,
         vehicleId: b.vehicleId || null,
       }));
@@ -184,92 +174,10 @@ export default function AdminDashboard() {
     fetchAllData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse bg-white dark:bg-slate-900 min-h-screen">
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 h-[56px] border-b border-slate-100 dark:border-slate-800 flex items-center px-6 mb-8">
-          <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
-        </div>
-        <div className="px-6 space-y-8">
-          {/* Header Skeleton */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-              <div className="h-4 w-64 bg-slate-100 dark:bg-slate-800 rounded mt-2"></div>
-            </div>
-            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-          </div>
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <ErrorState error={error} onRetry={handleRefresh} />;
 
-          {/* Stats Cards Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                <div className="flex justify-between">
-                  <div className="space-y-3 flex-1">
-                    <div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                    <div className="h-8 w-16 bg-slate-200 dark:bg-slate-600 rounded"></div>
-                  </div>
-                  <div className="h-10 w-10 bg-slate-100 dark:bg-slate-700 rounded-lg"></div>
-                </div>
-                <div className="h-3 w-32 bg-slate-50 dark:bg-slate-800/50 rounded mt-4"></div>
-              </div>
-            ))}
-          </div>
-
-          {/* Charts Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-[380px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-              <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded mb-8"></div>
-              <div className="h-[250px] w-full bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"></div>
-            </div>
-            <div className="h-[380px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center">
-              <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded mb-8 self-start"></div>
-              <div className="h-48 w-48 rounded-full border-8 border-slate-100 dark:border-slate-700/50 flex items-center justify-center">
-                <div className="h-24 w-24 rounded-full bg-slate-50 dark:bg-slate-800/40"></div>
-              </div>
-              <div className="mt-8 flex gap-4">
-                <div className="h-3 w-16 bg-slate-100 dark:bg-slate-700 rounded-full"></div>
-                <div className="h-3 w-16 bg-slate-100 dark:bg-slate-700 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Table Skeleton */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="h-[60px] px-6 flex items-center border-b border-slate-100 dark:border-slate-700">
-              <div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
-            </div>
-            <div className="p-0">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-16 px-6 flex items-center gap-4 border-b border-slate-50 dark:border-slate-700 last:border-0">
-                  <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                  <div className="h-4 w-1/3 bg-slate-50 dark:bg-slate-900/50 rounded"></div>
-                  <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                  <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-        <p className="text-red-600 dark:text-red-400 font-medium">⚠️ {error}</p>
-        <button
-          onClick={handleRefresh}
-          className="mt-4 px-4 py-2 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 rounded-lg text-sm font-medium hover:bg-red-200 transition"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  const { employees, drivers, vehicles, bookings, revenue, dailyBookings, statusCounts } = dashboard;
+  const { employees, drivers, vehicles, bookings, dailyBookings, statusCounts } = dashboard;
   const totalBookings = bookings.length;
   const pendingBookings = bookings.filter(b => b.status === 'pending').length;
   const unassignedBookings = bookings.filter(b => !b.driverId).length;
@@ -280,7 +188,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 bg-slate-50 dark:bg-[#0A1128] min-h-screen transition-colors duration-300 font-sf">
-      {/* Flush Dashboard Header matched to Bookings toolbar height */}
+      {/* Header */}
       <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md">
         <div className="min-w-0">
           <h1 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">Dashboard Overview</h1>
@@ -298,39 +206,10 @@ export default function AdminDashboard() {
       <div className="p-4 md:p-8 space-y-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Driver"
-            value={drivers.length}
-            icon={<HiUserGroup className="w-6 h-6" />}
-            color="indigo"
-            trend="+2 this month"
-            trendUp
-          />
-          <StatCard
-            title="Total Vehicles"
-            value={vehicles.length}
-            icon={<HiTruck className="w-6 h-6" />}
-            color="blue"
-            trend={`${vehicles.filter(v => v.status === 'active').length} active`}
-            trendUp={true}
-          />
-          <StatCard
-            title="Total Bookings"
-            value={totalBookings}
-            subtext={`${pendingBookings} pending`}
-            icon={<HiCalendar className="w-6 h-6" />}
-            color="emerald"
-            trend={`${unassignedBookings} unassigned`}
-            trendUp={false}
-          />
-          <StatCard
-            title="Total Employee"
-            value={employees.length}
-            icon={<HiUserGroup className="w-6 h-6" />}
-            color="amber"
-            trend="+1 this month"
-            trendUp
-          />
+          <StatCard title="Total Drivers" value={drivers.length} icon={<HiUserGroup className="w-6 h-6" />} color="indigo" />
+          <StatCard title="Total Vehicles" value={vehicles.length} icon={<HiTruck className="w-6 h-6" />} color="blue" />
+          <StatCard title="Total Bookings" value={totalBookings} subtext={`${pendingBookings} pending`} icon={<HiCalendar className="w-6 h-6" />} color="emerald" />
+          <StatCard title="Total Employees" value={employees.length} icon={<HiUserGroup className="w-6 h-6" />} color="amber" />
         </div>
 
         {/* Charts Row */}
@@ -343,11 +222,24 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dailyBookings}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
+                <XAxis
+                  dataKey="date"
+                  stroke="#64748b"
+                  fontSize={12}
+                  tickFormatter={formatChartDate}
+                />
+                <YAxis
+                  stroke="#64748b"
+                  fontSize={12}
+                  tickFormatter={(value) => (Number.isInteger(value) ? value.toString() : '')}
+                  allowDecimals={false}
+                  domain={[0, 'dataMax']}
+                />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f1f5f9' }}
                   labelStyle={{ color: '#cbd5e1' }}
+                  formatter={(value) => [`${value} bookings`, 'Count']}
+                  labelFormatter={(label) => formatChartDate(label)}
                 />
                 <Legend />
                 <Line type="monotone" dataKey="count" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316' }} name="Bookings" />
@@ -366,8 +258,8 @@ export default function AdminDashboard() {
                   data={statusCounts}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={50}
+                  outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
                   label={({ name, percent }) => {
@@ -408,75 +300,58 @@ export default function AdminDashboard() {
                 <tr>
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Customer</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Route</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Date & Time</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Date</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Time</th>
                   <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Status</th>
-                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Driver</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest">Driver ID</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {recentBookings.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-5 py-8 text-center text-slate-400">No bookings found</td>
+                    <td colSpan={6} className="px-5 py-8 text-center text-slate-400">No bookings found</td>
                   </tr>
                 ) : (
-                  recentBookings.map((booking) => (
-                    <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                      <td className="px-5 py-3 font-medium text-slate-800 dark:text-white">{booking.name}</td>
-                      <td className="px-5 py-3 text-slate-600 dark:text-slate-300">
-                        {booking.from} → {booking.destination}
-                      </td>
-                      <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
-                        {new Date(booking.dateTime).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
-                          ${booking.status === 'pending' ? 'bg-amber-100 text-amber-700' : ''}
-                          ${booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : ''}
-                          ${booking.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : ''}
-                          ${booking.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
-                        `}>
-                          {booking.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-slate-600 dark:text-slate-300">
-                        {getDriverName(booking.driverId ?? null)}
-                      </td>
-                    </tr>
-                  ))
+                  recentBookings.map((booking) => {
+                    const dt = new Date(booking.dateTime);
+                    const dateStr = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                    return (
+                      <tr key={booking._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                        <td className="px-5 py-3 font-medium text-slate-800 dark:text-white">{booking.name}</td>
+                        <td className="px-5 py-3 text-slate-600 dark:text-slate-300">
+                          {booking.from} → {booking.destination}
+                        </td>
+                        <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{dateStr}</td>
+                        <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{timeStr}</td>
+                        <td className="px-5 py-3">
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
+                            ${booking.status === 'pending' ? 'bg-amber-100 text-amber-700' : ''}
+                            ${booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' : ''}
+                            ${booking.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : ''}
+                            ${booking.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
+                          `}>
+                            {booking.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 font-mono text-xs text-slate-500 dark:text-slate-400">
+                          {getDriverId(booking.driverId ?? null)}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Quick insights */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-800/80 rounded-xl p-5 border border-orange-100 dark:border-orange-900/30">
-            <h4 className="font-semibold text-slate-800 dark:text-slate-200">🚦 Driver Assignment</h4>
-            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400 mt-2">
-              {bookings.filter(b => b.driverId).length} / {totalBookings}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">bookings have a driver assigned</p>
-            <div className="w-full bg-orange-200 dark:bg-orange-900/40 rounded-full h-2 mt-3">
-              <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${totalBookings ? (bookings.filter(b => b.driverId).length / totalBookings) * 100 : 0}%` }}></div>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/80 rounded-xl p-5 border border-blue-100 dark:border-blue-900/30">
-            <h4 className="font-semibold text-slate-800 dark:text-slate-200">🚖 Vehicle Utilization</h4>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-              {bookings.filter(b => b.vehicleId).length} / {totalBookings}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">bookings have a vehicle assigned</p>
-            <div className="w-full bg-blue-200 dark:bg-blue-900/40 rounded-full h-2 mt-3">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${totalBookings ? (bookings.filter(b => b.vehicleId).length / totalBookings) * 100 : 0}%` }}></div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-function StatCard({ title, value, subtext, icon, trend, trendUp, color = 'indigo' }: any) {
+
+// StatCard component 
+function StatCard({ title, value, subtext, icon, color = 'indigo' }: any) {
   const colorClasses = {
     indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/20 text-indigo-600 dark:text-indigo-400',
     amber: 'from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20 text-amber-600 dark:text-amber-400',
@@ -498,11 +373,44 @@ function StatCard({ title, value, subtext, icon, trend, trendUp, color = 'indigo
           {icon}
         </div>
       </div>
-      {trend && (
-        <p className={`text-xs font-bold mt-3 flex items-center gap-1 ${trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-          {trendUp ? '↑' : '↓'} {trend}
-        </p>
-      )}
+    </div>
+  );
+}
+
+// Loading skeleton 
+function LoadingSkeleton() {
+  return (
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse bg-white dark:bg-slate-900 min-h-screen">
+      <div className="bg-[#f8f9fa] dark:bg-slate-800/50 h-[56px] border-b border-slate-100 dark:border-slate-800 flex items-center px-6 mb-8">
+        <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+      </div>
+      <div className="px-6 space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div><div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg"></div><div className="h-4 w-64 bg-slate-100 dark:bg-slate-800 rounded mt-2"></div></div>
+          <div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1,2,3,4].map(i=>(
+            <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between"><div className="space-y-3 flex-1"><div className="h-4 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div><div className="h-8 w-16 bg-slate-200 dark:bg-slate-600 rounded"></div></div><div className="h-10 w-10 bg-slate-100 dark:bg-slate-700 rounded-lg"></div></div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-[380px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6"><div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded mb-8"></div><div className="h-[250px] w-full bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-700"></div></div>
+          <div className="h-[380px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col"><div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded mb-8"></div><div className="h-48 w-48 rounded-full border-8 border-slate-100 dark:border-slate-700/50 mx-auto"></div></div>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden"><div className="h-[60px] px-6 flex items-center border-b"><div className="h-5 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div></div><div>{[1,2,3,4,5].map(i=><div key={i} className="h-16 px-6 flex items-center gap-4 border-b"><div className="h-4 w-1/4 bg-slate-100 rounded"></div><div className="h-4 w-1/3 bg-slate-50 rounded"></div><div className="h-4 w-1/4 bg-slate-100 rounded"></div><div className="h-6 w-20 bg-slate-100 rounded-full"></div></div>)}</div></div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+      <p className="text-red-600 dark:text-red-400 font-medium">⚠️ {error}</p>
+      <button onClick={onRetry} className="mt-4 px-4 py-2 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-200 rounded-lg text-sm font-medium hover:bg-red-200 transition">Try Again</button>
     </div>
   );
 }
