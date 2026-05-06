@@ -75,6 +75,11 @@ function SettingsPage() {
     }
   };
 
+  const handleRefresh = () => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 800);
+  };
+
   if (loading) return <SettingsSkeleton />;
 
   return (
