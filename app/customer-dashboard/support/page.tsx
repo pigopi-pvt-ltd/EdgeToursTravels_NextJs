@@ -1,12 +1,19 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAuthToken } from '@/lib/auth';
+import { SupportSkeleton } from '@/components/CustomerSkeletons';
 
 export default function CustomerSupportPage() {
+  const [loading, setLoading] = useState(true);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [priority, setPriority] = useState('medium');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async () => {
     const token = getAuthToken();
@@ -24,6 +31,8 @@ export default function CustomerSupportPage() {
       } else alert('Submission failed');
     } catch (err) { alert('Error'); }
   };
+
+  if (loading) return <SupportSkeleton />;
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500 font-sf">

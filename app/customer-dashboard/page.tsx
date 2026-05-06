@@ -108,16 +108,7 @@ export default function CustomerDashboard() {
     return styles[status as keyof typeof styles] || styles.pending;
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="flex justify-end p-2">
-          <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
-        </div>
-        <DashboardSkeleton />
-      </div>
-    );
-  }
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
