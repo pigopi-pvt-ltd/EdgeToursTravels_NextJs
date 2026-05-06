@@ -17,10 +17,17 @@ import {
   HiCheckCircle,
   HiXCircle
 } from 'react-icons/hi2';
+import { SettingsSkeleton } from '@/components/CustomerSkeletons';
 
 function SettingsPage() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('account');
+  
+  useEffect(() => {
+    // Simulate initial load for smooth transition
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -68,10 +75,7 @@ function SettingsPage() {
     }
   };
 
-  const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 800);
-  };
+  if (loading) return <SettingsSkeleton />;
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">

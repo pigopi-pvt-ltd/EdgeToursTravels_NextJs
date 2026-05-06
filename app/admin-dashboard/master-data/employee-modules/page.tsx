@@ -1,16 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getAuthToken } from '@/lib/auth';
+import React, { useEffect, useState } from 'react';
+import { 
+  HiOutlineUserGroup, 
+  HiOutlineCheckCircle, 
+  HiOutlineXCircle, 
+  HiArrowPath 
+} from 'react-icons/hi2';
+import apiClient from '@/lib/apiClient';
 import CustomTable from '@/components/CustomTable';
 import { GridColDef } from '@mui/x-data-grid';
-import { HiOutlineUserGroup, HiOutlineCheckCircle, HiOutlineXCircle } from 'react-icons/hi';
 
 interface Employee {
   _id: string;
   name: string;
   email: string;
   mobileNumber: string;
+  role: string;
   employeeDetails: {
     fullName: string;
     modules?: string[];
@@ -27,15 +33,15 @@ const ToggleSwitch = ({ checked, onChange, disabled }: any) => (
       disabled={disabled}
       className="sr-only peer"
     />
-   <div className="w-8 h-4 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+    <div className="w-8 h-4 bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
   </label>
 );
 
 export default function EmployeeModulesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -43,58 +49,43 @@ export default function EmployeeModulesPage() {
   }, []);
 
   const fetchEmployees = async () => {
-    const token = getAuthToken();
+    setIsLoading(true);
     try {
-      const res = await fetch('/api/admin/employees', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const employeesArray = Array.isArray(data) ? data : data.employees || [];
-        setEmployees(employeesArray.filter((e: any) => e.role === 'employee'));
-      } else {
-        showToast('error', 'Failed to load employees');
-      }
+      const data = await apiClient('/api/admin/employees', { method: 'GET' });
+      const employeesArray = Array.isArray(data) ? data : data.employees || [];
+      setEmployees(employeesArray.filter((e: any) => e.role === 'employee'));
     } catch (err) {
-      showToast('error', 'Network error');
+      showToast('Failed to load employees', 'error');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const showToast = (type: 'success' | 'error', text: string) => {
-    setToast({ type, text });
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
   const updateModules = async (employeeId: string, modules: string[], employeeName: string, moduleName: string, isAdding: boolean) => {
     setSaving(prev => ({ ...prev, [employeeId]: true }));
-    const token = getAuthToken();
     try {
-      const res = await fetch('/api/admin/employee-modules', {
+      await apiClient('/api/admin/employee-modules', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ employeeId, modules }),
       });
-      if (res.ok) {
-        setEmployees(prev =>
-          prev.map(emp =>
-            emp._id === employeeId
-              ? { ...emp, employeeDetails: { ...emp.employeeDetails, modules } }
-              : emp
-          )
-        );
-        const action = isAdding ? 'granted' : 'revoked';
-        window.alert(`✅ ${action} "${moduleName}" access for ${employeeName}`);
-        showToast('success', 'Access updated successfully');
-      } else {
-        showToast('error', 'Update failed');
-      }
+      
+      setEmployees(prev =>
+        prev.map(emp =>
+          emp._id === employeeId
+            ? { ...emp, employeeDetails: { ...emp.employeeDetails, modules } }
+            : emp
+        )
+      );
+      
+      const action = isAdding ? 'granted' : 'revoked';
+      showToast(`Access ${action} for ${moduleName}`, 'success');
     } catch (err) {
-      showToast('error', 'Error saving');
+      showToast('Update failed', 'error');
     } finally {
       setSaving(prev => ({ ...prev, [employeeId]: false }));
     }
@@ -109,7 +100,6 @@ export default function EmployeeModulesPage() {
     updateModules(employee._id, newModules, employee.employeeDetails?.fullName || employee.name, moduleName, isAdding);
   };
 
-  // Filter employees by name, email, mobile, or employee ID
   const filteredEmployees = employees.filter(emp =>
     (emp.employeeDetails?.fullName || emp.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -119,163 +109,169 @@ export default function EmployeeModulesPage() {
 
   const columns: GridColDef[] = [
     {
-      field: 'id',
+      field: '_id',
       headerName: 'EMPLOYEE ID',
-      width: 240,
-      renderCell: (params) => {
-        const emp = params.row;
-        return (
-          <span className="text-xs font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded-md">
-            {emp._id}
+      width: 220,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
+          <span className="font-bold text-slate-800 dark:text-slate-200">
+            {params.value}
           </span>
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'employee',
       headerName: 'EMPLOYEE',
-      flex: 1,
-      minWidth: 240,
+      width: 300,
+      headerAlign: 'center',
+      align: 'center',
       renderCell: (params) => {
         const emp = params.row;
         return (
-          <div className="flex flex-col">
+          <div className="flex items-center justify-center h-full">
             <span className="font-bold text-slate-800 dark:text-slate-200">
               {emp.employeeDetails?.fullName || emp.name}
-            </span>
-            <span className="text-xs text-slate-500">
-              {emp.email} | {emp.mobileNumber}
             </span>
           </div>
         );
       },
     },
     {
-      field: 'bookings',
-      headerName: 'BOOKINGS',
-      width: 85,
+      field: 'email',
+      headerName: 'EMAIL ID',
+      width: 220,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
+          <span className="font-bold text-slate-800 dark:text-slate-200">
+            {params.value}
+          </span>
+        </div>
+      ),
+    },
+    {
+      field: 'bookings',
+      headerName: 'BOOKINGS',
+      width: 100,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('bookings')}
-            onChange={() => toggleModule(emp, 'bookings')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('bookings')}
+            onChange={() => toggleModule(params.row, 'bookings')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'support',
       headerName: 'SUPPORT',
-      width: 85,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('support')}
-            onChange={() => toggleModule(emp, 'support')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('support')}
+            onChange={() => toggleModule(params.row, 'support')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'drivers',
       headerName: 'DRIVERS',
-      width: 85,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('drivers')}
-            onChange={() => toggleModule(emp, 'drivers')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('drivers')}
+            onChange={() => toggleModule(params.row, 'drivers')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'employeesModule',
       headerName: 'EMPLOYEES',
-      width: 95,
+      width: 110,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('employees')}
-            onChange={() => toggleModule(emp, 'employees')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('employees')}
+            onChange={() => toggleModule(params.row, 'employees')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'customer',
       headerName: 'CUSTOMER',
-      width: 85,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('customer')}
-            onChange={() => toggleModule(emp, 'customer')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('customer')}
+            onChange={() => toggleModule(params.row, 'customer')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
     {
       field: 'vehicles',
       headerName: 'VEHICLES',
-      width: 85,
+      width: 100,
       headerAlign: 'center',
       align: 'center',
-      renderCell: (params) => {
-        const emp = params.row;
-        const modules = emp.employeeDetails?.modules || [];
-        const isSaving = saving[emp._id];
-        return (
+      renderCell: (params) => (
+        <div className="flex items-center justify-center h-full">
           <ToggleSwitch
-            checked={modules.includes('vehicles')}
-            onChange={() => toggleModule(emp, 'vehicles')}
-            disabled={isSaving}
+            checked={(params.row.employeeDetails?.modules || []).includes('vehicles')}
+            onChange={() => toggleModule(params.row, 'vehicles')}
+            disabled={saving[params.row._id]}
           />
-        );
-      },
+        </div>
+      ),
     },
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
-        <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center border-b">
-          <div className="h-6 w-56 bg-slate-200 rounded-md"></div>
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
+        <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+          <div className="flex gap-2">
+            <div className="h-9 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+          </div>
         </div>
-        <div className="p-8">
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-16 bg-slate-100 rounded-xl"></div>
+        <div className="p-4 md:p-8">
+          <div className="bg-white dark:bg-[#0A1128] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-pulse">
+            <div className="h-[56px] border-b border-slate-100 dark:border-slate-800 flex items-center px-6">
+              <div className="h-4 w-32 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+            </div>
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="px-6 py-4 border-b border-slate-50 dark:border-slate-800/30 flex items-center gap-6">
+                <div className="h-4 w-12 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+                <div className="h-4 flex-1 bg-slate-100/50 dark:bg-slate-800/20 rounded"></div>
+                <div className="h-4 w-24 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+                <div className="h-4 w-40 bg-slate-50 dark:bg-slate-800/40 rounded"></div>
+              </div>
             ))}
           </div>
         </div>
@@ -284,38 +280,42 @@ export default function EmployeeModulesPage() {
   }
 
   return (
-    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8">
-      {/* Floating Toast Notification  */}
+    <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
+      {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-6 right-4 z-50 flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-xl text-white text-sm font-medium animate-in slide-in-from-right-5 duration-300 ${
-          toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'
-        }`}>
-          {toast.type === 'success' ? <HiOutlineCheckCircle className="w-4 h-4" /> : <HiOutlineXCircle className="w-4 h-4" />}
-          {toast.text}
+        <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-lg shadow-2xl text-white text-sm font-bold ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'} animate-in fade-in slide-in-from-top-8 duration-300`}>
+          {toast.type === 'success' ? <HiOutlineCheckCircle className="w-5 h-5" /> : <HiOutlineXCircle className="w-5 h-5" />}
+          {toast.message}
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-900 min-h-[calc(100vh-64px)] border-b border-slate-200 dark:border-slate-800">
-        {/* Header  */}
-        <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center sticky top-16 z-30">
-          <h1 className="text-sm md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter">
-            Employee Module Access
-          </h1>
-          <div className="text-sm text-slate-500">
-            <HiOutlineUserGroup className="inline mr-1" /> {filteredEmployees.length} employees
+      <div className="bg-slate-50 dark:bg-[#0A1128] border-b border-slate-200 dark:border-slate-700 min-h-[calc(100vh-64px)] transition-colors duration-300">
+        {/* Header Toolbar */}
+        <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md transition-colors">
+          <div className="min-w-0">
+            <h2 className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">
+              Module Access<span className="text-black dark:text-white font-normal font-bold pl-1 pr-1 hidden sm:inline">({filteredEmployees.length})</span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+            <button
+              onClick={fetchEmployees}
+              className="flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <HiArrowPath className="text-sm" />
+              Refresh
+            </button>
           </div>
         </div>
 
-        <div className="p-4 md:p-6">
-          <CustomTable
-            rows={filteredEmployees}
-            columns={columns}
-            getRowId={(row) => row._id}
-            height="calc(100vh - 180px)"
-            rowCount={filteredEmployees.length}
-            onSearch={setSearchTerm}
-          />
-        </div>
+        <CustomTable
+          rows={filteredEmployees}
+          columns={columns}
+          getRowId={(row) => row._id}
+          height="calc(100vh - 110px)"
+          rowCount={filteredEmployees.length}
+          onSearch={setSearchTerm}
+        />
       </div>
     </div>
   );

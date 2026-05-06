@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import apiClient from '@/lib/apiClient';
-import { VehiclesSkeleton } from '@/components/CustomerSkeletons';
+
 import { getStoredUser } from '@/lib/auth';
 import {
   HiOutlineMapPin,
@@ -13,7 +13,9 @@ import {
   HiXMark,
   HiCheckCircle,
   HiXCircle,
+  HiOutlineTag,
 } from 'react-icons/hi2';
+import { VehiclesSkeleton } from '@/components/CustomerSkeletons';
 
 interface Vehicle {
   _id: string;
@@ -75,7 +77,7 @@ function FilterPills({ types, active, onChange }: { types: string[]; active: str
 function VehicleCard({ vehicle, onBook }: { vehicle: Vehicle; onBook: (v: Vehicle) => void }) {
   const isMaint = vehicle.status === 'maintenance';
   return (
-    <div className={`relative bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3 transition-all duration-200 ${isMaint ? 'opacity-50' : 'hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'}`}>
+    <div className={`relative bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3 transition-all duration-200 ${isMaint ? 'opacity-50' : 'hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'}`}>
       <span className={`absolute top-2 right-2 text-[9px] font-medium px-2 py-0.5 rounded-full ${isMaint ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
         {isMaint ? 'Maintenance' : 'Available'}
       </span>
@@ -107,9 +109,11 @@ function FormField({ label, icon, children }: { label: string; icon: React.React
   );
 }
 
+
+
 function OneTimeForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSuccess: () => void; onCancel: () => void }) {
   const user = getStoredUser();
-  const [form, setForm] = useState({ from: '', destination: '', dateTime: '', name: user?.name ?? '', contact: user?.mobileNumber ?? '', price: vehicle.pricePerDay ? `From ₹${vehicle.pricePerDay}/day` : '' });
+  const [form, setForm] = useState({ from: '', destination: '', dateTime: '', name: user?.name ?? '', contact: user?.mobileNumber ?? '', price: vehicle.pricePerDay ? `Start from ₹${vehicle.pricePerDay}` : 'Start from ₹12/km' });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(p => ({ ...p, [k]: e.target.value }));
@@ -128,32 +132,68 @@ function OneTimeForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSuc
     } catch (ex: any) { setErr(ex.message ?? 'Booking failed.'); } finally { setSubmitting(false); }
   };
 
+  const labelCls = "text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1 block";
+  const inpInrCls = "w-full bg-[#f8f9fa] border border-slate-200 rounded-lg px-4 py-2.5 pl-12 text-sm focus:outline-none focus:border-indigo-500/50 transition-all font-bold placeholder:text-slate-400 dark:text-slate-800";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {err && <p className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">{err}</p>}
-      <FormField label="From" icon={<HiOutlineMapPin className="text-orange-400 text-sm" />}>
-        <input className={inputCls} placeholder="Pick-up" value={form.from} onChange={set('from')} required />
-      </FormField>
-      <FormField label="Destination" icon={<HiOutlineMapPin className="text-blue-400 text-sm" />}>
-        <input className={inputCls} placeholder="Drop-off" value={form.destination} onChange={set('destination')} required />
-      </FormField>
-      <FormField label="Date & Time" icon={<HiOutlineCalendar className="text-orange-400 text-sm" />}>
-        <input type="datetime-local" className={inputCls} value={form.dateTime} onChange={set('dateTime')} required />
-      </FormField>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Name" icon={<HiOutlineUser className="text-orange-400 text-sm" />}>
-          <input className={inputCls} placeholder="Name" value={form.name} onChange={set('name')} required />
-        </FormField>
-        <FormField label="Contact" icon={<HiOutlinePhone className="text-blue-400 text-sm" />}>
-          <input className={inputCls} placeholder="10 digits" maxLength={10} value={form.contact} onChange={e => setForm(p => ({ ...p, contact: e.target.value.replace(/\D/g, '') }))} required />
-        </FormField>
+      {err && <p className="text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 font-bold">{err}</p>}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+        <div className="space-y-1">
+          <label className={labelCls}>From (City / Airport) <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter pick-up location" value={form.from} onChange={set('from')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Destination <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter drop-off location" value={form.destination} onChange={set('destination')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Travel Date & Time <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg" />
+            <input type="datetime-local" className={inpInrCls} value={form.dateTime} onChange={set('dateTime')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Customer Name <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter customer name" value={form.name} onChange={set('name')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Contact Number <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter 10-digit number" maxLength={10} value={form.contact} onChange={e => setForm(p => ({ ...p, contact: e.target.value.replace(/\D/g, '') }))} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Price Estimate <span className="text-slate-400 normal-case">(Optional)</span></label>
+          <div className="relative">
+            <HiOutlineTag className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg" />
+            <input className={inpInrCls} placeholder="Start from ₹12/km" value={form.price} onChange={set('price')} />
+          </div>
+        </div>
       </div>
-      <FormField label="Price Estimate" icon={<span className="text-orange-500 text-sm font-bold">₹</span>}>
-        <input className={inputCls + ' text-orange-600'} placeholder="Optional" value={form.price} onChange={set('price')} />
-      </FormField>
-      <div className="flex justify-end gap-2 pt-2">
-        <button type="button" onClick={onCancel} className="px-4 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100">Cancel</button>
-        <button type="submit" disabled={submitting} className="px-5 py-1.5 rounded-lg text-xs font-bold bg-orange-600 text-white hover:bg-orange-700 shadow-md">{submitting ? '...' : 'Request ride'}</button>
+
+      <div className="flex justify-end items-center gap-3 pt-4 border-t border-slate-50">
+        <button type="button" onClick={onCancel} className="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 border border-slate-200 hover:bg-slate-50 transition-all">Cancel</button>
+        <button type="submit" disabled={submitting} className="bg-[#5542f6] hover:bg-[#4431e5] text-white px-8 py-2.5 rounded-lg font-bold uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all disabled:opacity-70">
+          {submitting ? '...' : 'Add Booking'}
+        </button>
       </div>
     </form>
   );
@@ -188,31 +228,84 @@ function LongTermForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSu
     } catch (ex: any) { setErr(ex.message ?? 'Rental failed.'); } finally { setSubmitting(false); }
   };
 
+  const labelCls = "text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1 block";
+  const inpInrCls = "w-full bg-[#f8f9fa] border border-slate-200 rounded-lg px-4 py-2.5 pl-12 text-sm focus:outline-none focus:border-indigo-500/50 transition-all font-bold placeholder:text-slate-400 dark:text-slate-800";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {err && <p className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">{err}</p>}
-      <FormField label="From" icon={<HiOutlineMapPin className="text-orange-400 text-sm" />}><input className={inputCls} placeholder="Pick-up" value={form.from} onChange={set('from')} required /></FormField>
-      <FormField label="Destination" icon={<HiOutlineMapPin className="text-blue-400 text-sm" />}><input className={inputCls} placeholder="Drop-off" value={form.destination} onChange={set('destination')} required /></FormField>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Start Date" icon={<HiOutlineCalendar className="text-orange-400 text-sm" />}><input type="date" className={inputCls} value={form.startDate} onChange={set('startDate')} required /></FormField>
-        <div>
-          <label className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1"><HiOutlineClock className="text-blue-400 text-sm" /> Duration</label>
-          <div className="flex flex-wrap gap-1">
+      {err && <p className="text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 font-bold">{err}</p>}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+        <div className="space-y-1">
+          <label className={labelCls}>From (City / Airport) <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter pick-up location" value={form.from} onChange={set('from')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Destination <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter drop-off location" value={form.destination} onChange={set('destination')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Start Date <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 text-lg" />
+            <input type="date" className={inpInrCls} value={form.startDate} onChange={set('startDate')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Duration</label>
+          <div className="flex flex-wrap gap-2 pt-1">
             {DURATION_OPTIONS.map(opt => (
-              <button key={opt.days} type="button" onClick={() => setForm(p => ({ ...p, durationDays: opt.days }))} className={`px-2 py-0.5 rounded-full text-[9px] font-medium border ${form.durationDays === opt.days ? 'bg-orange-600 text-white border-orange-600' : 'bg-slate-50 dark:bg-slate-700 border-slate-200'}`}>{opt.label}</button>
+              <button key={opt.days} type="button" onClick={() => setForm(p => ({ ...p, durationDays: opt.days }))} className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all ${form.durationDays === opt.days ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 text-slate-500'}`}>{opt.label}</button>
             ))}
           </div>
         </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Your Name <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter name" value={form.name} onChange={set('name')} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Contact Number <span className="text-red-500">*</span></label>
+          <div className="relative">
+            <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-lg" />
+            <input className={inpInrCls} placeholder="Enter 10-digit number" maxLength={10} value={form.contact} onChange={e => setForm(p => ({ ...p, contact: e.target.value.replace(/\D/g, '') }))} required />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelCls}>Special Requests</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">📝</span>
+            <input className={inpInrCls} placeholder="Any requests..." value={form.notes} onChange={set('notes')} />
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-end">
+      <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg px-4 py-2.5 flex justify-between items-center border border-emerald-100/50">
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Total</span>
+            <span className="text-base font-black text-orange-600">₹{estimated.toLocaleString()}</span>
+          </div>
+        </div>
       </div>
-      <div className="flex justify-between bg-emerald-50 rounded-lg px-3 py-1.5 text-xs"><span className="font-bold">Est. total</span><span className="font-bold text-orange-600">₹{estimated.toLocaleString()}</span></div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Name" icon={<HiOutlineUser className="text-orange-400 text-sm" />}><input className={inputCls} placeholder="Name" value={form.name} onChange={set('name')} required /></FormField>
-        <FormField label="Contact" icon={<HiOutlinePhone className="text-blue-400 text-sm" />}><input className={inputCls} placeholder="10 digits" maxLength={10} value={form.contact} onChange={e => setForm(p => ({ ...p, contact: e.target.value.replace(/\D/g, '') }))} required /></FormField>
-      </div>
-      <FormField label="Notes" icon={<span className="text-slate-500 text-sm">📝</span>}><textarea className={inputCls + ' resize-none'} rows={2} placeholder="Special requests..." value={form.notes} onChange={set('notes')} /></FormField>
-      <div className="flex justify-end gap-2 pt-2">
-        <button type="button" onClick={onCancel} className="px-4 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100">Cancel</button>
-        <button type="submit" disabled={submitting} className="px-5 py-1.5 rounded-lg text-xs font-bold bg-orange-600 text-white hover:bg-orange-700 shadow-md">{submitting ? '...' : 'Request rental'}</button>
+
+      <div className="flex justify-end items-center gap-3 pt-3 border-t border-slate-50">
+        <button type="button" onClick={onCancel} className="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 border border-slate-200 hover:bg-slate-50 transition-all">Cancel</button>
+        <button type="submit" disabled={submitting} className="bg-[#5542f6] hover:bg-[#4431e5] text-white px-8 py-2 rounded-lg font-bold uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all disabled:opacity-70 min-w-[140px]">
+          {submitting ? '...' : 'Add Booking'}
+        </button>
       </div>
     </form>
   );
@@ -221,20 +314,37 @@ function LongTermForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSu
 function BookingModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; onClose: () => void; onSuccess: (msg: string) => void }) {
   const [tab, setTab] = useState<BookingType>('oneTime');
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-lg shadow-xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-        <div className="pt-5 pb-2 text-center">
-          <h3 className="text-xl font-black tracking-wider uppercase">Book Your Ride</h3>
-          <div className="h-0.5 w-12 bg-orange-500 mx-auto mt-1.5 rounded-full"></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative mx-auto animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-50 dark:border-slate-800">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white">Book Your Ride</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <HiXMark size={22} />
+          </button>
         </div>
-        <div className="px-5 pb-5">
-          <div className="flex justify-center gap-3 mb-5">
-            <button onClick={() => setTab('oneTime')} className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${tab === 'oneTime' ? 'bg-orange-600 text-white shadow' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'}`}>One‑time trip</button>
-            <button onClick={() => setTab('longTerm')} className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider transition-all ${tab === 'longTerm' ? 'bg-orange-600 text-white shadow' : 'bg-slate-100 dark:bg-slate-800 text-slate-600'}`}>Long‑term rental</button>
+        
+        <div className="p-6 pt-4 space-y-4">
+          <div className="flex justify-start gap-3">
+            <button onClick={() => setTab('oneTime')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab === 'oneTime' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>One‑time trip</button>
+            <button onClick={() => setTab('longTerm')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab === 'longTerm' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>Long‑term rental</button>
           </div>
+          
+          <div className="bg-slate-50 dark:bg-slate-800/30 rounded-lg p-3 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-xl">{typeIcon(vehicle.type)}</div>
+              <div>
+                <p className="font-black text-[13px] text-slate-800 dark:text-white leading-none">{vehicle.modelName}</p>
+                <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{vehicle.cabNumber}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Standard Rate</p>
+              <p className="text-[13px] font-black text-orange-600">₹{(vehicle.pricePerDay ?? 1000).toLocaleString()}/day</p>
+            </div>
+          </div>
+
           {tab === 'oneTime' ? <OneTimeForm vehicle={vehicle} onSuccess={() => onSuccess('Ride request sent!')} onCancel={onClose} /> : <LongTermForm vehicle={vehicle} onSuccess={() => onSuccess('Rental request submitted!')} onCancel={onClose} />}
         </div>
-        <button onClick={onClose} className="absolute top-3 right-4 text-slate-400 hover:text-slate-600"><HiXMark className="w-5 h-5" /></button>
       </div>
     </div>
   );
@@ -251,7 +361,7 @@ export default function AvailableVehicles() {
   const fetchVehicles = useCallback(async () => { setLoading(true); try { setVehicles(await apiClient('/api/vehicles')); } catch (err: any) { setError(err.message); } finally { setLoading(false); } }, []);
   useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
 
- 
+
   const vehicleTypes = [...new Set(vehicles.map(v => v.type).filter((t): t is string => Boolean(t)))];
   const filtered = activeFilter === 'All' ? vehicles : vehicles.filter(v => v.type === activeFilter);
   if (loading) return <VehiclesSkeleton />;
@@ -261,8 +371,11 @@ export default function AvailableVehicles() {
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8">
       <Toast toast={toast} />
       <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)]">
-        <div className="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b px-4 py-2 flex justify-between items-center">
-          <div><p className="text-[13px] md:text-xl font-extrabold text-emerald-600 flex items-center gap-1 md:gap-2 uppercase tracking-tighter md:tracking-tight truncate">Available Vehicles</p><p className="text-[10px] text-slate-400 hidden sm:block">{filtered.length} vehicles</p></div>
+        <div className="sticky top-16 z-30 bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <p className="text-[13px] md:text-xl font-extrabold text-emerald-600 uppercase tracking-tighter md:tracking-tight truncate">Available Vehicles</p>
+            <span className="text-sm md:text-xl font-black text-slate-900 dark:text-slate-100">({filtered.length})</span>
+          </div>
           <button onClick={fetchVehicles} className="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-md font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"><span>↻</span> Refresh</button>
         </div>
         <div className="p-4">

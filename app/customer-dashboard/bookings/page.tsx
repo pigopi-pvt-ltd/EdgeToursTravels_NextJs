@@ -172,31 +172,7 @@ export default function BookingsPage() {
     }
   };
 
-  if (loading) {
-    // Skeleton with bell placeholder
-    return (
-      <div className="animate-pulse">
-        <div className="bg-white dark:bg-slate-800 min-h-[calc(100vh-64px)]">
-          <div className="bg-[#f8f9fa] dark:bg-slate-800/50 py-2.5 px-4 flex justify-between items-center border-b">
-            <div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-            <div className="flex gap-2">
-              <div className="h-9 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
-              <div className="h-9 w-9 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
-            </div>
-          </div>
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>)}
-            </div>
-            <div className="h-10 w-40 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-xl"></div>)}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <BookingsSkeleton />;
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
