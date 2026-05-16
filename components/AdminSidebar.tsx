@@ -44,7 +44,7 @@ const adminItems = [
 const driverItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
-  { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/driver-dashboard/long-term-rentals" },
+  // { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/driver-dashboard/long-term-rentals" },
 ];
 
 interface SidebarProps {

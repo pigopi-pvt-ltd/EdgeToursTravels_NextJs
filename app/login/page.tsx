@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginUser, registerUser, storeAuthData } from '@/lib/auth';
 import Link from 'next/link';
-import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
+import { HiOutlineEye, HiOutlineEyeSlash, HiArrowLeft } from 'react-icons/hi2';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -139,167 +139,180 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-[#0A1128] dark:to-[#0A1128] p-4 transition-colors duration-300">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 border border-white dark:border-slate-800 transition-all">
-        <div className="flex justify-center mb-8">
-          <Link href="/">
-            <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl">
-              <img src="/images/logo.png" alt="Edge Tours" className="h-12 w-auto object-contain" />
-            </div>
-          </Link>
-        </div>
-        <h2 className="text-3xl font-black text-center text-slate-900 dark:text-white">
-          {isLogin ? 'Welcome Back' : 'Create Account'}
-        </h2>
-        <p className="text-center text-slate-500 dark:text-slate-400 mt-2 text-sm">
-          {isLogin ? 'Sign in to access your dashboard' : 'Join us as a customer or driver'}
-        </p>
-
-        {error && (
-          <div className="mt-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl border border-red-100 dark:border-red-900/30 text-sm font-medium">
-            ⚠️ {error}
-          </div>
-        )}
-
-        {isLogin && (
-          <div className="mt-8 flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl">
-            <button
-              onClick={() => setLoginMethod('email')}
-              className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${loginMethod === 'email' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              Email Login
-            </button>
-            <button
-              onClick={() => setLoginMethod('otp')}
-              className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${loginMethod === 'otp' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              OTP Login
-            </button>
-          </div>
-        )}
-
-        {/* Email Login Form */}
-        {isLogin && loginMethod === 'email' && (
-          <form className="mt-8 space-y-4" onSubmit={handleEmailLogin}>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Email Address</label>
-              <input type="email" placeholder="john@example.com" required value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Password</label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••" 
-                  required 
-                  value={password} 
-                  onChange={e => setPassword(e.target.value)} 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none pr-12" 
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
-                >
-                  {showPassword ? <HiOutlineEyeSlash size={20} /> : <HiOutlineEye size={20} />}
-                </button>
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-3 sm:p-4"
+      style={{ backgroundImage: 'url("/images/car3_bg.png")' }}>
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+      
+      <div className="relative z-10 w-full max-w-md mx-auto">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-5 sm:p-6 border border-white/20 dark:border-slate-800 transition-all max-h-[90vh] overflow-y-auto custom-scrollbar">
+          
+          {/* Header with Back Arrow and Logo */}
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/" className="p-1.5 -ml-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors">
+              <HiArrowLeft className="w-5 h-5" />
+            </Link>
+            <div className="flex justify-center">
+              <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                <img src="/images/logo.png" alt="Edge Tours" className="h-7 sm:h-8 w-auto object-contain" />
               </div>
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-[11px] py-4.5 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] dark:shadow-none transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_20px_35px_-10px_rgba(79,70,229,0.5)] active:scale-95 disabled:opacity-50 mt-6 border border-white/10 flex items-center justify-center gap-3">
-              {loading ? 'Authenticating...' : 'Enter Dashboard'}
-            </button>
-          </form>
-        )}
+            <div className="w-8"></div>
+          </div>
 
-        {/* OTP Login Form */}
-        {isLogin && loginMethod === 'otp' && (
-          <form className="mt-8 space-y-4" onSubmit={handleOtpLogin}>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Mobile Number</label>
-              <input type="tel" placeholder="+91 9876543210" required value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none" />
+          <h2 className="text-xl sm:text-2xl font-black text-center text-slate-900 dark:text-white">
+            {isLogin ? 'Welcome Back' : 'Create Account'}
+          </h2>
+          <p className="text-center text-slate-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
+            {isLogin ? 'Sign in to access your dashboard' : 'Join us as a customer or driver'}
+          </p>
+
+          {error && (
+            <div className="mt-3 p-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg border border-red-100 dark:border-red-900/30 text-xs font-medium">
+              ⚠️ {error}
             </div>
-            {!otpSent ? (
-              <button type="button" onClick={handleSendOtp} disabled={loading} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
-                {loading ? 'Sending...' : 'Send Verification OTP'}
+          )}
+
+          {isLogin && (
+            <div className="mt-4 flex bg-slate-50 dark:bg-slate-800 p-1 rounded-lg">
+              <button
+                onClick={() => setLoginMethod('email')}
+                className={`flex-1 py-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-lg transition-all ${loginMethod === 'email' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                Email Login
               </button>
-            ) : (
-              <>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Verification Code</label>
-                  <input type="text" placeholder="6-digit OTP" required value={otp} onChange={e => setOtp(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-green-500 transition-all dark:text-white outline-none text-center text-xl font-bold tracking-[0.5em]" />
+              <button
+                onClick={() => setLoginMethod('otp')}
+                className={`flex-1 py-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-lg transition-all ${loginMethod === 'otp' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                OTP Login
+              </button>
+            </div>
+          )}
+
+          {/* Email Login Form - Compact */}
+          {isLogin && loginMethod === 'email' && (
+            <form className="mt-3 space-y-2.5" onSubmit={handleEmailLogin}>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Email Address</label>
+                <input type="email" placeholder="john@example.com" required value={email} onChange={e => setEmail(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none text-sm" />
+              </div>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Password</label>
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••" 
+                    required 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none pr-10 text-sm" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {showPassword ? <HiOutlineEyeSlash size={16} /> : <HiOutlineEye size={16} />}
+                  </button>
                 </div>
-                <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
-                  {loading ? 'Verifying...' : 'Verify & Enter'}
+              </div>
+              <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.15em] text-[10px] sm:text-[11px] py-2.5 rounded-lg shadow-md transition-all active:scale-95 disabled:opacity-50 mt-2 flex items-center justify-center gap-2">
+                {loading ? 'Authenticating...' : 'Enter Dashboard'}
+              </button>
+            </form>
+          )}
+
+          {/* OTP Login Form - Compact */}
+          {isLogin && loginMethod === 'otp' && (
+            <form className="mt-3 space-y-2.5" onSubmit={handleOtpLogin}>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Mobile Number</label>
+                <input type="tel" placeholder="9876543210" required value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white outline-none text-sm" />
+              </div>
+              {!otpSent ? (
+                <button type="button" onClick={handleSendOtp} disabled={loading} className="w-full bg-slate-800 dark:bg-slate-700 text-white font-black uppercase tracking-wider text-[10px] sm:text-[11px] py-2.5 rounded-lg shadow-md transition-all active:scale-95 mt-2">
+                  {loading ? 'Sending...' : 'Send Verification OTP'}
                 </button>
-              </>
-            )}
-          </form>
-        )}
+              ) : (
+                <>
+                  <div>
+                    <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Verification Code</label>
+                    <input type="text" placeholder="6-digit OTP" required value={otp} onChange={e => setOtp(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-green-500 transition-all dark:text-white outline-none text-center text-base sm:text-lg font-bold tracking-[0.3em] sm:tracking-[0.5em]" />
+                  </div>
+                  <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white font-black uppercase tracking-wider text-[10px] sm:text-[11px] py-2.5 rounded-lg shadow-md transition-all active:scale-95 mt-2">
+                    {loading ? 'Verifying...' : 'Verify & Enter'}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
 
-        {/* Registration Form */}
-        {!isLogin && (
-          <form className="mt-8 space-y-4" onSubmit={handleRegister}>
-            <div className="flex gap-2 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setRegRole('customer')}
-                className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${regRole === 'customer' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Customer
-              </button>
-              <button
-                type="button"
-                onClick={() => setRegRole('driver')}
-                className={`flex-1 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${regRole === 'driver' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Driver
-              </button>
-            </div>
-
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Full Name *</label>
-              <input type="text" required value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" />
-            </div>
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Mobile Number *</label>
-              <input type="tel" required value={regMobile} onChange={e => setRegMobile(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" />
-            </div>
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">
-                Email {regRole === 'customer' ? '*' : '(optional)'}
-              </label>
-              <input type="email" required={regRole === 'customer'} value={regEmail} onChange={e => setRegEmail(e.target.value)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" />
-            </div>
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Password *</label>
-              <div className="relative">
-                <input 
-                  type={showRegPassword ? "text" : "password"} 
-                  required 
-                  value={regPassword} 
-                  onChange={e => setRegPassword(e.target.value)} 
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white pr-12" 
-                />
+          {/* Registration Form - Compact (No Scrolling Needed) */}
+          {!isLogin && (
+            <form className="mt-3 space-y-2.5" onSubmit={handleRegister}>
+              <div className="flex gap-2 bg-slate-50 dark:bg-slate-800 p-1 rounded-lg">
                 <button
                   type="button"
-                  onClick={() => setShowRegPassword(!showRegPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  onClick={() => setRegRole('customer')}
+                  className={`flex-1 py-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-lg transition-all ${regRole === 'customer' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                  {showRegPassword ? <HiOutlineEyeSlash size={20} /> : <HiOutlineEye size={20} />}
+                  Customer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegRole('driver')}
+                  className={`flex-1 py-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider rounded-lg transition-all ${regRole === 'driver' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Driver
                 </button>
               </div>
-            </div>
 
-            <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl shadow-lg transition-all active:scale-95 mt-4">
-              {loading ? 'Creating...' : `Register as ${regRole === 'customer' ? 'User' : 'Driver'}`}
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Full Name *</label>
+                <input type="text" required value={name} onChange={e => setName(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white text-sm" />
+              </div>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Mobile Number *</label>
+                <input type="tel" required value={regMobile} onChange={e => setRegMobile(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white text-sm" />
+              </div>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">
+                  Email {regRole === 'customer' ? '*' : '(optional)'}
+                </label>
+                <input type="email" required={regRole === 'customer'} value={regEmail} onChange={e => setRegEmail(e.target.value)} className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white text-sm" />
+              </div>
+              <div>
+                <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 ml-1">Password *</label>
+                <div className="relative">
+                  <input 
+                    type={showRegPassword ? "text" : "password"} 
+                    required 
+                    value={regPassword} 
+                    onChange={e => setRegPassword(e.target.value)} 
+                    className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white text-sm pr-10" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {showRegPassword ? <HiOutlineEyeSlash size={16} /> : <HiOutlineEye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-wider text-[10px] sm:text-[11px] py-2.5 rounded-lg shadow-md transition-all active:scale-95 mt-3">
+                {loading ? 'Creating...' : `Register as ${regRole === 'customer' ? 'User' : 'Driver'}`}
+              </button>
+            </form>
+          )}
+
+          <div className="text-center mt-4">
+            <button onClick={() => setIsLogin(!isLogin)} className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-white transition-colors">
+              {isLogin ? "New here? Register" : 'Back to login'}
             </button>
-          </form>
-        )}
-
-        <div className="text-center mt-8">
-          <button onClick={() => setIsLogin(!isLogin)} className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-white transition-colors">
-            {isLogin ? "New here? Register" : 'Back to login'}
-          </button>
+          </div>
         </div>
       </div>
     </div>

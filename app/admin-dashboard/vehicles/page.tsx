@@ -14,7 +14,8 @@ import {
   HiOutlineClock,
   HiOutlineIdentification,
   HiOutlineUserCircle,
-  HiXMark
+  HiXMark,
+  HiPhoto
 } from "react-icons/hi2";
 import { HiOutlineCloudUpload } from "react-icons/hi";
 import CustomTable from "@/components/CustomTable";
@@ -57,6 +58,10 @@ interface Vehicle {
   insuranceImage?: string;
   pollutionImage?: string;
   kycDocuments?: Record<string, string>;
+  vehicleImages?: string[];
+  capacity?: number;
+  type?: string;
+  ac?: boolean;
 }
 
 type VehicleFormData = Partial<Omit<Vehicle, "vendor">> & {
@@ -100,7 +105,11 @@ export default function VehiclesPage() {
     rcImage: "",
     insuranceImage: "",
     pollutionImage: "",
-    kycDocuments: {}
+    kycDocuments: {},
+    vehicleImages: [],
+    capacity: 4,
+    type: "Sedan",
+    ac: true
   });
   const [masterDocs, setMasterDocs] = useState<any[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -137,12 +146,40 @@ export default function VehiclesPage() {
     }
   };
 
+  const handleVehicleImageUpload = (url: string) => {
+    const currentImages = (formData.vehicleImages as string[]) || [];
+    if (currentImages.length >= 4) {
+      showToast("Maximum 4 images allowed", "error");
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      vehicleImages: [...currentImages, url]
+    }));
+    showToast("Image uploaded successfully", "success");
+  };
+
+  const removeVehicleImage = (index: number) => {
+    const currentImages = (formData.vehicleImages as string[]) || [];
+    const newImages = currentImages.filter((_, i) => i !== index);
+    setFormData(prev => ({
+      ...prev,
+      vehicleImages: newImages
+    }));
+    showToast("Image removed", "success");
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const data = await apiClient("/api/admin/vehicles", {
         method: "POST",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          capacity: formData.capacity ? Number(formData.capacity) : 4,
+          type: formData.type || "Sedan",
+          ac: formData.ac !== undefined ? formData.ac : true
+        }),
       });
       showToast(data.message || "Vehicle created successfully", "success");
       fetchAllData();
@@ -157,7 +194,12 @@ export default function VehiclesPage() {
     try {
       const data = await apiClient(`/api/admin/vehicles/${editingVehicle?._id}`, {
         method: "PUT",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          capacity: formData.capacity ? Number(formData.capacity) : 4,
+          type: formData.type || "Sedan",
+          ac: formData.ac !== undefined ? formData.ac : true
+        }),
       });
       showToast(data.message || "Vehicle updated successfully", "success");
       fetchAllData();
@@ -199,14 +241,24 @@ export default function VehiclesPage() {
       rcImage: "",
       insuranceImage: "",
       pollutionImage: "",
-      kycDocuments: {}
+      kycDocuments: {},
+      vehicleImages: [],
+      capacity: 4,
+      type: "Sedan",
+      ac: true
     });
     setIsModalOpen(true);
   };
 
   const openEditModal = (vehicle: Vehicle) => {
     setEditingVehicle(vehicle);
-    setFormData(vehicle);
+    setFormData({
+      ...vehicle,
+      vehicleImages: vehicle.vehicleImages || [],
+      capacity: vehicle.capacity || 4,
+      type: vehicle.type || "Sedan",
+      ac: vehicle.ac !== undefined ? vehicle.ac : true
+    });
     setIsModalOpen(true);
   };
 
@@ -298,6 +350,23 @@ export default function VehiclesPage() {
       headerName: 'GST NO',
       width: 140,
       renderCell: (params: any) => <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{params.value || '-'}</span>
+    },
+    {
+      field: 'vehicleImages',
+      headerName: 'IMAGES',
+      width: 100,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => {
+        const images = params.row.vehicleImages;
+        const count = images?.length || 0;
+        return (
+          <div className="flex items-center justify-center gap-1">
+            <HiPhoto className="text-indigo-500 text-lg" />
+            <span className="text-xs font-bold">{count}/4</span>
+          </div>
+        );
+      }
     },
     {
       field: 'status',
@@ -520,6 +589,62 @@ export default function VehiclesPage() {
                       <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Year of Making <span className="text-red-500 ml-1">*</span></label>
                       <input type="number" required value={formData.yearOfMaking || ''} onChange={e => setFormData({ ...formData, yearOfMaking: parseInt(e.target.value) })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
                     </div>
+                    
+                    {/* Seating Capacity */}
+                    <div>
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Seating Capacity <span className="text-red-500 ml-1">*</span></label>
+                      <select 
+                        required 
+                        value={formData.capacity || 4} 
+                        onChange={e => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))} 
+                        className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                      >
+                        <option value="2">2 Seater</option>
+                        <option value="4">4 Seater</option>
+                        <option value="5">5 Seater</option>
+                        <option value="6">6 Seater</option>
+                        <option value="7">7 Seater</option>
+                        <option value="8">8 Seater</option>
+                        <option value="10">10 Seater</option>
+                        <option value="12">12 Seater</option>
+                        <option value="15">15 Seater</option>
+                      </select>
+                    </div>
+
+                    {/* Vehicle Type */}
+                    <div>
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Type <span className="text-red-500 ml-1">*</span></label>
+                      <select 
+                        required 
+                        value={formData.type || 'Sedan'} 
+                        onChange={e => setFormData(prev => ({ ...prev, type: e.target.value }))} 
+                        className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                      >
+                        <option value="Sedan">Sedan</option>
+                        <option value="SUV">SUV</option>
+                        <option value="MPV">MPV</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="Bus">Bus</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Van">Van</option>
+                        <option value="Luxury">Luxury</option>
+                      </select>
+                    </div>
+
+                    {/* AC Availability */}
+                    <div>
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">AC Availability <span className="text-red-500 ml-1">*</span></label>
+                      <select 
+                        required 
+                        value={formData.ac ? 'true' : 'false'} 
+                        onChange={e => setFormData(prev => ({ ...prev, ac: e.target.value === 'true' }))} 
+                        className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
+                      >
+                        <option value="true">Yes (AC)</option>
+                        <option value="false">No (Non-AC)</option>
+                      </select>
+                    </div>
+
                     <div>
                       <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Status <span className="text-red-500 ml-1">*</span></label>
                       <select required value={formData.status || 'active'} onChange={e => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'maintenance' })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none">
@@ -613,6 +738,52 @@ export default function VehiclesPage() {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Vehicle Images Section - Same size as document upload cards */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <HiPhoto className="text-indigo-500" /> Vehicle Images (2-4 recommended)
+                  </h3>
+                  
+                  {/* Display uploaded images - SAME SIZE as document upload cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {formData.vehicleImages?.map((url, index) => (
+                      <div key={index} className="bg-[#f8fafc] dark:bg-slate-800/50 border-2 border-dashed border-[#e2e8f0] dark:border-slate-700 rounded-3xl p-8 text-center group relative overflow-hidden">
+                        <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-md shadow-slate-200/50 dark:shadow-black/20 mb-6 mx-auto border border-slate-50 dark:border-slate-800 overflow-hidden">
+                          <img src={url} alt={`Vehicle ${index + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-1.5 leading-tight">Vehicle Image {index + 1}</h3>
+                        <p className="text-sm text-[#64748b] dark:text-slate-400 mb-6 font-medium">Vehicle photo</p>
+                        <button
+                          type="button"
+                          onClick={() => removeVehicleImage(index)}
+                          className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                        >
+                          <HiXMark className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {/* Upload Card - only show if less than 4 images */}
+                    {(formData.vehicleImages?.length || 0) < 4 && (
+                      <div className="bg-[#f8fafc] dark:bg-slate-800/50 border-2 border-dashed border-[#e2e8f0] dark:border-slate-700 rounded-3xl p-8 text-center group hover:border-blue-300 dark:hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden">
+                        <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-md shadow-slate-200/50 dark:shadow-black/20 mb-6 group-hover:scale-110 transition-transform mx-auto border border-slate-50 dark:border-slate-800">
+                          <HiOutlineCloudUpload className="text-4xl text-[#94a3b8] group-hover:text-blue-500 transition-colors" />
+                        </div>
+                        <h3 className="text-lg font-bold text-[#1e293b] dark:text-white mb-1.5 leading-tight">Upload Vehicle Image</h3>
+                        <p className="text-sm text-[#64748b] dark:text-slate-400 mb-6 font-medium">Upload clear photo of the vehicle</p>
+                        <FileUpload
+                          folder="vehicles"
+                          label="Choose File"
+                          buttonClassName="px-5 py-3 bg-[#ff4d00] hover:bg-[#e64500] text-white text-xs rounded-xl font-bold shadow-lg shadow-orange-200 dark:shadow-none transition-all duration-200 active:scale-95"
+                          onUpload={handleVehicleImageUpload}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-slate-500">Upload 2-4 images of the vehicle (front, back, interior, etc.)</p>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">

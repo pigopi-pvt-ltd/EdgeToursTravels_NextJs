@@ -17,7 +17,9 @@ import {
   HiXCircle,
   HiChevronDown,
   HiChevronLeft,
-  HiChevronRight
+  HiChevronRight,
+  HiUser,
+  HiUserGroup,
 } from 'react-icons/hi';
 import UserDetailsModal from '../employees/UserDetailsModal';
 import CustomTable from '@/components/CustomTable';
@@ -27,6 +29,7 @@ interface Driver {
   name: string;
   email: string;
   mobileNumber: string;
+  profilePhoto?: string;
   role?: string;
   driverDetails?: {
     fullName?: string;
@@ -46,6 +49,7 @@ interface Driver {
     yearsOfExperience?: number;
     kycDocuments?: Record<string, string>;
     rejectionReason?: string;
+    availabilityStatus?: 'available' | 'unavailable';
   };
 }
 
@@ -55,6 +59,7 @@ export default function DriversPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [kycFilter, setKycFilter] = useState('all');
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [masterDocs, setMasterDocs] = useState<any[]>([]);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [formData, setFormData] = useState<any>({
@@ -207,6 +212,7 @@ export default function DriversPage() {
       pan: formData.pan,
       yearsOfExperience: formData.yearsOfExperience,
       highestQualification: formData.highestQualification,
+      profilePhoto: formData.profilePhoto,
       kycDocuments: {
         ...(editingDriver?.driverDetails?.kycDocuments || {}),
         ...(formData.kycDocuments || {}),
@@ -293,6 +299,19 @@ export default function DriversPage() {
       accountNumber: details.accountNumber || '',
       ifscCode: details.ifscCode || '',
       yearsOfExperience: details.yearsOfExperience?.toString() || '',
+      // Add missing fields
+      gender: details.gender || '',
+      presentAddress: details.presentAddress || '',
+      permanentAddress: details.permanentAddress || '',
+      alternateMobile: details.alternateMobile || '',
+      aadhar: details.aadhar || '',
+      pan: details.pan || '',
+      highestQualification: details.highestQualification || '',
+      profilePhoto: driver.profilePhoto || details.kycDocuments?.profilePhoto || '',
+      aadharFront: details.kycDocuments?.aadharFront || '',
+      aadharBack: details.kycDocuments?.aadharBack || '',
+      panImage: details.kycDocuments?.panImage || '',
+      licenseImage: details.kycDocuments?.licenseImage || '',
     });
     setIsModalOpen(true);
   };
@@ -361,14 +380,15 @@ export default function DriversPage() {
   const renderKycDocuments = (driver: Driver) => {
     const docs = driver.driverDetails?.kycDocuments || {};
     const docLabels: Record<string, string> = {
-      aadhaarFront: 'Aadhaar (Front)',
-      aadhaarBack: 'Aadhaar (Back)',
+      aadharFront: 'Aadhaar (Front)',
+      aadharBack: 'Aadhaar (Back)',
       drivingLicenseImage: 'Driving License',
       vehicleRCImage: 'Vehicle RC',
       insuranceImage: 'Insurance',
       pucImage: 'PUC Certificate',
       profilePhoto: 'Profile Photo',
       panImage: 'PAN Card',
+      licenseImage: 'License Image',
     };
     const entries = Object.entries(docs);
     if (entries.length === 0) {
@@ -399,20 +419,29 @@ export default function DriversPage() {
       d.mobileNumber?.includes(searchTerm);
 
     const matchesKyc = kycFilter === 'all' || (d.driverDetails?.kycStatus || 'pending') === kycFilter;
+    const matchesAvailability = availabilityFilter === 'all' || (d.driverDetails?.availabilityStatus || 'unavailable') === availabilityFilter;
 
-    return matchesSearch && matchesKyc;
+    return matchesSearch && matchesKyc && matchesAvailability;
   });
 
   const driverTableColumns = [
     {
       field: 'name',
       headerName: 'DRIVER',
-      width: 200,
+      width: 220,
       renderCell: (params: any) => (
         <div className="flex items-center gap-3 h-full">
-          <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-black text-[11px] ring-1 ring-slate-100 dark:ring-slate-600 flex-shrink-0">
-            {getInitials(params.row.name)}
-          </div>
+          {params.row.profilePhoto ? (
+            <img
+              src={params.row.profilePhoto}
+              alt={params.row.name}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-700 flex-shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-black text-[11px] ring-1 ring-slate-100 dark:ring-slate-600 flex-shrink-0">
+              {getInitials(params.row.name)}
+            </div>
+          )}
           <div className="font-bold text-slate-800 dark:text-slate-200 truncate">{params.row.name || '-'}</div>
         </div>
       )
@@ -443,6 +472,27 @@ export default function DriversPage() {
       renderCell: (params: any) => (
         <span className="font-bold">{params.row.driverDetails?.yearsOfExperience || 0} YRS</span>
       )
+    },
+    {
+      field: 'availabilityStatus',
+      headerName: 'AVAILABILITY',
+      width: 130,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params: any) => {
+        const status = params.row.driverDetails?.availabilityStatus || 'unavailable';
+        const isAvailable = status === 'available';
+        return (
+          <div className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 w-[110px] justify-center mx-auto ${
+            isAvailable
+              ? 'bg-green-100 text-green-700 border border-green-200'
+              : 'bg-red-100 text-red-700 border border-red-200'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            {isAvailable ? 'Available' : 'Unavailable'}
+          </div>
+        );
+      }
     },
     {
       field: 'kycStatus',
@@ -545,23 +595,19 @@ export default function DriversPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        {/* Precise Header Skeleton (56px) */}
         <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
         </div>
-
         <div className="flex flex-col">
-          {/* Skeleton Search Area (approx 72px) */}
           <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6">
             <div className="h-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                  {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                     <th key={i} className="px-6 py-4 border-r border-slate-200 dark:border-slate-700 last:border-r-0">
                       <div className="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded mx-auto"></div>
                     </th>
@@ -577,7 +623,7 @@ export default function DriversPage() {
                         <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
                       </div>
                     </td>
-                    {[1, 2, 3, 4, 5].map((col) => (
+                    {[1, 2, 3, 4, 5, 6].map((col) => (
                       <td key={col} className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
                         <div className="h-3 w-full bg-slate-50 dark:bg-slate-800/50 rounded"></div>
                       </td>
@@ -628,7 +674,6 @@ export default function DriversPage() {
         </div>
 
         <div>
-
           <CustomTable
             rows={filteredDrivers}
             columns={driverTableColumns}
@@ -637,17 +682,28 @@ export default function DriversPage() {
             rowCount={filteredDrivers.length}
             onSearch={setSearchTerm}
             extraToolbarContent={
-              <select
-                value={kycFilter}
-                onChange={e => setKycFilter(e.target.value)}
-                className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
-              >
-                <option value="all">ALL KYC STATUS</option>
-                <option value="pending">PENDING</option>
-                <option value="submitted">SUBMITTED</option>
-                <option value="approved">APPROVED</option>
-                <option value="rejected">REJECTED</option>
-              </select>
+              <div className="flex items-center gap-2">
+                <select
+                  value={kycFilter}
+                  onChange={e => setKycFilter(e.target.value)}
+                  className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
+                >
+                  <option value="all">ALL KYC STATUS</option>
+                  <option value="pending">PENDING</option>
+                  <option value="submitted">SUBMITTED</option>
+                  <option value="approved">APPROVED</option>
+                  <option value="rejected">REJECTED</option>
+                </select>
+                <select
+                  value={availabilityFilter}
+                  onChange={e => setAvailabilityFilter(e.target.value)}
+                  className="px-2 py-0.5 bg-slate-50 dark:bg-slate-900 border border-[#e0e0e0] dark:border-slate-700 rounded text-[11px] dark:text-white font-bold outline-none focus:border-indigo-500"
+                >
+                  <option value="all">ALL AVAILABILITY</option>
+                  <option value="available">AVAILABLE</option>
+                  <option value="unavailable">UNAVAILABLE</option>
+                </select>
+              </div>
             }
           />
         </div>
@@ -681,17 +737,6 @@ export default function DriversPage() {
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Uploaded Documents</h3>
                 {renderKycDocuments(kycModalDriver)}
               </div>
-              {/* 
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Rejection Reason (if rejecting)</label>
-                <textarea
-                  rows={2}
-                  value={kycRejectionReason}
-                  onChange={e => setKycRejectionReason(e.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg p-2 dark:bg-slate-800 dark:text-white"
-                  placeholder="Provide reason for rejection..."
-                />
-              </div> */}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <button
@@ -774,7 +819,7 @@ export default function DriversPage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Date of Birth <span className="text-red-500 ml-1">*</span></label>
-                    <input type="text" placeholder="DD-MM-YYYY" required value={formData.dateOfBirth} onChange={e => setFormData({ ...formData, dateOfBirth: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white uppercase" />
+                    <input type="date" required value={formData.dateOfBirth} onChange={e => setFormData({ ...formData, dateOfBirth: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
                   </div>
                   <div>
                     <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Years of Experience <span className="text-red-500 ml-1">*</span></label>
@@ -795,7 +840,7 @@ export default function DriversPage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">DL Expiry Date <span className="text-red-500 ml-1">*</span></label>
-                    <input type="text" placeholder="DD-MM-YYYY" required value={formData.dlExpiryDate} onChange={e => setFormData({ ...formData, dlExpiryDate: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white uppercase" />
+                    <input type="date" required value={formData.dlExpiryDate} onChange={e => setFormData({ ...formData, dlExpiryDate: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
                   </div>
                   <div>
                     <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">AADHAR NUMBER <span className="text-red-500 ml-1">*</span></label>
@@ -808,7 +853,57 @@ export default function DriversPage() {
                 </div>
               </div>
 
-              {/* Section 3: Bank Information */}
+              {/* Section 3: Address Information */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  Address Information
+                </h3>
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Present Address</label>
+                    <textarea rows={2} placeholder="Enter present address" value={formData.presentAddress} onChange={e => setFormData({ ...formData, presentAddress: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Permanent Address</label>
+                    <textarea rows={2} placeholder="Enter permanent address" value={formData.permanentAddress} onChange={e => setFormData({ ...formData, permanentAddress: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Vehicle Information */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  Vehicle Information
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Registration Number <span className="text-red-500 ml-1">*</span></label>
+                    <input type="text" required placeholder="MH01AB1234" value={formData.vehicleRegNumber} onChange={e => setFormData({ ...formData, vehicleRegNumber: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white uppercase" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Type <span className="text-red-500 ml-1">*</span></label>
+                    <select required value={formData.vehicleType} onChange={e => setFormData({ ...formData, vehicleType: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none">
+                      <option value="auto">Auto</option>
+                      <option value="bike">Bike</option>
+                      <option value="car">Car</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Make</label>
+                    <input type="text" placeholder="e.g. Toyota, Honda" value={formData.vehicleMake} onChange={e => setFormData({ ...formData, vehicleMake: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Model</label>
+                    <input type="text" placeholder="e.g. Camry, City" value={formData.vehicleModel} onChange={e => setFormData({ ...formData, vehicleModel: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Vehicle Year</label>
+                    <input type="number" placeholder="YYYY" value={formData.vehicleYear} onChange={e => setFormData({ ...formData, vehicleYear: e.target.value })} className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Bank Information */}
               <div className="space-y-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Bank Information
@@ -833,6 +928,7 @@ export default function DriversPage() {
                 </div>
               </div>
 
+              {/* Section 6: Document Uploads */}
               <div className="space-y-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   Document Uploads
