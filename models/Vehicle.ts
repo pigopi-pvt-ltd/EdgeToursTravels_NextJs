@@ -28,7 +28,17 @@ export interface IVehicle extends mongoose.Document {
   yearOfMaking: number;
   status: 'active' | 'inactive' | 'maintenance';
   vendor: IVendor;
+  aadharFront?: string;
+  aadharBack?: string;
+  panImage?: string;
+  rcImage?: string;
+  insuranceImage?: string;
+  pollutionImage?: string;
   kycDocuments?: Record<string, string>;
+  vehicleImages?: string[];
+  capacity?: number;
+  type?: string;
+  ac?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,11 +72,20 @@ const VehicleSchema = new Schema<IVehicle>(
     yearOfMaking: { type: Number, required: true },
     status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' },
     vendor: { type: VendorSchema, required: true },
+    aadharFront: String,
+    aadharBack: String,
+    panImage: String,
+    rcImage: String,
+    insuranceImage: String,
+    pollutionImage: String,
     kycDocuments: { type: Map, of: String },
+    vehicleImages: { type: [String], default: [] },
+    capacity: { type: Number, default: 4 },
+    type: { type: String, default: 'Sedan' },
+    ac: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-// Force model registration
 const Vehicle = mongoose.models.Vehicle || mongoose.model<IVehicle>('Vehicle', VehicleSchema);
 export default Vehicle;

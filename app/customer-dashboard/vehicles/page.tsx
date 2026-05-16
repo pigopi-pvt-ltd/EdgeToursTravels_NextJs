@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useCallback } from 'react';
 import apiClient from '@/lib/apiClient';
@@ -26,6 +26,7 @@ interface Vehicle {
   pricePerDay?: number;
   ac?: boolean;
   status?: string;
+  vehicleImages?: string[];
 }
 
 type BookingType = 'oneTime' | 'longTerm';
@@ -76,25 +77,73 @@ function FilterPills({ types, active, onChange }: { types: string[]; active: str
 
 function VehicleCard({ vehicle, onBook }: { vehicle: Vehicle; onBook: (v: Vehicle) => void }) {
   const isMaint = vehicle.status === 'maintenance';
+  const images = vehicle.vehicleImages || [];
+  const hasImages = images.length > 0;
+  
   return (
-    <div className={`relative bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3 transition-all duration-200 ${isMaint ? 'opacity-50' : 'hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'}`}>
-      <span className={`absolute top-2 right-2 text-[9px] font-medium px-2 py-0.5 rounded-full ${isMaint ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+    <div className={`relative bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-200 ${isMaint ? 'opacity-50' : 'hover:-translate-y-0.5 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'}`}>
+      {/* Status Badge */}
+      <span className={`absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full ${isMaint ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
         {isMaint ? 'Maintenance' : 'Available'}
       </span>
-      <div className="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-xl">{typeIcon(vehicle.type)}</div>
-      <div>
-        <p className="font-semibold text-slate-800 dark:text-white text-sm leading-tight pr-6">{vehicle.modelName}</p>
-        <p className="text-[10px] text-slate-400 mt-0.5">{vehicle.cabNumber}</p>
+      
+      {/* Vehicle Image - Full width */}
+      {hasImages && (
+        <div className="w-full h-32 overflow-hidden bg-slate-100 dark:bg-slate-700">
+          <img 
+            src={images[0]} 
+            alt={vehicle.modelName} 
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      
+      {/* No Image Placeholder */}
+      {!hasImages && (
+        <div className="w-full h-32 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center">
+          <span className="text-4xl opacity-30">{typeIcon(vehicle.type)}</span>
+        </div>
+      )}
+      
+      {/* Vehicle Info */}
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <p className="font-semibold text-slate-800 dark:text-white text-sm leading-tight">{vehicle.modelName}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">{vehicle.cabNumber}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] text-slate-400">Rate</p>
+            <p className="text-sm font-bold text-orange-500">₹{(vehicle.pricePerDay ?? 1000).toLocaleString()}<span className="text-[9px]">/day</span></p>
+          </div>
+        </div>
+        
+        <div className="flex justify-between text-[10px] mb-3">
+          <div className="flex items-center gap-1">
+            <span className="text-slate-400">🚗 Seats:</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">{vehicle.capacity ?? '—'}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-slate-400">📋 Type:</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300 capitalize">{vehicle.type ?? '—'}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-slate-400">❄️ AC:</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">{vehicle.ac ? 'Yes' : 'No'}</span>
+          </div>
+        </div>
+        
+        <button 
+          disabled={isMaint} 
+          onClick={() => onBook(vehicle)} 
+          className="w-full py-2 rounded-lg text-[11px] font-medium bg-[#0f4c35] hover:bg-[#16a066] text-white disabled:opacity-50 transition-all"
+        >
+          Book This Vehicle
+        </button>
       </div>
-      <hr className="border-slate-100 dark:border-slate-700" />
-      <div className="flex justify-between text-[10px]">
-        <div><p className="uppercase text-slate-400">Seats</p><p className="font-medium">{vehicle.capacity ?? '–'}</p></div>
-        <div><p className="uppercase text-slate-400">Type</p><p className="font-medium">{vehicle.type ?? '–'}</p></div>
-        <div><p className="uppercase text-slate-400">Rate</p><p className="font-semibold text-orange-500">₹{(vehicle.pricePerDay ?? 1000).toLocaleString()}/day</p></div>
-      </div>
-      <button disabled={isMaint} onClick={() => onBook(vehicle)} className="w-full py-2 rounded-lg text-[11px] font-medium bg-[#0f4c35] hover:bg-[#16a066] text-white disabled:opacity-50 transition-all">
-        Book This Vehicle
-      </button>
     </div>
   );
 }
@@ -108,8 +157,6 @@ function FormField({ label, icon, children }: { label: string; icon: React.React
     </div>
   );
 }
-
-
 
 function OneTimeForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSuccess: () => void; onCancel: () => void }) {
   const user = getStoredUser();
@@ -294,7 +341,7 @@ function LongTermForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSu
         </div>
 
         <div className="flex flex-col justify-end">
-      <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg px-4 py-2.5 flex justify-between items-center border border-emerald-100/50">
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg px-4 py-2.5 flex justify-between items-center border border-emerald-100/50">
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Total</span>
             <span className="text-base font-black text-orange-600">₹{estimated.toLocaleString()}</span>
           </div>
@@ -313,6 +360,8 @@ function LongTermForm({ vehicle, onSuccess, onCancel }: { vehicle: Vehicle; onSu
 
 function BookingModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; onClose: () => void; onSuccess: (msg: string) => void }) {
   const [tab, setTab] = useState<BookingType>('oneTime');
+  const images = vehicle.vehicleImages || [];
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
       <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative mx-auto animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
@@ -329,18 +378,52 @@ function BookingModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; onClo
             <button onClick={() => setTab('longTerm')} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${tab === 'longTerm' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>Long‑term rental</button>
           </div>
           
-          <div className="bg-slate-50 dark:bg-slate-800/30 rounded-lg p-3 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-xl">{typeIcon(vehicle.type)}</div>
-              <div>
-                <p className="font-black text-[13px] text-slate-800 dark:text-white leading-none">{vehicle.modelName}</p>
-                <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{vehicle.cabNumber}</p>
+          <div className="bg-slate-50 dark:bg-slate-800/30 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3">
+              {images.length > 0 && (
+                <img 
+                  src={images[0]} 
+                  alt={vehicle.modelName} 
+                  className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+              {images.length === 0 && (
+                <div className="w-16 h-16 rounded-lg bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-3xl">
+                  {typeIcon(vehicle.type)}
+                </div>
+              )}
+              <div className="flex-1">
+                <p className="font-black text-[15px] text-slate-800 dark:text-white">{vehicle.modelName}</p>
+                <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">{vehicle.cabNumber}</p>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] text-slate-400">Seats:</span>
+                    <span className="text-[10px] font-bold text-slate-700">{vehicle.capacity ?? '—'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] text-slate-400">Type:</span>
+                    <span className="text-[10px] font-bold text-slate-700 capitalize">{vehicle.type ?? '—'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] text-slate-400">Rate:</span>
+                    <span className="text-[11px] font-black text-orange-600">₹{(vehicle.pricePerDay ?? 1000).toLocaleString()}/day</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Standard Rate</p>
-              <p className="text-[13px] font-black text-orange-600">₹{(vehicle.pricePerDay ?? 1000).toLocaleString()}/day</p>
-            </div>
+            
+            {/* Additional images preview */}
+            {images.length > 1 && (
+              <div className="flex gap-1 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                {images.slice(1, 4).map((url, idx) => (
+                  <img key={idx} src={url} alt="" className="w-8 h-8 rounded object-cover border border-slate-200 dark:border-slate-700" />
+                ))}
+                {images.length > 4 && <span className="text-[9px] text-slate-400 self-center">+{images.length - 4}</span>}
+              </div>
+            )}
           </div>
 
           {tab === 'oneTime' ? <OneTimeForm vehicle={vehicle} onSuccess={() => onSuccess('Ride request sent!')} onCancel={onClose} /> : <LongTermForm vehicle={vehicle} onSuccess={() => onSuccess('Rental request submitted!')} onCancel={onClose} />}
@@ -360,7 +443,6 @@ export default function AvailableVehicles() {
   const showToast = useCallback((msg: string, kind: 'success' | 'error') => { setToast({ message: msg, kind }); setTimeout(() => setToast(null), 3000); }, []);
   const fetchVehicles = useCallback(async () => { setLoading(true); try { setVehicles(await apiClient('/api/vehicles')); } catch (err: any) { setError(err.message); } finally { setLoading(false); } }, []);
   useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
-
 
   const vehicleTypes = [...new Set(vehicles.map(v => v.type).filter((t): t is string => Boolean(t)))];
   const filtered = activeFilter === 'All' ? vehicles : vehicles.filter(v => v.type === activeFilter);
