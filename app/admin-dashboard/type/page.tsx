@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { getAuthToken } from "@/lib/auth";
@@ -11,6 +11,10 @@ import {
   HiPencil,
   HiClock,
   HiStar,
+  HiOutlineCalendar,
+  HiOutlineMap,
+  HiOutlineUser,
+  HiOutlinePhone,
 } from "react-icons/hi";
 import { HiArrowPath } from "react-icons/hi2";
 import CustomTable from "@/components/CustomTable";
@@ -37,18 +41,28 @@ interface Customer {
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
-    null,
-  );
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isSameAsPresent, setIsSameAsPresent] = useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
+
+  // Booking Form State - Same as BookingsPage
+  const [newBooking, setNewBooking] = useState({
+    from: '',
+    destination: '',
+    dateTime: '',
+    name: '',
+    contact: '',
+    price: 'Start from ₹12/km'
+  });
 
   // Form State
   const [formData, setFormData] = useState({
@@ -175,6 +189,26 @@ export default function CustomersPage() {
     }
   }, [formData.presentAddress, isSameAsPresent]);
 
+  // Update booking form when customer is selected
+  useEffect(() => {
+    if (selectedCustomerId) {
+      const selectedCustomer = customers.find(c => c._id === selectedCustomerId);
+      if (selectedCustomer) {
+        setNewBooking(prev => ({
+          ...prev,
+          name: selectedCustomer.fullName,
+          contact: selectedCustomer.mobileNumber,
+        }));
+      }
+    } else {
+      setNewBooking(prev => ({
+        ...prev,
+        name: '',
+        contact: '',
+      }));
+    }
+  }, [selectedCustomerId, customers]);
+
   const fetchCustomers = async () => {
     setLoading(true);
     const token = getAuthToken();
@@ -195,6 +229,61 @@ export default function CustomersPage() {
     }
   };
 
+  const handleAddBooking = async () => {
+    if (!selectedCustomerId) {
+      setMessage("Please select a customer");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+    if (!newBooking.from || !newBooking.destination || !newBooking.dateTime) {
+      setMessage("Please fill all required fields");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+
+    setCreating(true);
+    const token = getAuthToken();
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          from: newBooking.from,
+          destination: newBooking.destination,
+          dateTime: newBooking.dateTime,
+          name: newBooking.name,
+          contact: newBooking.contact,
+          price: newBooking.price,
+          customerId: selectedCustomerId,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("Booking added successfully!");
+        setTimeout(() => setMessage(""), 3000);
+        setIsBookingModalOpen(false);
+        setNewBooking({
+          from: '',
+          destination: '',
+          dateTime: '',
+          name: '',
+          contact: '',
+          price: 'Start from ₹12/km'
+        });
+        setSelectedCustomerId("");
+      } else {
+        setMessage(data.error || "Failed to add booking");
+      }
+    } catch (err) {
+      setMessage("Network error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreating(true);
@@ -207,8 +296,6 @@ export default function CustomersPage() {
         minute: parseInt(formData.pickupMinute),
       },
     };
-
-    console.log(editingCustomer);
 
     const url = editingCustomer
       ? `/api/admin/customer/${editingCustomer._id}`
@@ -227,15 +314,9 @@ export default function CustomersPage() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage(
-          `Customer ${editingCustomer ? "updated" : "created"} successfully!`,
-        );
+        setMessage(`Customer ${editingCustomer ? "updated" : "created"} successfully!`);
         resetForm();
         fetchCustomers();
-        // setTimeout(() => {
-        //   setIsModalOpen(false);
-        //   setMessage("");
-        // }, 2000);
         setIsModalOpen(false);
         setMessage("");
       } else {
@@ -252,6 +333,7 @@ export default function CustomersPage() {
     setCustomerToDelete(customer);
     setIsDeleteModalOpen(true);
   };
+
   const executeDelete = async () => {
     if (!customerToDelete) return;
 
@@ -276,27 +358,6 @@ export default function CustomersPage() {
     }
   };
 
-  // const handleDelete = async (id: string) => {
-  //   if (!confirm("Delete this customer profile?")) return;
-  //   setDeletingId(id);
-  //   const token = getAuthToken();
-  //   try {
-  //     const res = await fetch(`/api/admin/customer/${id}`, {
-  //       method: "DELETE",
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     if (res.ok) {
-  //       fetchCustomers();
-  //       setMessage("Customer deleted");
-  //       setTimeout(() => setMessage(""), 3000);
-  //     }
-  //   } catch (err) {
-  //     setMessage("Delete failed");
-  //   } finally {
-  //     setDeletingId(null);
-  //   }
-  // };
-
   const handleEdit = (customer: Customer) => {
     setEditingCustomer(customer);
     setFormData({
@@ -308,14 +369,12 @@ export default function CustomersPage() {
       dropOffAddress: customer.dropOffAddress,
       isRegular: customer.isRegular,
       pickupHour: customer.pickupTime?.hour.toString().padStart(2, "0") || "09",
-      pickupMinute:
-        customer.pickupTime?.minute.toString().padStart(2, "0") || "00",
-      dateOfBirth: "", // Typically not returned in list for privacy
+      pickupMinute: customer.pickupTime?.minute.toString().padStart(2, "0") || "00",
+      dateOfBirth: "",
     });
     setIsModalOpen(true);
     setIsSameAsPresent(
-      customer.presentAddress === customer.dropOffAddress &&
-      !!customer.presentAddress,
+      customer.presentAddress === customer.dropOffAddress && !!customer.presentAddress,
     );
   };
 
@@ -357,18 +416,17 @@ export default function CustomersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        {/* Precise Header Skeleton (56px) */}
         <div className="sticky top-0 h-[56px] z-40 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
-          <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+          <div className="flex gap-2">
+            <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+            <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+          </div>
         </div>
-
         <div className="flex flex-col">
-          {/* Skeleton Search Area (approx 72px) */}
           <div className="p-4 h-[72px] border-b border-slate-100 dark:border-slate-800 flex items-center bg-slate-50/20 dark:bg-slate-900/20 px-6 gap-4">
             <div className="h-10 w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800"></div>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -385,9 +443,9 @@ export default function CustomersPage() {
                   <tr key={row} className="border-b border-slate-100 dark:border-slate-800 h-[72px]">
                     <td className="px-6 py-3 border-r border-slate-200 dark:border-slate-700">
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 animate-pulse"></div>
+                        <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700"></div>
                         <div className="space-y-2">
-                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></div>
+                          <div className="h-3 w-24 bg-slate-100 dark:bg-slate-700 rounded"></div>
                         </div>
                       </div>
                     </td>
@@ -448,6 +506,12 @@ export default function CustomersPage() {
             >
               <HiPlus className="text-lg" /> Add Customer
             </button>
+            <button
+              onClick={() => { setIsBookingModalOpen(true); setSelectedCustomerId(""); }}
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"
+            >
+              <HiOutlineCalendar className="text-lg" /> Add Booking
+            </button>
           </div>
         </div>
 
@@ -472,20 +536,180 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* Modal / Form */}
+      {/* Add Booking Modal - Same as BookingsPage */}
+      {isBookingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto subtle-scrollbar animate-in fade-in duration-300" onClick={() => setIsBookingModalOpen(false)}>
+          <div
+            className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative mx-auto"
+            style={{ borderRadius: '0.5rem' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-8 py-6 flex justify-between items-center z-20">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+                Book Your Ride
+              </h2>
+              <button
+                onClick={() => setIsBookingModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              >
+                <HiX size={24} />
+              </button>
+            </div>
+
+            <div className="p-8 space-y-8">
+              {/* Customer Selection Dropdown */}
+              <div className="space-y-2">
+                <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                  Select Customer <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer"
+                  value={selectedCustomerId}
+                  onChange={(e) => setSelectedCustomerId(e.target.value)}
+                >
+                  <option value="">-- Select a customer --</option>
+                  {customers.map((customer) => (
+                    <option key={customer._id} value={customer._id}>
+                      {customer.fullName} - {customer.mobileNumber}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* From */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    From (City / Airport) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <HiOutlineMap className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 text-lg" />
+                    <input
+                      type="text"
+                      placeholder="Enter pick-up location"
+                      value={newBooking.from}
+                      onChange={e => setNewBooking({ ...newBooking, from: e.target.value })}
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Destination */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    Destination <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <HiOutlineMap className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-lg" />
+                    <input
+                      type="text"
+                      placeholder="Enter drop-off location"
+                      value={newBooking.destination}
+                      onChange={e => setNewBooking({ ...newBooking, destination: e.target.value })}
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Travel Date & Time */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    Travel Date & Time <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <HiOutlineCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg" />
+                    <input
+                      type="datetime-local"
+                      value={newBooking.dateTime}
+                      onChange={e => setNewBooking({ ...newBooking, dateTime: e.target.value })}
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Customer Name - Auto-filled from selection */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    Customer Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg" />
+                    <input
+                      type="text"
+                      placeholder="Enter customer name"
+                      value={newBooking.name}
+                      readOnly
+                      className="w-full bg-slate-100 dark:bg-slate-800/30 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm cursor-not-allowed text-slate-600 dark:text-slate-300 font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Contact Number - Auto-filled from selection */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    Contact Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-lg" />
+                    <input
+                      type="tel"
+                      placeholder="Enter 10-digit number"
+                      maxLength={10}
+                      value={newBooking.contact}
+                      readOnly
+                      className="w-full bg-slate-100 dark:bg-slate-800/30 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm cursor-not-allowed text-slate-600 dark:text-slate-300 font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Price Estimate */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
+                    Price Estimate <span className="text-slate-400 font-normal normal-case ml-1">(Optional)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
+                    <input
+                      type="text"
+                      placeholder="Start from ₹12/km"
+                      value={newBooking.price}
+                      onChange={e => setNewBooking({ ...newBooking, price: e.target.value })}
+                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={() => setIsBookingModalOpen(false)}
+                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddBooking}
+                  disabled={creating}
+                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-w-[180px] disabled:opacity-50"
+                >
+                  {creating ? "Processing..." : "Add Booking"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Customer Form Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto subtle-scrollbar" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-[0.5rem] shadow-2xl w-full max-w-4xl animate-in slide-in-from-top-10 duration-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center z-20 rounded-t-[0.5rem]">
               <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-                {editingCustomer
-                  ? "Edit Customer Profile"
-                  : "New Customer Registration"}
+                {editingCustomer ? "Edit Customer Profile" : "New Customer Registration"}
               </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              >
+              <button onClick={() => setIsModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                 <HiX size={24} />
               </button>
             </div>
@@ -493,137 +717,41 @@ export default function CustomersPage() {
             <form onSubmit={handleSubmit} className="p-8 space-y-8">
               {/* Customer Information */}
               <div className="space-y-6">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                  Customer Information
-                </h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">Customer Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Full Name */}
                   <div>
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Full Name <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      required
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, fullName: e.target.value })
-                      }
-                      placeholder="e.g. John Doe"
-                    />
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Full Name <span className="text-red-500 ml-1">*</span></label>
+                    <input required className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} placeholder="e.g. John Doe" />
                   </div>
-
-                  {/* Mobile Number */}
                   <div>
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Mobile Number <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      required
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
-                      value={formData.mobileNumber}
-                      onChange={(e) =>
-                        setFormData({ ...formData, mobileNumber: e.target.value })
-                      }
-                      placeholder="+91 0000000000"
-                    />
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Mobile Number <span className="text-red-500 ml-1">*</span></label>
+                    <input required className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" value={formData.mobileNumber} onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value })} placeholder="+91 0000000000" />
                   </div>
-
-                  {/* Email Address */}
                   <div>
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Email Address <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      required
-                      type="email"
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      placeholder="john@example.com"
-                    />
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Email Address <span className="text-red-500 ml-1">*</span></label>
+                    <input required type="email" className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="john@example.com" />
                   </div>
-
-                  {/* Gender Selection */}
                   <div>
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Gender <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <select
-                      required
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none"
-                      value={formData.gender}
-                      onChange={(e) =>
-                        setFormData({ ...formData, gender: e.target.value })
-                      }
-                    >
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Gender <span className="text-red-500 ml-1">*</span></label>
+                    <select required className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all dark:text-white cursor-pointer appearance-none" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })}>
                       <option value="">Select Gender</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
-
-                  {/* Pickup Time */}
                   <div>
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Pickup Time (24h)
-                    </label>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Pickup Time (24h)</label>
                     <div className="flex gap-2">
-                      <input
-                        type="number"
-                        placeholder="HH"
-                        className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
-                        value={formData.pickupHour}
-                        onChange={(e) =>
-                          setFormData({ ...formData, pickupHour: e.target.value })
-                        }
-                        min="0"
-                        max="23"
-                      />
-                      <input
-                        type="number"
-                        placeholder="MM"
-                        className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white"
-                        value={formData.pickupMinute}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            pickupMinute: e.target.value,
-                          })
-                        }
-                        min="0"
-                        max="59"
-                      />
+                      <input type="number" placeholder="HH" className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" value={formData.pickupHour} onChange={(e) => setFormData({ ...formData, pickupHour: e.target.value })} min="0" max="23" />
+                      <input type="number" placeholder="MM" className="w-1/2 bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white" value={formData.pickupMinute} onChange={(e) => setFormData({ ...formData, pickupMinute: e.target.value })} min="0" max="59" />
                     </div>
                   </div>
-
-                  {/* Regular Status */}
                   <div className="flex flex-col">
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2 opacity-0 select-none">
-                      Regular Status
-                    </label>
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2 opacity-0 select-none">Regular Status</label>
                     <div className="flex items-center gap-3 p-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30 h-[46px] transition-all hover:bg-indigo-50">
-                      <input
-                        type="checkbox"
-                        id="regular"
-                        className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                        checked={formData.isRegular}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            isRegular: e.target.checked,
-                          })
-                        }
-                      />
-                      <label
-                        htmlFor="regular"
-                        className="text-[11px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest"
-                      >
-                        Regular Client
-                      </label>
+                      <input type="checkbox" id="regular" className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" checked={formData.isRegular} onChange={(e) => setFormData({ ...formData, isRegular: e.target.checked })} />
+                      <label htmlFor="regular" className="text-[11px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest">Regular Client</label>
                     </div>
                   </div>
                 </div>
@@ -631,145 +759,55 @@ export default function CustomersPage() {
 
               {/* Address Information */}
               <div className="space-y-6">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                  Address Details
-                </h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">Address Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Present Address */}
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                      Present Address
-                    </label>
-                    <textarea
-                      required
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white h-24 resize-none"
-                      value={formData.presentAddress}
-                      onChange={(e) =>
-                        setFormData({ ...formData, presentAddress: e.target.value })
-                      }
-                      placeholder="Enter full present address..."
-                    />
+                    <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">Present Address</label>
+                    <textarea required className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white h-24 resize-none" value={formData.presentAddress} onChange={(e) => setFormData({ ...formData, presentAddress: e.target.value })} placeholder="Enter full present address..." />
                   </div>
-
-                  {/* Drop-off Address */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center mb-2">
-                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest">
-                        Drop-off Address
-                      </label>
+                      <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest">Drop-off Address</label>
                       <div className="flex items-center gap-2 cursor-pointer group transition-all">
-                        <input
-                          type="checkbox"
-                          id="sameAsPresent"
-                          className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                          checked={isSameAsPresent}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setIsSameAsPresent(checked);
-                            if (!checked) {
-                              setFormData((prev) => ({
-                                ...prev,
-                                dropOffAddress: "",
-                              }));
-                            }
-                          }}
-                        />
-                        <label
-                          htmlFor="sameAsPresent"
-                          className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest select-none"
-                        >
-                          Same as Present
-                        </label>
+                        <input type="checkbox" id="sameAsPresent" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" checked={isSameAsPresent} onChange={(e) => { const checked = e.target.checked; setIsSameAsPresent(checked); if (!checked) { setFormData((prev) => ({ ...prev, dropOffAddress: "" })); } }} />
+                        <label htmlFor="sameAsPresent" className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 cursor-pointer leading-tight uppercase tracking-widest select-none">Same as Present</label>
                       </div>
                     </div>
-                    <textarea
-                      required
-                      readOnly={isSameAsPresent}
-                      className={`w-full px-4 py-3 rounded-xl border dark:text-white outline-none h-24 resize-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm ${isSameAsPresent ? "opacity-60 bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed border-dashed border-slate-300" : "bg-[#f8fafc] dark:bg-slate-800/50 border-[#e2e8f0] dark:border-slate-700"}`}
-                      value={formData.dropOffAddress}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dropOffAddress: e.target.value,
-                        })
-                      }
-                      placeholder="Enter full drop-off address..."
-                    />
+                    <textarea required readOnly={isSameAsPresent} className={`w-full px-4 py-3 rounded-xl border dark:text-white outline-none h-24 resize-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm ${isSameAsPresent ? "opacity-60 bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed border-dashed border-slate-300" : "bg-[#f8fafc] dark:bg-slate-800/50 border-[#e2e8f0] dark:border-slate-700"}`} value={formData.dropOffAddress} onChange={(e) => setFormData({ ...formData, dropOffAddress: e.target.value })} placeholder="Enter full drop-off address..." />
                   </div>
                 </div>
               </div>
 
               {message && (
                 <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30">
-                  <p className="text-center text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">
-                    {message}
-                  </p>
+                  <p className="text-center text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">{message}</p>
                 </div>
               )}
 
-              {/* Submit Action */}
               <div className="flex justify-end gap-3 pt-8 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer"
-                >
-                  {creating
-                    ? "Saving..."
-                    : editingCustomer
-                      ? "Update Profile"
-                      : "Create Customer"}
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">Cancel</button>
+                <button type="submit" disabled={creating} className="px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 transition-all duration-200 min-w-[160px] active:scale-95 cursor-pointer disabled:opacity-50">
+                  {creating ? "Saving..." : editingCustomer ? "Update Profile" : "Create Customer"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
       {/* Delete Confirmation Dialog */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 pt-10 overflow-y-auto subtle-scrollbar" onClick={() => setIsDeleteModalOpen(false)}>
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-lg shadow-2xl p-8 animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-col items-center text-center space-y-4">
-              {/* Warning Icon */}
-              <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center text-rose-600 dark:text-rose-400">
-                <HiTrash size={32} />
-              </div>
-
+              <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center text-rose-600 dark:text-rose-400"><HiTrash size={32} /></div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-                  Delete Customer?
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                  Are you sure you want to remove{" "}
-                  <span className="font-bold text-slate-700 dark:text-slate-200">
-                    {customerToDelete?.fullName}
-                  </span>
-                  ? This action cannot be undone and all associated data will be
-                  lost.
-                </p>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Delete Customer?</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to remove <span className="font-bold text-slate-700 dark:text-slate-200">{customerToDelete?.fullName}</span>? This action cannot be undone and all associated data will be lost.</p>
               </div>
-
               <div className="flex w-full gap-3 pt-4">
-                <button
-                  onClick={() => setIsDeleteModalOpen(false)}
-                  className="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={executeDelete}
-                  disabled={!!deletingId}
-                  className="flex-1 px-4 py-3 rounded-xl font-bold bg-rose-600 text-white hover:bg-rose-700 transition-all shadow-lg shadow-rose-200 dark:shadow-none disabled:opacity-50"
-                >
-                  {deletingId ? "Deleting..." : "Yes, Delete"}
-                </button>
+                <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancel</button>
+                <button onClick={executeDelete} disabled={!!deletingId} className="flex-1 px-4 py-3 rounded-xl font-bold bg-rose-600 text-white hover:bg-rose-700 transition-all shadow-lg shadow-rose-200 dark:shadow-none disabled:opacity-50">{deletingId ? "Deleting..." : "Yes, Delete"}</button>
               </div>
             </div>
           </div>
