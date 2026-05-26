@@ -12,6 +12,7 @@ import {
   HiOutlineX,
   HiOutlineChevronLeft,
   HiOutlinePlusCircle,
+  HiOutlineLocationMarker,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
@@ -19,6 +20,7 @@ const customerItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/customer-dashboard" },
   { name: "My Bookings", icon: HiOutlineCalendar, href: "/customer-dashboard/bookings" },
   { name: "Available Vehicles", icon: HiOutlineTruck, href: "/customer-dashboard/vehicles" },
+    { name: "Track Trip", icon: HiOutlineLocationMarker, href: "/customer-dashboard/track-trip" },
 ];
 
 interface SidebarProps {

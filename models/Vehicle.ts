@@ -1,3 +1,4 @@
+// models/Vehicle.ts - Add these fields to the schema
 import mongoose, { Schema } from 'mongoose';
 
 export interface IVendor {
@@ -27,6 +28,9 @@ export interface IVehicle extends mongoose.Document {
   expiryDate: Date;
   yearOfMaking: number;
   status: 'active' | 'inactive' | 'maintenance';
+  isAvailable: boolean; // Add this field
+  currentBookingId?: mongoose.Types.ObjectId;
+  currentDriverId?: mongoose.Types.ObjectId;
   vendor: IVendor;
   aadharFront?: string;
   aadharBack?: string;
@@ -71,6 +75,9 @@ const VehicleSchema = new Schema<IVehicle>(
     expiryDate: { type: Date, required: true },
     yearOfMaking: { type: Number, required: true },
     status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' },
+    isAvailable: { type: Boolean, default: true }, 
+    currentBookingId: { type: Schema.Types.ObjectId, ref: 'Booking' }, 
+    currentDriverId: { type: Schema.Types.ObjectId, ref: 'User' },
     vendor: { type: VendorSchema, required: true },
     aadharFront: String,
     aadharBack: String,

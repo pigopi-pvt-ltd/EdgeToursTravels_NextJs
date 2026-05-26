@@ -1,3 +1,4 @@
+// app/admin-dashboard/bookings/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import apiClient from '@/lib/apiClient';
 import CustomTable from '@/components/CustomTable';
 import { GridColDef } from '@mui/x-data-grid';
 import { IconButton, FormControl, Select, MenuItem } from '@mui/material';
+import AssignDriverModal from './AssignDriverModal';
 
 // --- types -----------------
 interface Booking {
@@ -31,6 +33,8 @@ interface Booking {
   userId?: { _id: string; name: string; email: string } | null;
   type: 'oneTime' | 'longTerm';
   notes?: string;
+  otp?: string;
+  otpExpiry?: string;
 }
 
 interface Driver {
@@ -44,6 +48,7 @@ interface Vehicle {
   _id: string;
   cabNumber: string;
   modelName: string;
+  isAvailable: boolean;
 }
 
 //  format date & time 
@@ -87,18 +92,12 @@ export default function BookingsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-   const [driverDropdownOpen, setDriverDropdownOpen] = useState(false);
-const [vehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
-const [driverSearch, setDriverSearch] = useState("");
-const [vehicleSearch, setVehicleSearch] = useState("");
 
   const [assignModal, setAssignModal] = useState<{
     isOpen: boolean;
     bookingId: string | null;
     bookingType?: 'oneTime' | 'longTerm';
   }>({ isOpen: false, bookingId: null });
-  const [selectedDriver, setSelectedDriver] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -152,16 +151,28 @@ const [vehicleSearch, setVehicleSearch] = useState("");
 
   const fetchDrivers = async () => {
     try {
-      const data = await apiClient('/api/admin/drivers?role=driver', { method: 'GET' });
-      setDrivers(Array.isArray(data) ? data : []);
-    } catch (err) { console.error(err); }
+      // Use the available drivers endpoint - only returns drivers not on active trips
+      const data = await apiClient('/api/admin/drivers/available', { method: 'GET' });
+      const availableDrivers = Array.isArray(data) ? data : [];
+      setDrivers(availableDrivers);
+      console.log('Available drivers:', availableDrivers.length);
+    } catch (err) { 
+      console.error('Failed to fetch available drivers:', err); 
+      setDrivers([]);
+    }
   };
 
   const fetchVehicles = async () => {
     try {
-      const data = await apiClient('/api/admin/vehicles', { method: 'GET' });
-      setVehicles(Array.isArray(data) ? data : []);
-    } catch (err) { console.error(err); }
+      // Use the available vehicles endpoint - only returns vehicles not on active trips
+      const data = await apiClient('/api/admin/vehicles/available', { method: 'GET' });
+      const availableVehicles = Array.isArray(data) ? data : [];
+      setVehicles(availableVehicles);
+      console.log('Available vehicles:', availableVehicles.length);
+    } catch (err) { 
+      console.error('Failed to fetch available vehicles:', err); 
+      setVehicles([]);
+    }
   };
 
   const fetchAllData = async () => {
@@ -173,9 +184,9 @@ const [vehicleSearch, setVehicleSearch] = useState("");
   }, []);
 
   // --- Assignment Logic -------------------------------------
-  const assignDriverAndVehicle = async () => {
+  const assignDriverAndVehicle = async (driverId: string, vehicleId: string) => {
     if (!assignModal.bookingId) return;
-    if (!selectedDriver) {
+    if (!driverId) {
       showToast('Please select a driver', 'error');
       return;
     }
@@ -187,15 +198,13 @@ const [vehicleSearch, setVehicleSearch] = useState("");
       await apiClient(endpoint, {
         method: 'POST',
         body: JSON.stringify({
-          driverId: selectedDriver,
-          vehicleId: selectedVehicle || undefined,
+          driverId: driverId,
+          vehicleId: vehicleId || undefined,
         }),
       });
-      showToast('Assigned successfully', 'success');
+      showToast('Assigned successfully. OTP sent to customer!', 'success');
       fetchBookings();
       setAssignModal({ isOpen: false, bookingId: null });
-      setSelectedDriver('');
-      setSelectedVehicle('');
     } catch (err: any) {
       showToast(err.message || 'Assignment failed', 'error');
     }
@@ -307,7 +316,6 @@ const [vehicleSearch, setVehicleSearch] = useState("");
         </div>
       ),
     },
-    // PICKUP DATE column
     {
       field: 'pickupDate',
       headerName: 'PICKUP DATE',
@@ -327,7 +335,6 @@ const [vehicleSearch, setVehicleSearch] = useState("");
         );
       },
     },
-    // DROP OFF DATE column
     {
       field: 'dropoffDate',
       headerName: 'DROP OFF DATE',
@@ -345,7 +352,6 @@ const [vehicleSearch, setVehicleSearch] = useState("");
         );
       },
     },
-    // DAYS column
     {
       field: 'days',
       headerName: 'DAYS',
@@ -360,7 +366,6 @@ const [vehicleSearch, setVehicleSearch] = useState("");
         return <span className="font-medium">{days}</span>;
       },
     },
-    // TIME column
     {
       field: 'time',
       headerName: 'TIME',
@@ -402,8 +407,6 @@ const [vehicleSearch, setVehicleSearch] = useState("");
         <button
           onClick={() => {
             setAssignModal({ isOpen: true, bookingId: params.row._id, bookingType: params.row.type });
-            setSelectedDriver('');
-            setSelectedVehicle('');
           }}
           className="text-indigo-600 dark:text-indigo-400 text-sm font-black hover:underline underline-offset-4"
         >
@@ -422,6 +425,32 @@ const [vehicleSearch, setVehicleSearch] = useState("");
           {params.value?.cabNumber || '—'}
         </span>
       ),
+    },
+    {
+      field: 'otp',
+      headerName: 'OTP',
+      width: 150,
+      headerAlign: 'center',
+      align: 'center',
+      renderCell: (params) => {
+        const booking = params.row;
+        const hasOtp = booking.otp && booking.otpExpiry && new Date(booking.otpExpiry) > new Date();
+        
+        return (
+          <div className="flex flex-col items-center gap-1">
+            {hasOtp ? (
+              <div className="text-center">
+                <span className="text-xs font-bold text-green-600">OTP: {booking.otp}</span>
+                <p className="text-[10px] text-slate-400">
+                  Expires: {new Date(booking.otpExpiry).toLocaleTimeString()}
+                </p>
+              </div>
+            ) : (
+              <span className="text-xs text-slate-400">Not generated</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       field: 'status',
@@ -651,7 +680,7 @@ const [vehicleSearch, setVehicleSearch] = useState("");
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-          className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-[10px] md:text-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               <option value="all">All types</option>
               <option value="oneTime">One‑time</option>
@@ -693,227 +722,14 @@ const [vehicleSearch, setVehicleSearch] = useState("");
       </div>
 
       {/* Assignment Modal */}
-     
-{assignModal.isOpen && (
-  <div 
-    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-[6px] p-0 sm:p-4 transition-all duration-300 ease-out"
-    onClick={() => setAssignModal({ isOpen: false, bookingId: null })}
-  >
-    {/* Modal Card Container */}
-    <div 
-      className="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col max-h-[85vh] border border-slate-100 dark:border-slate-800/80 transform transition-all duration-300 scale-100 opacity-100 ease-[cubic-bezier(0.34,1.56,0.64,1)] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 duration-300"
-      onClick={e => e.stopPropagation()}
-    >
-      
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
-        <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            Assign Assignment
-          </h3>
-          <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-            Allocate assets to current workflow
-          </p>
-        </div>
-        <button 
-          type="button"
-          onClick={() => setAssignModal({ isOpen: false, bookingId: null })} 
-          className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200"
-        >
-          <HiXMark className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Body Container (Set to overflow-visible so menus don't get trapped/cut off) */}
-      <div className="p-6 space-y-6 overflow-visible flex-1">
-        
-        {/* 1. PREMIUM DRIVER DROPDOWN */}
-        <div className="space-y-2 relative">
-          <label className="block text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            Driver <span className="text-rose-500">*</span>
-          </label>
-          
-          {/* Dropdown Input/Toggle Group */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={selectedDriver 
-                ? drivers.find(d => d._id === selectedDriver)?.name + ` (${drivers.find(d => d._id === selectedDriver)?.mobileNumber})`
-                : "Search & select driver..."
-              }
-              value={driverSearch}
-              onFocus={() => setDriverDropdownOpen(true)}
-              onChange={(e) => {
-                setDriverSearch(e.target.value);
-                setDriverDropdownOpen(true);
-              }}
-              className={`w-full border rounded-xl pl-4 pr-10 py-3 text-sm bg-slate-50/50 dark:bg-slate-800/40 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-200 ${
-                driverDropdownOpen ? 'border-indigo-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-800'
-              }`}
-            />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 transition-transform duration-200">
-              <svg className={`w-4 h-4 transition-transform duration-300 ${driverDropdownOpen ? 'transform rotate-180 text-indigo-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Floating Action Menu List */}
-          {driverDropdownOpen && (
-            <>
-              {/* Invisible full-screen dismissal layer for this specific dropdown */}
-              <div className="fixed inset-0 z-20" onClick={() => { setDriverDropdownOpen(false); setDriverSearch(""); }} />
-              
-              <div className="absolute z-30 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/80 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden max-h-56 flex flex-col animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <div className="overflow-y-auto subtle-scrollbar py-1 divide-y divide-slate-50 dark:divide-slate-700/30">
-                  {drivers.filter(d => 
-                    d.name.toLowerCase().includes(driverSearch.toLowerCase()) || 
-                    d.mobileNumber.includes(driverSearch)
-                  ).length === 0 ? (
-                    <div className="px-4 py-4 text-xs font-medium text-slate-400 dark:text-slate-500 text-center">No drivers found matching search</div>
-                  ) : (
-                    drivers
-                      .filter(d => 
-                        d.name.toLowerCase().includes(driverSearch.toLowerCase()) || 
-                        d.mobileNumber.includes(driverSearch)
-                      )
-                      .map(d => (
-                        <button
-                          key={d._id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedDriver(d._id);
-                            setDriverDropdownOpen(false);
-                            setDriverSearch("");
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-all duration-150 flex items-center justify-between group ${
-                            selectedDriver === d._id 
-                              ? 'bg-indigo-50/60 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-semibold' 
-                              : 'text-slate-700 dark:text-slate-300'
-                          }`}
-                        >
-                          <div className="flex flex-col gap-0.5">
-                            <span className="group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{d.name}</span>
-                            <span className="text-xs font-medium text-slate-400 dark:text-slate-500">{d.mobileNumber}</span>
-                          </div>
-                          {selectedDriver === d._id && (
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 block" />
-                          )}
-                        </button>
-                      ))
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* 2. PREMIUM VEHICLE DROPDOWN */}
-        <div className="space-y-2 relative">
-          <label className="block text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            Vehicle <span className="text-slate-400 font-normal dark:text-slate-600">(Optional)</span>
-          </label>
-          
-          {/* Dropdown Input/Toggle Group */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder={selectedVehicle 
-                ? vehicles.find(v => v._id === selectedVehicle)?.cabNumber + ` – ${vehicles.find(v => v._id === selectedVehicle)?.modelName}`
-                : "Search & select vehicle..."
-              }
-              value={vehicleSearch}
-              onFocus={() => setVehicleDropdownOpen(true)}
-              onChange={(e) => {
-                setVehicleSearch(e.target.value);
-                setVehicleDropdownOpen(true);
-              }}
-              className={`w-full border rounded-xl pl-4 pr-10 py-3 text-sm bg-slate-50/50 dark:bg-slate-800/40 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all duration-200 ${
-                vehicleDropdownOpen ? 'border-indigo-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-800'
-              }`}
-            />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 transition-transform duration-200">
-              <svg className={`w-4 h-4 transition-transform duration-300 ${vehicleDropdownOpen ? 'transform rotate-180 text-indigo-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Floating Action Menu List */}
-          {vehicleDropdownOpen && (
-            <>
-              {/* Invisible full-screen dismissal layer for this specific dropdown */}
-              <div className="fixed inset-0 z-20" onClick={() => { setVehicleDropdownOpen(false); setVehicleSearch(""); }} />
-              
-              <div className="absolute z-30 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/80 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden max-h-56 flex flex-col animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                <div className="overflow-y-auto subtle-scrollbar py-1 divide-y divide-slate-50 dark:divide-slate-700/30">
-                  {vehicles.filter(v => 
-                    v.cabNumber.toLowerCase().includes(vehicleSearch.toLowerCase()) || 
-                    v.modelName.toLowerCase().includes(vehicleSearch.toLowerCase())
-                  ).length === 0 ? (
-                    <div className="px-4 py-4 text-xs font-medium text-slate-400 dark:text-slate-500 text-center">No vehicles found matching search</div>
-                  ) : (
-                    vehicles
-                      .filter(v => 
-                        v.cabNumber.toLowerCase().includes(vehicleSearch.toLowerCase()) || 
-                        v.modelName.toLowerCase().includes(vehicleSearch.toLowerCase())
-                      )
-                      .map(v => (
-                        <button
-                          key={v._id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedVehicle(v._id);
-                            setVehicleDropdownOpen(false);
-                            setVehicleSearch("");
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-all duration-150 flex items-center justify-between group ${
-                            selectedVehicle === v._id 
-                              ? 'bg-indigo-50/60 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 font-semibold' 
-                              : 'text-slate-700 dark:text-slate-300'
-                          }`}
-                        >
-                          <div className="flex flex-col gap-1.5">
-                            <span className="font-mono text-[11px] font-bold tracking-wider bg-slate-100 dark:bg-slate-700/80 px-2 py-0.5 rounded-md text-slate-600 dark:text-slate-300 w-fit group-hover:bg-indigo-100 dark:group-hover:bg-indigo-950/50 group-hover:text-indigo-600 transition-colors">
-                              {v.cabNumber}
-                            </span>
-                            <span className="group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{v.modelName}</span>
-                          </div>
-                          {selectedVehicle === v._id && (
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 block" />
-                          )}
-                        </button>
-                      ))
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-      </div>
-
-      {/* Footer Actions */}
-      <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/20 pb-8 sm:pb-4 z-10">
-        <button 
-          type="button"
-          onClick={() => setAssignModal({ isOpen: false, bookingId: null })} 
-          className="flex-1 sm:flex-initial px-4 py-2.5 text-sm font-semibold border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 active:scale-[0.98]"
-        >
-          Cancel
-        </button>
-        <button 
-          type="button"
-          onClick={assignDriverAndVehicle} 
-          className="flex-1 sm:flex-initial px-5 py-2.5 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 transition-all duration-200 active:scale-[0.98]"
-        >
-          Confirm Assignment
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+      <AssignDriverModal
+        isOpen={assignModal.isOpen}
+        onClose={() => setAssignModal({ isOpen: false, bookingId: null })}
+        onAssign={assignDriverAndVehicle}
+        drivers={drivers}
+        vehicles={vehicles}
+        isLoading={false}
+      />
 
       {/* Add Booking Modal */}
       {addModalOpen && (
@@ -924,133 +740,59 @@ const [vehicleSearch, setVehicleSearch] = useState("");
             onClick={e => e.stopPropagation()}
           >
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-8 py-6 flex justify-between items-center z-20">
-              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-                Book Your Ride
-              </h2>
-              <button
-                onClick={() => setAddModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              >
-                <HiXMark size={24} />
-              </button>
+              <h2 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">Book Your Ride</h2>
+              <button onClick={() => setAddModalOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600"><HiXMark size={24} /></button>
             </div>
 
             <div className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Form fields  */}
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    From (City / Airport) <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">From <span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500 text-lg" />
-                    <input
-                      type="text"
-                      placeholder="Enter pick-up location"
-                      value={newBooking.from}
-                      onChange={e => setNewBooking({ ...newBooking, from: e.target.value })}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
-                    />
+                    <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500" />
+                    <input type="text" placeholder="Enter pick-up location" value={newBooking.from} onChange={e => setNewBooking({ ...newBooking, from: e.target.value })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    Destination <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">Destination <span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-lg" />
-                    <input
-                      type="text"
-                      placeholder="Enter drop-off location"
-                      value={newBooking.destination}
-                      onChange={e => setNewBooking({ ...newBooking, destination: e.target.value })}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
-                    />
+                    <HiOutlineMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" />
+                    <input type="text" placeholder="Enter drop-off location" value={newBooking.destination} onChange={e => setNewBooking({ ...newBooking, destination: e.target.value })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    Travel Date & Time <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">Travel Date & Time <span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <HiOutlineCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg" />
-                    <input
-                      type="datetime-local"
-                      value={newBooking.dateTime}
-                      onChange={e => setNewBooking({ ...newBooking, dateTime: e.target.value })}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
-                    />
+                    <HiOutlineCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
+                    <input type="datetime-local" value={newBooking.dateTime} onChange={e => setNewBooking({ ...newBooking, dateTime: e.target.value })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    Customer Name <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">Customer Name <span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 text-lg" />
-                    <input
-                      type="text"
-                      placeholder="Enter customer name"
-                      value={newBooking.name}
-                      onChange={e => setNewBooking({ ...newBooking, name: e.target.value })}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
-                    />
+                    <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500" />
+                    <input type="text" placeholder="Enter customer name" value={newBooking.name} onChange={e => setNewBooking({ ...newBooking, name: e.target.value })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    Contact Number <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">Contact Number <span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-lg" />
-                    <input
-                      type="tel"
-                      placeholder="Enter 10-digit number"
-                      maxLength={10}
-                      value={newBooking.contact}
-                      onChange={e => {
-                        const val = e.target.value.replace(/\D/g, '');
-                        setNewBooking({ ...newBooking, contact: val });
-                      }}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-medium"
-                    />
+                    <HiOutlinePhone className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500" />
+                    <input type="tel" placeholder="Enter 10-digit number" maxLength={10} value={newBooking.contact} onChange={e => setNewBooking({ ...newBooking, contact: e.target.value.replace(/\D/g, '') })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500" />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-black text-[#1e293b] dark:text-slate-300 uppercase tracking-widest mb-2">
-                    Price Estimate <span className="text-slate-400 font-normal normal-case ml-1">(Optional)</span>
-                  </label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase">Price Estimate</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
-                    <input
-                      type="text"
-                      placeholder="Start from ₹12/km"
-                      value={newBooking.price}
-                      onChange={e => setNewBooking({ ...newBooking, price: e.target.value })}
-                      className="w-full bg-[#f8fafc] dark:bg-slate-800/50 border border-[#e2e8f0] dark:border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 dark:text-white font-bold"
-                    />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                    <input type="text" placeholder="Start from ₹12/km" value={newBooking.price} onChange={e => setNewBooking({ ...newBooking, price: e.target.value })} className="w-full bg-slate-50 border rounded-xl pl-12 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-indigo-500 font-bold" />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  onClick={() => setAddModalOpen(false)}
-                  className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddBooking}
-                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer min-w-[180px]"
-                >
-                  Add Booking
-                </button>
+              <div className="flex justify-end gap-3 pt-6 border-t">
+                <button onClick={() => setAddModalOpen(false)} className="px-6 py-2.5 border rounded-xl font-medium">Cancel</button>
+                <button onClick={handleAddBooking} className="px-8 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest">Add Booking</button>
               </div>
             </div>
           </div>
