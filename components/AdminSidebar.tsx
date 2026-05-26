@@ -19,6 +19,7 @@ import {
   HiOutlineChevronLeft,
   HiOutlineClock,
   HiOutlinePaperAirplane,
+  HiOutlineLocationMarker,
 } from "react-icons/hi";
 import { clearAuthData, getStoredUser } from "@/lib/auth";
 
@@ -44,6 +45,7 @@ const adminItems = [
 const driverItems = [
   { name: "Dashboard", icon: HiOutlineViewGrid, href: "/driver-dashboard" },
   { name: "KYC", icon: HiOutlineIdentification, href: "/driver-dashboard/kyc" },
+    { name: "Active Trip", icon: HiOutlineLocationMarker, href: "/driver-dashboard/active-trip" },
   // { name: "Long‑term Rentals", icon: HiOutlineCalendar, href: "/driver-dashboard/long-term-rentals" },
 ];
 
