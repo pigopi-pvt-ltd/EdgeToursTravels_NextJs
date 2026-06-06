@@ -17,8 +17,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const stored = getStoredUser();
     if (!stored || stored.role !== 'admin') {
       router.push('/login');
+      return;
     } else {
       setUser(stored);
+      
+      // Redirect to branch selection if needed
+      const branchStr = localStorage.getItem('selected_branch');
+      const restrictedPages = [
+        '/admin-dashboard/overview',
+        '/admin-dashboard/projects',
+        '/admin-dashboard/employees'
+      ];
+      
+      if (!branchStr && restrictedPages.includes(window.location.pathname)) {
+        router.push('/admin-dashboard');
+      }
     }
     setLoading(false);
   }, [router]);

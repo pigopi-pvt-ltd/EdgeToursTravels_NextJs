@@ -42,6 +42,8 @@ interface User {
     yearsOfExperience: number;
     highestQualification: string;
     previousExperience?: string;
+    locationId?: any;
+    projectIds?: any[];
   };
   profileCompleted?: boolean;
 }
@@ -145,7 +147,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdate }: Props) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm pt-10" onClick={onClose}>
+      <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-900/60 backdrop-blur-md pt-10" onClick={onClose}>
         <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl p-8 m-4 text-center shadow-2xl">
           <div className="animate-pulse flex flex-col items-center gap-3">
             <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-full"></div>
@@ -158,7 +160,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdate }: Props) {
 
   if (!user && !loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10" onClick={onClose}>
+      <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-900/60 backdrop-blur-md p-4 pt-10" onClick={onClose}>
         <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-8 m-4 text-center shadow-2xl" onClick={e => e.stopPropagation()}>
           <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <HiX className="text-3xl text-rose-600 dark:text-rose-400" />
@@ -184,7 +186,7 @@ export default function UserDetailsModal({ userId, onClose, onUpdate }: Props) {
   const isKycFinalised = kycStatus === 'approved' || kycStatus === 'rejected';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 pt-10" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-900/60 backdrop-blur-md p-4 pt-10" onClick={onClose}>
       <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-2xl h-[85vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-5 duration-200" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-3 flex-shrink-0 z-10 rounded-t-lg">
@@ -343,6 +345,18 @@ export default function UserDetailsModal({ userId, onClose, onUpdate }: Props) {
                 <div><span className="text-slate-500 dark:text-slate-400">Years of Experience:</span> <span className="text-slate-800 dark:text-white ml-2">{user.employeeDetails?.yearsOfExperience || 0}</span></div>
                 <div><span className="text-slate-500 dark:text-slate-400">Highest Qualification:</span> <span className="text-slate-800 dark:text-white ml-2">{user.employeeDetails?.highestQualification || '-'}</span></div>
                 <div><span className="text-slate-500 dark:text-slate-400">Previous Experience:</span> <span className="text-slate-800 dark:text-white ml-2">{user.employeeDetails?.previousExperience || '-'}</span></div>
+                <div><span className="text-slate-500 dark:text-slate-400">Location:</span> <span className="text-slate-800 dark:text-white ml-2">{user.employeeDetails?.locationId?.name || user.employeeDetails?.locationId || '-'}</span></div>
+                <div className="sm:col-span-2">
+                  <span className="text-slate-500 dark:text-slate-400">Assigned Projects:</span>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(user.employeeDetails?.projectIds || []).map((p: any) => (
+                      <span key={p._id || p} className="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg border border-indigo-100 dark:border-indigo-800 text-xs font-bold">
+                        {p.name || p}
+                      </span>
+                    ))}
+                    {(user.employeeDetails?.projectIds || []).length === 0 && <span className="text-slate-400">-</span>}
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -86,6 +86,9 @@ export default function AdminDashboard() {
       return;
     }
 
+    const branchStr = localStorage.getItem('selected_branch');
+    const selectedBranch = branchStr ? JSON.parse(branchStr) : null;
+
     try {
       const [employeesRes, driversRes, vehiclesRes, bookingsRes] = await Promise.all([
         fetch('/api/admin/employees', { headers: { Authorization: `Bearer ${token}` } }),
@@ -98,16 +101,25 @@ export default function AdminDashboard() {
         throw new Error('Failed to fetch dashboard data');
       }
 
-      const employeesData = await employeesRes.json();
+      let employeesData = await employeesRes.json();
       const driversData = await driversRes.json();
       const vehiclesData = await vehiclesRes.json();
-      const bookingsData = await bookingsRes.json();
+      let bookingsData = await bookingsRes.json();
 
-      const employees = Array.isArray(employeesData) ? employeesData : employeesData.employees || [];
+      let employees = Array.isArray(employeesData) ? employeesData : employeesData.employees || [];
       const drivers = Array.isArray(driversData) ? driversData : driversData.drivers || [];
       const vehicles = Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.data || [];
-
       let bookings = Array.isArray(bookingsData) ? bookingsData : bookingsData.bookings || [];
+
+      // Filter by Branch if selected
+      if (selectedBranch) {
+        employees = employees.filter((emp: any) => {
+          const empBranchId = emp.employeeDetails?.locationId?._id || emp.employeeDetails?.locationId;
+          return !empBranchId || empBranchId === selectedBranch.id;
+        });
+        // Note: Bookings might need locationId as well, but for now we filter employees
+      }
+
       bookings = bookings.map((b: any) => ({
         ...b,
         price: typeof b.price === 'number' ? b.price : (b.price ? parseFloat(b.price) : 0),

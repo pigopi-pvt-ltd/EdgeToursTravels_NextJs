@@ -43,7 +43,11 @@ export async function GET(req: NextRequest) {
 
   try {
     await connectToDatabase();
-    const employees = await User.find({ role: 'employee' }).select('-password').sort({ createdAt: -1 });
+    const employees = await User.find({ role: 'employee' })
+      .select('-password')
+      .populate('employeeDetails.locationId')
+      .populate('employeeDetails.projectIds')
+      .sort({ createdAt: -1 });
     return NextResponse.json(employees);
   } catch (error: any) {
     console.error('GET employees error:', error);
@@ -119,6 +123,8 @@ export async function POST(req: NextRequest) {
       yearsOfExperience: Number(yearsOfExperience) || 0,
       highestQualification: highestQualification || '',
       previousExperience: previousExperience || '',
+      locationId: body.locationId || null,
+      projectIds: body.projectIds || [],
     },
   };
 

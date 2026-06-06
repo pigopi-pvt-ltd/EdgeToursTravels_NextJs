@@ -43,6 +43,8 @@ export interface IEmployeeDetails extends IAddress {
   aadharBack?: string;
   panImage?: string;
   modules?: string[];   
+  locationId?: mongoose.Types.ObjectId;
+  projectIds?: mongoose.Types.ObjectId[];
 }
 
 export interface IUser extends mongoose.Document {
@@ -108,6 +110,8 @@ const EmployeeDetailsSchema = new Schema<IEmployeeDetails>({
   aadharBack: String,
   panImage: String,
   modules: { type: [String], default: [] },   
+  locationId: { type: Schema.Types.ObjectId, ref: "Location" },
+  projectIds: [{ type: Schema.Types.ObjectId, ref: "Project" }],
 });
 
 const UserSchema = new Schema<IUser>(
