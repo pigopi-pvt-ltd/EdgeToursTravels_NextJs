@@ -26,7 +26,7 @@ import { clearAuthData, getStoredUser } from "@/lib/auth";
 // Admin menu items
 const adminItems = [
   {
-    name: "Branch Selection",
+    name: "Branch Location",
     icon: HiOutlineLocationMarker,
     href: "/admin-dashboard",
   },
