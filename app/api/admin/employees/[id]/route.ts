@@ -31,7 +31,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   
   try {
-    const user = await User.findById(id).select('-password');
+    const user = await User.findById(id)
+      .select('-password')
+      .populate('employeeDetails.locationId')
+      .populate('employeeDetails.projectIds');
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     return NextResponse.json(user);
   } catch (error: any) {
@@ -90,6 +93,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       yearsOfExperience: Number(yearsOfExperience) || 0,
       highestQualification: highestQualification || '',
       previousExperience: previousExperience || '',
+      locationId: body.locationId || undefined,
+      projectIds: body.projectIds || undefined,
     },
   };
 

@@ -4,6 +4,8 @@ import "@/models/Booking";
 import "@/models/Vehicle";     
 import "@/models/Notification";
 import "@/models/OTP";
+import "@/models/Location";
+import "@/models/Project";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
